@@ -1,0 +1,31 @@
+# BehaviorScope-Y - Python dependencies
+# Install with: pip install -r requirements.txt
+#
+# System dependency:
+#   ffmpeg - recommended for clip extraction and video conversion.
+#
+# CUDA note:
+#   torch and torchvision below install the CPU build by default on many
+#   systems. For GPU training, install the CUDA build first:
+#     pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121
+#   Then install the rest of this file.
+
+PySide6>=6.5.0
+PySide6-Addons>=6.5.0
+
+torch>=2.1.0
+torchvision>=0.16.0
+ultralytics>=8.2.0
+
+opencv-python>=4.8.0
+numpy>=1.24.0
+pandas>=2.0.0
+Pillow>=10.0.0
+PyYAML>=6.0.0
+scipy>=1.10.0
+scikit-learn>=1.3.0
+psutil>=5.9.0
+nvidia-ml-py>=12.535.0
+
+plotly>=5.18.0
+matplotlib>=3.7.0

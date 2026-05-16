@@ -1,0 +1,16 @@
+behaviors:
+  - name: Grooming
+    hotkey: G
+    color: "#22A67A"
+  - name: Rearing
+    hotkey: R
+    color: "#D46A34"
+  - name: Locomotion
+    hotkey: L
+    color: "#6F6AD6"
+  - name: Sniffing
+    hotkey: S
+    color: "#A9791E"
+  - name: Freezing
+    hotkey: F
+    color: "#3E8EDE"
