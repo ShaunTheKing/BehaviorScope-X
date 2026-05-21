@@ -300,13 +300,17 @@ class MultiAnimalBehaviorSequenceClassifier(nn.Module):
         self.n_animals = int(n_animals)
         self.num_keypoints = int(num_keypoints)
         self.rel_feature_dim = int(rel_feature_dim)
+        if self.n_animals <= 0:
+            raise ValueError(f"n_animals must be >= 1, got {self.n_animals}.")
+        if self.num_keypoints <= 0:
+            raise ValueError(f"num_keypoints must be >= 1, got {self.num_keypoints}.")
 
         # Ablation flags
         self.disable_visual_streams = bool(disable_visual_streams)
         self.disable_group_rgb = bool(disable_group_rgb) or self.disable_visual_streams
         self.disable_per_animal_rgb = bool(disable_per_animal_rgb) or self.disable_visual_streams
         self.disable_pose_self = bool(disable_pose_self)
-        self.disable_relations = bool(disable_relations)
+        self.disable_relations = bool(disable_relations) or self.n_animals < 2
         self.relations_pose_only = bool(relations_pose_only)
 
         # ---- Visual backbone (shared) ----

@@ -196,7 +196,7 @@ def parse_args():
     p.add_argument("--attention_heads", type=int, default=4)
     p.add_argument("--positional_encoding", default="none")
     p.add_argument("--pose_fusion_dim", type=int, default=128)
-    p.add_argument("--pose_fusion_strategy", choices=["concat", "gated_attention", "cross_modal_transformer"], default="gated_attention")
+    p.add_argument("--pose_fusion_strategy", choices=["concat", "gated_attention"], default="gated_attention")
     # ablation flags
     p.add_argument("--disable_visual_streams", action="store_true")
     p.add_argument("--disable_group_rgb", action="store_true")
@@ -1256,6 +1256,8 @@ def _missing_feature_cache_count(cache_dir: Path, samples, max_examples: int = 3
 
 def main():
     args = parse_args()
+    if int(args.n_animals) <= 0:
+        raise SystemExit("--n_animals must be >= 1.")
     torch.manual_seed(args.seed)
     np.random.seed(args.seed)
     device = torch.device(args.device)
@@ -1332,6 +1334,13 @@ def main():
             f"Manifest n_animals={manifest_n_animals}, but --n_animals={args.n_animals}. "
             "Regenerate the dataset or train with the matching animal count."
         )
+    if int(args.n_animals) < 2 and not args.disable_relations:
+        print(
+            "[model] n_animals=1; disabling relation stream because no "
+            "inter-animal pairs exist.",
+            flush=True,
+        )
+        args.disable_relations = True
 
     # ---- Split guard -------------------------------------------------------
     # Any split name beginning with "test" must not enter the training or

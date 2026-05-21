@@ -650,8 +650,16 @@ def load_model_from_checkpoint(
     num_classes = len(cfg.get("class_to_idx", {})) or 4
     n_animals = int(cfg.get("n_animals", 2))
     num_keypoints = int(cfg.get("num_keypoints", 7))
+    if n_animals <= 0:
+        raise ValueError(f"Model config n_animals={n_animals}; expected >= 1.")
+    if num_keypoints <= 0:
+        raise ValueError(f"Model config num_keypoints={num_keypoints}; expected >= 1.")
     rel_feature_dim = int(cfg.get("rel_feature_dim", REL_FEATURE_DIM))
     flags = cfg.get("ablation_flags", {})
+    if n_animals < 2 and not bool(flags.get("disable_relations", False)):
+        flags = dict(flags)
+        flags["disable_relations"] = True
+        cfg["ablation_flags"] = flags
 
     # YOLO weights path: prefer an embedded bundle payload, then config
     # (recorded by train_y.py), then the CLI fallback. This allows a single

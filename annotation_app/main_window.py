@@ -1,10 +1,14 @@
 from __future__ import annotations
 
+import csv
+import os
+import subprocess
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 
-from PySide6.QtCore import QEvent, QSignalBlocker, QTimer, Qt, QUrl
-from PySide6.QtGui import QAction, QColor, QKeySequence, QShortcut, QTextOption
+from PySide6.QtCore import QObject, QEvent, QSignalBlocker, QThread, QTimer, Qt, QUrl, Signal
+from PySide6.QtGui import QAction, QColor, QIcon, QKeySequence, QPainter, QPixmap, QShortcut, QTextOption
 from PySide6.QtMultimedia import QAudioOutput, QMediaPlayer
 from PySide6.QtMultimediaWidgets import QVideoWidget
 from PySide6.QtWidgets import (
@@ -30,6 +34,7 @@ from PySide6.QtWidgets import (
     QMessageBox,
     QPushButton,
     QPlainTextEdit,
+    QProgressDialog,
     QSlider,
     QScrollArea,
     QSplitter,
@@ -51,7 +56,7 @@ from .models import (
     VideoRecord,
 )
 from .state import AnnotationSessionState
-from .store import AnnotationStore, PROJECT_METADATA_FIELDS, default_color
+from .store import AnnotationStore, PROJECT_METADATA_FIELDS, default_color, normalize_video_split
 from .timeline import AnnotationTimeline, BehaviorLaneLabels
 from .workflow_panels import (
     FeatureCachePanel,
@@ -62,16 +67,86 @@ from .workflow_panels import (
 )
 
 
+TUTORIAL_FOLDER_NAME = "BehaviorScope-Y_tutorial"
+DEFAULT_TUTORIAL_HF_REPO = "farhanaugustine/BehaviorScope-Y_tutorial"
+
+
 def format_ms(ms: int) -> str:
     total_seconds = max(0, int(round(ms / 1000.0)))
     minutes, seconds = divmod(total_seconds, 60)
     return f"{minutes}:{seconds:02d}"
 
 
+def color_swatch_icon(color: str, size: int = 14) -> QIcon:
+    pixmap = QPixmap(size, size)
+    pixmap.fill(Qt.transparent)
+    painter = QPainter(pixmap)
+    painter.setRenderHint(QPainter.Antialiasing, True)
+    painter.setPen(Qt.NoPen)
+    painter.setBrush(QColor(color))
+    painter.drawRoundedRect(1, 1, size - 2, size - 2, 3, 3)
+    painter.end()
+    return QIcon(pixmap)
+
+
 @dataclass
 class _VideoWidgetRefs:
     item: QListWidgetItem
     video_id: int
+
+
+class TutorialDownloadWorker(QObject):
+    progress = Signal(int, int, str)
+    finished = Signal(str)
+    failed = Signal(str)
+
+    def __init__(self, *, repo_id: str, local_dir: Path):
+        super().__init__()
+        self.repo_id = repo_id
+        self.local_dir = local_dir
+        self._cancelled = False
+
+    def cancel(self) -> None:
+        self._cancelled = True
+
+    def run(self) -> None:
+        try:
+            try:
+                from huggingface_hub import HfApi, hf_hub_download
+            except ImportError as exc:
+                raise RuntimeError(
+                    "The Hugging Face download helper is not installed. "
+                    "Install project dependencies with: pip install -r requirements.txt"
+                ) from exc
+
+            self.local_dir.mkdir(parents=True, exist_ok=True)
+            api = HfApi()
+            files = [
+                path
+                for path in api.list_repo_files(self.repo_id, repo_type="dataset")
+                if path and not path.endswith("/")
+            ]
+            if not files:
+                raise RuntimeError(f"No files found in Hugging Face dataset: {self.repo_id}")
+            total = len(files)
+            for index, filename in enumerate(files, start=1):
+                if self._cancelled:
+                    raise RuntimeError("Tutorial download was cancelled.")
+                self.progress.emit(index - 1, total, filename)
+                kwargs = {
+                    "repo_id": self.repo_id,
+                    "repo_type": "dataset",
+                    "filename": filename,
+                    "local_dir": str(self.local_dir),
+                }
+                try:
+                    hf_hub_download(local_dir_use_symlinks=False, **kwargs)
+                except TypeError:
+                    hf_hub_download(**kwargs)
+                self.progress.emit(index, total, filename)
+            self.finished.emit(str(self.local_dir))
+        except Exception as exc:
+            self.failed.emit(str(exc))
 
 
 class HotkeyDialog(QDialog):
@@ -302,6 +377,128 @@ class ProjectMetadataDialog(QDialog):
         return out
 
 
+class BundleExistingModelDialog(QDialog):
+    def __init__(self, parent: QWidget | None = None):
+        super().__init__(parent)
+        self.setWindowTitle("Bundle Existing Model")
+        self.resize(760, 260)
+        layout = QVBoxLayout(self)
+        self.form = QFormLayout()
+        layout.addLayout(self.form)
+
+        self.classifier_checkpoint = self._path_row(
+            "Classifier checkpoint",
+            "PyTorch (*.pt);;All files (*.*)",
+            save=False,
+        )
+        self.model_config = self._path_row(
+            "Model config.json",
+            "JSON (*.json);;All files (*.*)",
+            save=False,
+        )
+        self.yolo_weights = self._path_row(
+            "YOLO pose weights",
+            "PyTorch (*.pt);;All files (*.*)",
+            save=False,
+        )
+        self.output_path = self._path_row(
+            "Bundled output .pt",
+            "PyTorch (*.pt);;All files (*.*)",
+            save=True,
+        )
+
+        buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, parent=self)
+        buttons.button(QDialogButtonBox.Ok).setText("Bundle")
+        buttons.accepted.connect(self.accept)
+        buttons.rejected.connect(self.reject)
+        layout.addWidget(buttons)
+
+    def _path_row(self, label: str, file_filter: str, *, save: bool) -> QLineEdit:
+        edit = QLineEdit()
+        button = QPushButton("Browse")
+
+        def browse() -> None:
+            start = edit.text().strip() or str(Path.cwd())
+            if save:
+                path, _ = QFileDialog.getSaveFileName(self, f"Select {label}", start, file_filter)
+            else:
+                path, _ = QFileDialog.getOpenFileName(self, f"Select {label}", start, file_filter)
+            if path:
+                edit.setText(path)
+
+        button.clicked.connect(browse)
+        row = QWidget()
+        row_layout = QHBoxLayout(row)
+        row_layout.setContentsMargins(0, 0, 0, 0)
+        row_layout.addWidget(edit, 1)
+        row_layout.addWidget(button)
+        self.form.addRow(label, row)
+        return edit
+
+    def values(self) -> dict[str, str]:
+        return {
+            "classifier_checkpoint": self.classifier_checkpoint.text().strip(),
+            "model_config": self.model_config.text().strip(),
+            "yolo_weights": self.yolo_weights.text().strip(),
+            "output": self.output_path.text().strip(),
+        }
+
+
+class WorkflowGuideDialog(QDialog):
+    def __init__(self, *, show_on_startup: bool, parent: QWidget | None = None):
+        super().__init__(parent)
+        self.setWindowTitle("BehaviorScope-Y Workflow Guide")
+        self.resize(760, 620)
+        layout = QVBoxLayout(self)
+        header = QLabel("End-to-end GUI workflow")
+        header.setObjectName("SectionHeader")
+        layout.addWidget(header)
+
+        intro = QLabel(
+            "Use this sequence for full-video BehaviorScope-Y projects. The legacy clip export remains available for QA and older datasets."
+        )
+        intro.setWordWrap(True)
+        intro.setObjectName("HintLabel")
+        layout.addWidget(intro)
+
+        steps = [
+            ("1. Import videos", "File > Import videos... or File > Import folder..."),
+            ("2. Assign video splits", "Project > Assign selected videos to Train, Validation, Held-out Test, or Exclude."),
+            ("3. Annotate and approve spans", "Use the Annotate + Clip tab. Approved spans are exported for training."),
+            ("4. Export full-video annotations", "Project > Export full-video annotations... writes source_manifest.csv and .annot files."),
+            ("5. Prepare full-video dataset", "Use Prepare Full Video. Export paths are filled automatically after annotation export."),
+            ("6. Build or reuse feature cache", "Use Feature Cache, or let Train auto-build the cache when enabled."),
+            ("7. Train classifier", "Use Train. Training can export a bundled single .pt automatically."),
+            ("8. Bundle an existing model", "Model Tools > Bundle existing classifier + YOLO... for models trained earlier."),
+            ("9. Run inference", "Use Inference or Batch. Bundled .pt models do not need separate YOLO weights."),
+        ]
+        table = QTableWidget(len(steps), 2, self)
+        table.setHorizontalHeaderLabels(["Step", "What to do"])
+        table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeToContents)
+        table.horizontalHeader().setSectionResizeMode(1, QHeaderView.Stretch)
+        table.verticalHeader().setVisible(False)
+        table.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        table.setSelectionMode(QAbstractItemView.NoSelection)
+        table.setFocusPolicy(Qt.NoFocus)
+        for row, (step, detail) in enumerate(steps):
+            table.setItem(row, 0, QTableWidgetItem(step))
+            table.setItem(row, 1, QTableWidgetItem(detail))
+        table.resizeRowsToContents()
+        layout.addWidget(table, 1)
+
+        self.show_on_startup = QCheckBox("Show this guide when opening a project")
+        self.show_on_startup.setChecked(bool(show_on_startup))
+        layout.addWidget(self.show_on_startup)
+
+        buttons = QDialogButtonBox(QDialogButtonBox.Close, parent=self)
+        buttons.rejected.connect(self.reject)
+        buttons.accepted.connect(self.accept)
+        layout.addWidget(buttons)
+
+    def should_show_on_startup(self) -> bool:
+        return self.show_on_startup.isChecked()
+
+
 class VideoListItem(QWidget):
     def __init__(self, video: VideoRecord, selected: bool = False, parent: QWidget | None = None):
         super().__init__(parent)
@@ -323,6 +520,15 @@ class VideoListItem(QWidget):
         text_col.addWidget(counts)
         layout.addLayout(text_col, 1)
 
+        split = normalize_video_split(getattr(video, "split", "train"))
+        split_badge = QLabel(split.upper())
+        split_badge.setObjectName("SplitBadge")
+        split_badge.setStyleSheet(
+            f"background:{self._split_color(split)}; color:#EAF0F6; "
+            "border-radius:6px; padding:3px 6px; font-size:10px; font-weight:700;"
+        )
+        layout.addWidget(split_badge)
+
     @staticmethod
     def _dot_color(video: VideoRecord, selected: bool) -> str:
         if selected:
@@ -332,6 +538,15 @@ class VideoListItem(QWidget):
         if video.annotation_count > 0:
             return "#D58A2D"
         return "#76889A"
+
+    @staticmethod
+    def _split_color(split: str) -> str:
+        return {
+            "train": "#245C3A",
+            "val": "#255A78",
+            "test": "#6B4F22",
+            "exclude": "#4B5563",
+        }.get(split, "#4B5563")
 
 
 class BehaviorButton(QPushButton):
@@ -403,7 +618,7 @@ class AnnotationMainWindow(QMainWindow):
         self._connect_player()
         self._reload_all()
         self._restore_resume_state()
-        QTimer.singleShot(350, self._show_full_video_annotation_guidance_once)
+        QTimer.singleShot(350, self._show_workflow_guide_on_startup)
 
     def _apply_initial_window_size(self) -> None:
         screen = QApplication.primaryScreen()
@@ -415,21 +630,20 @@ class AnnotationMainWindow(QMainWindow):
         height = max(760, min(available.height() - 80, 980))
         self.resize(width, height)
 
-    def _show_full_video_annotation_guidance_once(self) -> None:
-        if self.store.get_setting(self.project.id, "full_video_annotation_guidance_seen", "0") == "1":
+    def _show_workflow_guide_on_startup(self) -> None:
+        if self.store.get_setting(self.project.id, "show_workflow_guide_on_startup", "1") != "1":
             return
-        QMessageBox.information(
-            self,
-            "Full-video training dataset path",
-            (
-                "For full-video training, annotate full source videos and use "
-                "Project -> Export full-video annotations.\n\n"
-                "The older Extract approved clips command is still available for QA "
-                "and legacy clip-dataset workflows, but it is not the recommended "
-                "training-data path."
-            ),
+        self._show_workflow_guide()
+
+    def _show_workflow_guide(self) -> None:
+        show = self.store.get_setting(self.project.id, "show_workflow_guide_on_startup", "1") == "1"
+        dialog = WorkflowGuideDialog(show_on_startup=show, parent=self)
+        dialog.exec()
+        self.store.set_setting(
+            self.project.id,
+            "show_workflow_guide_on_startup",
+            "1" if dialog.should_show_on_startup() else "0",
         )
-        self.store.set_setting(self.project.id, "full_video_annotation_guidance_seen", "1")
 
     def closeEvent(self, event):  # pragma: no cover - UI event
         self.position_persist_timer.stop()
@@ -486,12 +700,43 @@ class AnnotationMainWindow(QMainWindow):
         approve_all_action.triggered.connect(self._approve_all_annotations_in_current_video)
         project_menu.addAction(approve_all_action)
         project_menu.addSeparator()
+        assign_train_action = QAction("Assign selected videos to Train", self)
+        assign_train_action.triggered.connect(lambda: self._assign_selected_videos_to_split("train"))
+        project_menu.addAction(assign_train_action)
+        assign_val_action = QAction("Assign selected videos to Validation", self)
+        assign_val_action.triggered.connect(lambda: self._assign_selected_videos_to_split("val"))
+        project_menu.addAction(assign_val_action)
+        assign_test_action = QAction("Assign selected videos to Held-out Test", self)
+        assign_test_action.triggered.connect(lambda: self._assign_selected_videos_to_split("test"))
+        project_menu.addAction(assign_test_action)
+        assign_exclude_action = QAction("Exclude selected videos from export", self)
+        assign_exclude_action.triggered.connect(lambda: self._assign_selected_videos_to_split("exclude"))
+        project_menu.addAction(assign_exclude_action)
+        auto_split_action = QAction("Auto-assign train/validation split...", self)
+        auto_split_action.triggered.connect(self._auto_assign_train_val_splits)
+        project_menu.addAction(auto_split_action)
+        project_menu.addSeparator()
         extract_action = QAction("Extract approved clips...", self)
         extract_action.triggered.connect(self._extract_approved_clips)
         project_menu.addAction(extract_action)
         export_full_video_action = QAction("Export full-video annotations...", self)
         export_full_video_action.triggered.connect(self._export_full_video_annotations)
         project_menu.addAction(export_full_video_action)
+
+        model_tools_menu = menu.addMenu("&Model Tools")
+        bundle_model_action = QAction("Bundle existing classifier + YOLO...", self)
+        bundle_model_action.triggered.connect(self._bundle_existing_model)
+        model_tools_menu.addAction(bundle_model_action)
+
+        tutorial_menu = menu.addMenu("&Tutorial")
+        load_mars_tutorial_action = QAction("Download/Load BehaviorScope-Y tutorial...", self)
+        load_mars_tutorial_action.triggered.connect(self._load_mars_gui_tutorial)
+        tutorial_menu.addAction(load_mars_tutorial_action)
+
+        help_menu = menu.addMenu("&Help")
+        workflow_guide_action = QAction("Workflow Guide...", self)
+        workflow_guide_action.triggered.connect(self._show_workflow_guide)
+        help_menu.addAction(workflow_guide_action)
 
     def _spawn_annotation_window(self, db_path: Path) -> None:
         store = AnnotationStore(db_path)
@@ -599,6 +844,7 @@ class AnnotationMainWindow(QMainWindow):
         left_layout.addWidget(self.video_header)
         self.video_list = QListWidget()
         self.video_list.setObjectName("VideoList")
+        self.video_list.setSelectionMode(QAbstractItemView.ExtendedSelection)
         self.video_list.currentRowChanged.connect(self._on_video_row_changed)
         left_layout.addWidget(self.video_list, 1)
         splitter.addWidget(left)
@@ -712,23 +958,25 @@ class AnnotationMainWindow(QMainWindow):
         footer_layout = QHBoxLayout(footer)
         footer_layout.setContentsMargins(14, 8, 14, 8)
         self.span_count_label = QLabel("0 spans")
-        self.clip_count_label = QLabel("0 approved")
+        self.approved_count_label = QLabel("0 approved")
         self.quick_btn = QPushButton("Quick bookmark")
         self.quick_btn.clicked.connect(self._quick_bookmark)
         self.quick_btn.setToolTip("Create a short bookmark centered on the playhead. Hotkey: Q.")
         self.next_video_btn = QPushButton("Next video")
         self.next_video_btn.clicked.connect(self._next_video)
         self.next_video_btn.setToolTip("Advance to the next video in the queue. Hotkey: N.")
-        self.extract_btn = QPushButton("Extract approved clips")
-        self.extract_btn.setObjectName("PrimaryButton")
-        self.extract_btn.clicked.connect(self._extract_approved_clips)
-        self.extract_btn.setToolTip("Bulk-export approved annotations as clips and sidecars.")
+        self.export_full_video_btn = QPushButton("Export full-video annotations")
+        self.export_full_video_btn.setObjectName("PrimaryButton")
+        self.export_full_video_btn.clicked.connect(self._export_full_video_annotations)
+        self.export_full_video_btn.setToolTip(
+            "Write source_manifest.csv and per-video .annot files for the full-video training workflow."
+        )
         footer_layout.addWidget(self.span_count_label)
-        footer_layout.addWidget(self.clip_count_label)
+        footer_layout.addWidget(self.approved_count_label)
         footer_layout.addStretch(1)
         footer_layout.addWidget(self.quick_btn)
         footer_layout.addWidget(self.next_video_btn)
-        footer_layout.addWidget(self.extract_btn)
+        footer_layout.addWidget(self.export_full_video_btn)
         center_layout.addWidget(footer)
         splitter.addWidget(center)
 
@@ -941,12 +1189,15 @@ class AnnotationMainWindow(QMainWindow):
         self.train_panel = TrainPanel(self, on_success=self._on_train_success)
         self.inference_panel = InferencePanel(batch_mode=False, parent=self)
         self.batch_panel = InferencePanel(batch_mode=True, parent=self)
-        self.workflow_tabs.addTab(self.prepare_dataset_panel, "Prepare Dataset")
-        self.workflow_tabs.addTab(self.prepare_full_video_panel, "Prepare Full Video")
-        self.workflow_tabs.addTab(self.feature_cache_panel, "Feature Cache")
-        self.workflow_tabs.addTab(self.train_panel, "Train")
-        self.workflow_tabs.addTab(self.inference_panel, "Inference")
-        self.workflow_tabs.addTab(self.batch_panel, "Batch")
+        self._add_workflow_tab(self.prepare_dataset_panel, "Prepare Dataset", "#6A7A89")
+        self._add_workflow_tab(self.prepare_full_video_panel, "Prepare Full Video", "#2EA96B")
+        self._add_workflow_tab(self.feature_cache_panel, "Feature Cache", "#B9872F")
+        self._add_workflow_tab(self.train_panel, "Train", "#7C6BD6")
+        self._add_workflow_tab(self.inference_panel, "Inference", "#3E8EDE")
+        self._add_workflow_tab(self.batch_panel, "Batch", "#3E8EDE")
+
+    def _add_workflow_tab(self, widget: QWidget, title: str, color: str) -> None:
+        self.workflow_tabs.addTab(widget, color_swatch_icon(color), title)
 
     def _cmd_arg(self, command: list[str], flag: str) -> str | None:
         try:
@@ -956,6 +1207,639 @@ class AnnotationMainWindow(QMainWindow):
         if idx + 1 >= len(command):
             return None
         return str(command[idx + 1])
+
+    def _selected_video_ids(self) -> list[int]:
+        ids: list[int] = []
+        for item in self.video_list.selectedItems():
+            value = item.data(Qt.UserRole)
+            if value is not None:
+                ids.append(int(value))
+        if not ids and self.current_video is not None:
+            ids.append(int(self.current_video.id))
+        return list(dict.fromkeys(ids))
+
+    def _assign_selected_videos_to_split(self, split: str) -> None:
+        video_ids = self._selected_video_ids()
+        if not video_ids:
+            QMessageBox.information(self, "No videos selected", "Select one or more videos first.")
+            return
+        split = normalize_video_split(split)
+        self.store.set_video_splits(video_ids, split)
+        self._reload_all()
+        self.statusBar().showMessage(f"Assigned {len(video_ids)} video(s) to {split}.", 5000)
+
+    def _auto_assign_train_val_splits(self) -> None:
+        if len(self.videos) < 2:
+            QMessageBox.information(self, "Not enough videos", "Import at least two videos before auto-assigning splits.")
+            return
+        default_ratio = float(self.store.get_setting(self.project.id, "full_video_val_ratio", "0.20") or "0.20")
+        val_ratio, ok = QInputDialog.getDouble(
+            self,
+            "Auto-assign validation split",
+            "Fraction of imported videos assigned to validation:",
+            default_ratio,
+            0.0,
+            0.9,
+            2,
+        )
+        if not ok:
+            return
+        ordered = sorted(self.videos, key=lambda video: (video.filename.lower(), video.id))
+        n_val = int(round(len(ordered) * float(val_ratio)))
+        if val_ratio > 0.0:
+            n_val = min(max(1, n_val), len(ordered) - 1)
+        else:
+            n_val = 0
+        val_ids = {video.id for video in ordered[:n_val]}
+        train_ids = [video.id for video in ordered if video.id not in val_ids]
+        self.store.set_video_splits(train_ids, "train")
+        self.store.set_video_splits(val_ids, "val")
+        self.store.set_setting(self.project.id, "full_video_val_ratio", f"{float(val_ratio):.4f}")
+        self._reload_all()
+        self.statusBar().showMessage(
+            f"Auto-assigned train={len(train_ids)} and val={len(val_ids)} videos.",
+            6000,
+        )
+
+    def _mars_tutorial_root(self) -> Path:
+        stored = self.store.get_setting(self.project.id, "mars_tutorial_root", "").strip()
+        if stored:
+            stored_root = Path(stored).expanduser()
+            if self._is_valid_mars_tutorial_root(stored_root):
+                return stored_root
+        return Path(__file__).resolve().parents[1] / "tutorial_data" / TUTORIAL_FOLDER_NAME
+
+    def _is_valid_mars_tutorial_root(self, tutorial_root: Path) -> bool:
+        return all(
+            path.exists()
+            for path in (
+                tutorial_root / "source_manifest.csv",
+                tutorial_root / "class_names.txt",
+                tutorial_root / "videos",
+                tutorial_root / "annotations",
+            )
+        )
+
+    def _locate_mars_tutorial_root(self, initial_root: Path) -> Path | None:
+        folder = QFileDialog.getExistingDirectory(
+            self,
+            "Locate BehaviorScope-Y tutorial data folder",
+            str(initial_root if initial_root.exists() else Path.cwd()),
+        )
+        if not folder:
+            return None
+        tutorial_root = Path(folder)
+        if not self._is_valid_mars_tutorial_root(tutorial_root):
+            QMessageBox.warning(
+                self,
+                "Invalid tutorial folder",
+                (
+                    "Choose the folder that contains source_manifest.csv, class_names.txt, "
+                    "videos/, and annotations/."
+                ),
+            )
+            return None
+        self.store.set_setting(self.project.id, "mars_tutorial_root", str(tutorial_root.resolve()))
+        return tutorial_root
+
+    def _tutorial_hf_repo_id(self) -> str:
+        stored = self.store.get_setting(self.project.id, "tutorial_hf_repo_id", "").strip()
+        env_value = os.environ.get("BEHAVIORSCOPE_Y_TUTORIAL_HF_REPO", "").strip()
+        return stored or env_value or DEFAULT_TUTORIAL_HF_REPO
+
+    def _download_mars_gui_tutorial(self) -> Path | None:
+        repo_id = self._tutorial_hf_repo_id()
+        repo_id = repo_id.strip()
+        if not repo_id:
+            QMessageBox.warning(
+                self,
+                "Tutorial download is not configured",
+                "Set DEFAULT_TUTORIAL_HF_REPO or BEHAVIORSCOPE_Y_TUTORIAL_HF_REPO first.",
+            )
+            return None
+        self.store.set_setting(self.project.id, "tutorial_hf_repo_id", repo_id)
+
+        tutorial_data_dir = Path(__file__).resolve().parents[1] / "tutorial_data"
+        tutorial_data_dir.mkdir(parents=True, exist_ok=True)
+        progress = QProgressDialog(
+            "Connecting to Hugging Face...",
+            "Cancel",
+            0,
+            100,
+            self,
+        )
+        progress.setWindowTitle("Downloading BehaviorScope-Y tutorial")
+        progress.setWindowModality(Qt.WindowModal)
+        progress.setMinimumDuration(0)
+        progress.setAutoClose(False)
+        progress.setAutoReset(False)
+
+        thread = QThread(self)
+        worker = TutorialDownloadWorker(repo_id=repo_id, local_dir=tutorial_data_dir)
+        worker.moveToThread(thread)
+        state: dict[str, str | None] = {"path": None, "error": None}
+
+        def on_progress(done: int, total: int, filename: str) -> None:
+            progress.setMaximum(max(1, int(total)))
+            progress.setValue(max(0, min(int(done), int(total))))
+            progress.setLabelText(f"Downloading {filename}")
+
+        def on_finished(path: str) -> None:
+            state["path"] = path
+            progress.setValue(progress.maximum())
+            progress.accept()
+
+        def on_failed(message: str) -> None:
+            state["error"] = message
+            progress.reject()
+
+        thread.started.connect(worker.run)
+        worker.progress.connect(on_progress)
+        worker.finished.connect(on_finished)
+        worker.failed.connect(on_failed)
+        worker.finished.connect(thread.quit)
+        worker.failed.connect(thread.quit)
+        progress.canceled.connect(worker.cancel)
+
+        thread.start()
+        result = progress.exec()
+        if result != QDialog.Accepted and state["error"] is None and state["path"] is None:
+            worker.cancel()
+            state["error"] = "Tutorial download was cancelled."
+        thread.quit()
+        thread.wait(30000)
+        worker.deleteLater()
+        thread.deleteLater()
+
+        if state["error"]:
+            QMessageBox.warning(
+                self,
+                "Tutorial download failed",
+                (
+                    str(state["error"])
+                    + "\n\nIf the Hugging Face dataset is private, log in first with "
+                    "`huggingface-cli login` or set an HF_TOKEN environment variable."
+                ),
+            )
+            return None
+
+        candidate = tutorial_data_dir / TUTORIAL_FOLDER_NAME
+        if self._is_valid_mars_tutorial_root(candidate):
+            self.store.set_setting(self.project.id, "mars_tutorial_root", str(candidate.resolve()))
+            return candidate
+        if self._is_valid_mars_tutorial_root(tutorial_data_dir):
+            self.store.set_setting(self.project.id, "mars_tutorial_root", str(tutorial_data_dir.resolve()))
+            return tutorial_data_dir
+        QMessageBox.warning(
+            self,
+            "Tutorial download incomplete",
+            (
+                "The download finished, but the expected tutorial folder was not found.\n\n"
+                f"Expected: {candidate}\n\n"
+                "The Hugging Face dataset should contain the BehaviorScope-Y_tutorial folder "
+                "with source_manifest.csv, class_names.txt, videos/, and annotations/."
+            ),
+        )
+        return None
+
+    def _resolve_missing_tutorial_data(self, tutorial_root: Path, reason: str) -> Path | None:
+        box = QMessageBox(self)
+        box.setWindowTitle("Tutorial data not available")
+        box.setIcon(QMessageBox.Information)
+        box.setText(
+            "The BehaviorScope-Y tutorial videos are not available locally."
+        )
+        box.setInformativeText(
+            f"{reason}\n\nDownload the tutorial dataset from Hugging Face, "
+            "or locate an already downloaded tutorial folder."
+        )
+        download_btn = box.addButton("Download", QMessageBox.AcceptRole)
+        locate_btn = box.addButton("Locate Folder", QMessageBox.ActionRole)
+        box.addButton(QMessageBox.Cancel)
+        box.setDefaultButton(download_btn)
+        box.exec()
+        clicked = box.clickedButton()
+        if clicked is download_btn:
+            return self._download_mars_gui_tutorial()
+        if clicked is locate_btn:
+            return self._locate_mars_tutorial_root(tutorial_root)
+        return None
+
+    def _load_mars_gui_tutorial(self) -> None:
+        tutorial_root = self._mars_tutorial_root()
+        source_manifest = tutorial_root / "source_manifest.csv"
+        class_names_file = tutorial_root / "class_names.txt"
+        readme = tutorial_root / "README.md"
+        required = [source_manifest, class_names_file, tutorial_root / "videos", tutorial_root / "annotations"]
+        missing = [path for path in required if not path.exists()]
+        if missing:
+            located = self._resolve_missing_tutorial_data(
+                tutorial_root,
+                "Could not find:\n" + "\n".join(str(path) for path in missing),
+            )
+            if located is None:
+                return
+            tutorial_root = located
+            source_manifest = tutorial_root / "source_manifest.csv"
+            class_names_file = tutorial_root / "class_names.txt"
+            readme = tutorial_root / "README.md"
+
+        proceed = QMessageBox.question(
+            self,
+            "Load BehaviorScope-Y tutorial?",
+            (
+                "This will import the tutorial videos into the current project, assign their "
+                "train/validation/test splits, add the tutorial behavior labels, and fill the "
+                "Prepare Full Video workflow paths.\n\n"
+                "It will not start preprocessing, training, or inference."
+            ),
+            QMessageBox.Yes | QMessageBox.Cancel,
+            QMessageBox.Yes,
+        )
+        if proceed != QMessageBox.Yes:
+            return
+
+        try:
+            rows = self._read_tutorial_manifest(source_manifest, tutorial_root)
+            class_names = [
+                line.strip()
+                for line in class_names_file.read_text(encoding="utf-8").splitlines()
+                if line.strip()
+            ]
+        except FileNotFoundError as exc:
+            located = self._resolve_missing_tutorial_data(tutorial_root, str(exc))
+            if located is None:
+                return
+            tutorial_root = located
+            source_manifest = tutorial_root / "source_manifest.csv"
+            class_names_file = tutorial_root / "class_names.txt"
+            readme = tutorial_root / "README.md"
+            try:
+                rows = self._read_tutorial_manifest(source_manifest, tutorial_root)
+                class_names = [
+                    line.strip()
+                    for line in class_names_file.read_text(encoding="utf-8").splitlines()
+                    if line.strip()
+                ]
+            except Exception as retry_exc:
+                QMessageBox.critical(self, "Tutorial load failed", str(retry_exc))
+                return
+        except Exception as exc:
+            QMessageBox.critical(self, "Tutorial load failed", str(exc))
+            return
+
+        video_paths = [Path(row["resolved_video_path"]) for row in rows]
+        QApplication.setOverrideCursor(Qt.WaitCursor)
+        try:
+            imported_count = self.store.import_videos(self.project.id, video_paths)
+            behavior_ids = self._add_tutorial_behaviors(class_names)
+            split_counts = self._apply_tutorial_splits(rows)
+            annotation_count = self._import_tutorial_annotations(rows, behavior_ids)
+            self._fill_tutorial_workflow_paths(tutorial_root, source_manifest, class_names_file)
+            self.store.set_setting(self.project.id, "mars_tutorial_root", str(tutorial_root.resolve()))
+        except Exception as exc:
+            QMessageBox.critical(self, "Tutorial load failed", str(exc))
+            return
+        finally:
+            QApplication.restoreOverrideCursor()
+
+        self._reload_all()
+        if self.videos:
+            tutorial_video_paths = {str(path.resolve()).casefold() for path in video_paths}
+            first_tutorial = next(
+                (
+                    video
+                    for video in self.videos
+                    if str(Path(video.path).resolve()).casefold() in tutorial_video_paths
+                ),
+                self.videos[0],
+            )
+            self._set_current_video(first_tutorial.id, 0)
+        self.workflow_tabs.setCurrentWidget(self.prepare_full_video_panel)
+        readme_note = f"\n\nTutorial README:\n{readme}" if readme.exists() else ""
+        QMessageBox.information(
+            self,
+            "BehaviorScope-Y tutorial loaded",
+            (
+                f"Imported {imported_count} new video(s).\n"
+                f"Loaded {annotation_count} tutorial annotation span(s).\n"
+                f"Split assignments: {split_counts}\n\n"
+                "The timeline now shows the converted MARS ground-truth spans. The Prepare "
+                "Full Video tab is filled with the tutorial manifest and class-name paths. "
+                "Add YOLO pose weights, choose whether to keep the suggested output folder, "
+                "then press Start."
+                f"{readme_note}"
+            ),
+        )
+
+    def _read_tutorial_manifest(self, manifest_path: Path, tutorial_root: Path) -> list[dict[str, str]]:
+        required_columns = {"split", "video_id", "video_path", "annot_path"}
+        with manifest_path.open("r", encoding="utf-8", newline="") as handle:
+            reader = csv.DictReader(handle)
+            missing_columns = required_columns.difference(reader.fieldnames or [])
+            if missing_columns:
+                raise ValueError(
+                    f"{manifest_path.name} is missing required column(s): "
+                    + ", ".join(sorted(missing_columns))
+                )
+            rows = []
+            for row in reader:
+                resolved_video = (tutorial_root / str(row["video_path"])).resolve()
+                resolved_annot = (tutorial_root / str(row["annot_path"])).resolve()
+                if not resolved_video.is_file():
+                    raise FileNotFoundError(f"Tutorial video not found: {resolved_video}")
+                if not resolved_annot.is_file():
+                    raise FileNotFoundError(f"Tutorial annotation not found: {resolved_annot}")
+                row = dict(row)
+                row["split"] = normalize_video_split(row["split"])
+                row["resolved_video_path"] = str(resolved_video)
+                row["resolved_annot_path"] = str(resolved_annot)
+                rows.append(row)
+        if not rows:
+            raise ValueError(f"{manifest_path.name} contains no tutorial videos.")
+        return rows
+
+    def _add_tutorial_behaviors(self, class_names: list[str]) -> dict[str, int]:
+        hotkeys = {
+            "attack": "A",
+            "investigation": "I",
+            "mount": "M",
+        }
+        colors = {
+            "attack": "#D84A4A",
+            "investigation": "#2EA96B",
+            "mount": "#B9872F",
+        }
+        rows: list[dict[str, str | None]] = []
+        for index, name in enumerate(class_names):
+            if name.strip().lower() == "other":
+                continue
+            key = name.strip().lower()
+            rows.append(
+                {
+                    "name": name.strip(),
+                    "color": colors.get(key, default_color(index)),
+                    "definition": "BehaviorScope-Y tutorial behavior label.",
+                    "hotkey": hotkeys.get(key),
+                }
+            )
+        self.store.sync_behaviors(self.project.id, rows)
+        return {
+            behavior.name.strip().lower(): behavior.id
+            for behavior in self.store.list_behaviors(self.project.id)
+        }
+
+    def _apply_tutorial_splits(self, rows: list[dict[str, str]]) -> dict[str, int]:
+        videos_by_path = {
+            str(Path(video.path).resolve()).casefold(): video
+            for video in self.store.list_videos(self.project.id)
+        }
+        split_ids: dict[str, list[int]] = {"train": [], "val": [], "test": [], "exclude": []}
+        missing: list[str] = []
+        for row in rows:
+            key = str(Path(row["resolved_video_path"]).resolve()).casefold()
+            video = videos_by_path.get(key)
+            if video is None:
+                missing.append(row["resolved_video_path"])
+                continue
+            split_ids.setdefault(normalize_video_split(row["split"]), []).append(video.id)
+        if missing:
+            raise RuntimeError(
+                "Some tutorial videos could not be matched after import:\n"
+                + "\n".join(missing)
+            )
+        for split, video_ids in split_ids.items():
+            self.store.set_video_splits(video_ids, split)
+        return {split: len(video_ids) for split, video_ids in split_ids.items() if video_ids}
+
+    def _import_tutorial_annotations(
+        self,
+        rows: list[dict[str, str]],
+        behavior_ids: dict[str, int],
+    ) -> int:
+        videos_by_path = {
+            str(Path(video.path).resolve()).casefold(): video
+            for video in self.store.list_videos(self.project.id)
+        }
+        imported = 0
+        for row in rows:
+            key = str(Path(row["resolved_video_path"]).resolve()).casefold()
+            video = videos_by_path.get(key)
+            if video is None:
+                continue
+            existing = {
+                (ann.behavior_id, int(ann.start_ms), int(ann.end_ms))
+                for ann in self.store.list_annotations(video.id)
+            }
+            for span in self._parse_bento_annot(Path(row["resolved_annot_path"])):
+                behavior_id = behavior_ids.get(span["behavior"].lower())
+                if behavior_id is None:
+                    continue
+                start_ms = int(round(float(span["start_s"]) * 1000.0))
+                end_ms = int(round(float(span["stop_s"]) * 1000.0))
+                start_ms = max(0, min(start_ms, video.duration_ms))
+                end_ms = max(0, min(end_ms, video.duration_ms))
+                if end_ms <= start_ms:
+                    continue
+                signature = (behavior_id, start_ms, end_ms)
+                if signature in existing:
+                    continue
+                fps = max(float(video.fps), 1e-6)
+                ann_id = self.store.create_annotation(
+                    self.project.id,
+                    video_id=video.id,
+                    behavior_id=behavior_id,
+                    start_frame=int(round((start_ms / 1000.0) * fps)),
+                    end_frame=int(round((end_ms / 1000.0) * fps)),
+                    start_ms=start_ms,
+                    end_ms=end_ms,
+                    status=AnnotationStatus.APPROVED,
+                )
+                self.store.update_annotation(
+                    ann_id,
+                    status=AnnotationStatus.APPROVED,
+                    notes="Imported from BehaviorScope-Y tutorial ground truth.",
+                )
+                existing.add(signature)
+                imported += 1
+        return imported
+
+    def _parse_bento_annot(self, annot_path: Path) -> list[dict[str, float | str]]:
+        spans: list[dict[str, float | str]] = []
+        current_behavior: str | None = None
+        in_channel = False
+        fps = 30.0
+        for raw_line in annot_path.read_text(encoding="utf-8", errors="replace").splitlines():
+            line = raw_line.strip()
+            if not line:
+                continue
+            if line.lower().startswith("annotation framerate:"):
+                try:
+                    fps = max(1e-6, float(line.split(":", 1)[1].strip()))
+                except ValueError:
+                    fps = 30.0
+                continue
+            if line.endswith("----------"):
+                in_channel = True
+                current_behavior = None
+                continue
+            if not in_channel:
+                continue
+            if line.startswith(">"):
+                current_behavior = line[1:].strip()
+                continue
+            if current_behavior is None or line.lower().startswith("start"):
+                continue
+            parts = line.split()
+            if len(parts) < 2:
+                continue
+            try:
+                start_s = float(parts[0])
+                stop_s = float(parts[1])
+            except ValueError:
+                continue
+            if stop_s < start_s:
+                continue
+            if stop_s == start_s:
+                stop_s = start_s + (1.0 / fps)
+            spans.append(
+                {
+                    "behavior": current_behavior,
+                    "start_s": start_s,
+                    "stop_s": stop_s,
+                }
+            )
+        return spans
+
+    def _fill_tutorial_workflow_paths(
+        self,
+        tutorial_root: Path,
+        source_manifest: Path,
+        class_names_file: Path,
+    ) -> None:
+        output_base = Path(self.store.db_path).resolve().parent / "BehaviorScope-Y_tutorial_outputs"
+        output_root = output_base / "prepared_npz"
+        sequence_manifest = output_root / "sequence_manifest.json"
+        feature_cache_root = output_root / "yolo_feature_cache"
+        training_root = output_base / "training_runs"
+        inference_root = output_base / "inference"
+        review_video_root = output_base / "review_mp4"
+
+        self.prepare_full_video_panel.source_manifest_csv.setText(str(source_manifest.resolve()))
+        self.prepare_full_video_panel.class_names_file.setText(str(class_names_file.resolve()))
+        self.prepare_full_video_panel.output_root.setText(str(output_root.resolve()))
+        self.prepare_full_video_panel.manifest_path.setText(str(sequence_manifest.resolve()))
+        idx = self.prepare_full_video_panel.source_mode.findText("mp4")
+        if idx >= 0:
+            self.prepare_full_video_panel.source_mode.setCurrentIndex(idx)
+        self.prepare_full_video_panel.window_size.setValue(32)
+        self.prepare_full_video_panel.window_stride.setValue(16)
+        self.prepare_full_video_panel.n_animals.setValue(2)
+        self.prepare_full_video_panel.fps.setValue(30.0)
+
+        self.feature_cache_panel.manifest_path.setText(str(sequence_manifest.resolve()))
+        self.feature_cache_panel.output_dir.setText(str(feature_cache_root.resolve()))
+        self.feature_cache_panel.splits.setText("train val")
+
+        self.train_panel.manifest_path.setText(str(sequence_manifest.resolve()))
+        self.train_panel.project.setText(str(training_root.resolve()))
+        self.train_panel.name.setText("BehaviorScope-Y_tutorial")
+        self.train_panel.train_splits.setText("train")
+        self.train_panel.val_splits.setText("val")
+        self.train_panel.use_feature_cache.setText(str(feature_cache_root.resolve()))
+        self.train_panel.auto_feature_cache.setChecked(True)
+        self.train_panel.temporal_splitter_annot_root.setText(str((tutorial_root / "annotations").resolve()))
+        self.train_panel.single_model_path.setText(
+            str((training_root / "BehaviorScope-Y_tutorial" / "behaviorscope_y_single_model.pt").resolve())
+        )
+
+        first_test_video = next((tutorial_root / "videos" / "test").glob("*.mp4"), None)
+        if first_test_video is not None:
+            self.inference_panel.source.setText(str(first_test_video.resolve()))
+            self.inference_panel.output.setText(str((inference_root / f"{first_test_video.stem}.csv").resolve()))
+            self.inference_panel.output_video.setText(str((review_video_root / f"{first_test_video.stem}_review.mp4").resolve()))
+        self.inference_panel.output_dir.setText(str(inference_root.resolve()))
+        self.inference_panel.output_video_dir.setText(str(review_video_root.resolve()))
+        self.batch_panel.source.setText(str((tutorial_root / "videos" / "test").resolve()))
+        self.batch_panel.output_dir.setText(str((output_base / "batch_inference").resolve()))
+        self.batch_panel.output_video_dir.setText(str((output_base / "batch_review_mp4").resolve()))
+
+    def _fill_inference_model_inputs(self, model_path: str) -> None:
+        for panel in (self.inference_panel, self.batch_panel):
+            panel.model_path.setText(model_path)
+            panel.model_config.setText("")
+            panel.yolo_weights.setText("")
+        model_dir = Path(model_path).resolve().parent
+        if not self.inference_panel.output_dir.text().strip():
+            self.inference_panel.output_dir.setText(str(model_dir / "inference_outputs"))
+        if not self.batch_panel.output_dir.text().strip():
+            self.batch_panel.output_dir.setText(str(model_dir / "batch_outputs"))
+        self.workflow_tabs.setCurrentWidget(self.inference_panel)
+
+    def _bundle_existing_model(self) -> None:
+        dialog = BundleExistingModelDialog(self)
+        if dialog.exec() != QDialog.Accepted:
+            return
+        values = dialog.values()
+        required = {
+            "Classifier checkpoint": values["classifier_checkpoint"],
+            "YOLO pose weights": values["yolo_weights"],
+            "Bundled output .pt": values["output"],
+        }
+        for label, path in required.items():
+            if not path:
+                QMessageBox.warning(self, "Missing path", f"{label} is required.")
+                return
+        classifier = Path(values["classifier_checkpoint"])
+        yolo_weights = Path(values["yolo_weights"])
+        model_config = Path(values["model_config"]) if values["model_config"] else None
+        output = Path(values["output"])
+        for label, path in (("Classifier checkpoint", classifier), ("YOLO pose weights", yolo_weights)):
+            if not path.is_file():
+                QMessageBox.warning(self, "Path not found", f"{label} was not found:\n{path}")
+                return
+        if model_config is not None and not model_config.is_file():
+            QMessageBox.warning(self, "Path not found", f"Model config was not found:\n{model_config}")
+            return
+        script = Path(__file__).resolve().parents[1] / "package_single_model_y.py"
+        if not script.is_file():
+            QMessageBox.critical(self, "Missing bundler", f"Could not find:\n{script}")
+            return
+        cmd = [
+            sys.executable,
+            str(script),
+            "--classifier_checkpoint",
+            str(classifier),
+            "--yolo_weights",
+            str(yolo_weights),
+            "--output",
+            str(output),
+        ]
+        if model_config is not None:
+            cmd.extend(["--model_config", str(model_config)])
+        QApplication.setOverrideCursor(Qt.WaitCursor)
+        try:
+            result = subprocess.run(
+                cmd,
+                cwd=str(Path(__file__).resolve().parents[1]),
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                errors="replace",
+                check=False,
+            )
+        finally:
+            QApplication.restoreOverrideCursor()
+        if result.returncode != 0:
+            message = (result.stderr or result.stdout or "No process output.").strip()
+            QMessageBox.critical(self, "Bundling failed", message[:4000])
+            return
+        self._fill_inference_model_inputs(str(output.resolve()))
+        QMessageBox.information(
+            self,
+            "Bundled model ready",
+            f"Wrote bundled model:\n{output.resolve()}\n\nInference and Batch model paths have been filled.",
+        )
 
     def _on_prepare_dataset_success(self, command: list[str]) -> None:
         output_root = self._cmd_arg(command, "--output_root")
@@ -1368,7 +2252,7 @@ class AnnotationMainWindow(QMainWindow):
     def _update_footer(self) -> None:
         self.span_count_label.setText(f"{len(self.annotations)} spans")
         approved = len([ann for ann in self.annotations if ann.status == AnnotationStatus.APPROVED.value])
-        self.clip_count_label.setText(f"{approved} approved")
+        self.approved_count_label.setText(f"{approved} approved")
         self.state_label.setText(self.session.ui_state.value.replace("_", " ").title())
         self._update_pending_label()
 
@@ -1961,26 +2845,30 @@ class AnnotationMainWindow(QMainWindow):
         if not output_dir:
             return
         default_ratio = float(self.store.get_setting(self.project.id, "full_video_val_ratio", "0.20") or "0.20")
-        val_ratio, ok = QInputDialog.getDouble(
-            self,
-            "Validation split",
-            "Fraction of imported videos assigned to validation:",
-            default_ratio,
-            0.0,
-            0.9,
-            2,
-        )
-        if not ok:
-            return
+        split_counts = {
+            split: sum(1 for video in self.videos if normalize_video_split(video.split) == split)
+            for split in ("train", "val", "test", "exclude")
+        }
+        if split_counts["val"] == 0:
+            proceed = QMessageBox.question(
+                self,
+                "No validation videos assigned",
+                (
+                    "No videos are currently assigned to Validation. Training needs a validation split "
+                    "for model selection.\n\n"
+                    "Continue export anyway?"
+                ),
+            )
+            if proceed != QMessageBox.Yes:
+                return
         self.store.set_setting(self.project.id, "full_video_annotation_root", output_dir)
-        self.store.set_setting(self.project.id, "full_video_val_ratio", f"{float(val_ratio):.4f}")
         QApplication.setOverrideCursor(Qt.WaitCursor)
         try:
             manifest = export_full_video_annotations(
                 self.store,
                 project_id=self.project.id,
                 output_root=Path(output_dir),
-                val_ratio=float(val_ratio),
+                val_ratio=float(default_ratio),
                 recommended_window_frames=int(self.prepare_full_video_panel.window_size.value())
                 if hasattr(self, "prepare_full_video_panel")
                 else 32,
@@ -2011,7 +2899,8 @@ class AnnotationMainWindow(QMainWindow):
         summary = (
             f"Videos: {manifest.get('video_count', 0)}\n"
             f"Approved spans: {manifest.get('approved_annotation_count', 0)}\n"
-            f"Splits: {manifest.get('split_counts', {})}\n\n"
+            f"Splits: {manifest.get('split_counts', {})}\n"
+            f"Excluded videos: {split_counts['exclude']}\n\n"
             "Wrote source_manifest.csv, class_names.txt, full_video_annotations.json, "
             "full_video_annotations.batch.json, preflight_report.json, and one .annot file per video.\n\n"
             "The Prepare Full Video tab has been filled with the export paths."

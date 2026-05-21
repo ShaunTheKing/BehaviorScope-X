@@ -43,6 +43,7 @@ class VideoRecord:
     imported_at: str
     last_position_ms: int
     status: str
+    split: str = "train"
     annotation_count: int = 0
     ambiguous_count: int = 0
     approved_count: int = 0

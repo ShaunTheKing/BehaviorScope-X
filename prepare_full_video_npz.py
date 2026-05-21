@@ -17,9 +17,9 @@ bout clips, this script:
   * Writes a manifest in the same ``behaviorscope-n-v1`` schema that
     ``train_y.py`` already consumes.
 
-The motivation and full design rationale lives in
-``BehaviorScope-Y/PLAN.md`` and
-``manuscript_outputs/19_methodology_lessons_clip_vs_fullvideo.qmd``.
+This full-video workflow is the recommended dataset-preparation path for
+new GUI projects because it preserves temporal context and avoids requiring
+users to export behavior-only clips before training.
 """
 from __future__ import annotations
 
@@ -58,12 +58,14 @@ if __package__ is None or __package__ == "":  # pragma: no cover - CLI entry
     from cropping import load_yolo_model
     from cropping_y import NCropDetection, iterate_yolo_n_crops
     from data_y import load_n_manifest, validate_n_npz_payload
+    from model_y import inspect_yolo_keypoint_count
     from utils.logging_utils import setup_logger
     from utils.pose_features_y import REL_FEATURE_DIM
 else:  # pragma: no cover
     from .cropping import load_yolo_model
     from .cropping_y import NCropDetection, iterate_yolo_n_crops
     from .data_y import load_n_manifest, validate_n_npz_payload
+    from .model_y import inspect_yolo_keypoint_count
     from .utils.logging_utils import setup_logger
     from .utils.pose_features_y import REL_FEATURE_DIM
 
@@ -401,15 +403,26 @@ def discover_sources_from_manifest(
             )
         for row_i, row in enumerate(reader, start=2):
             split = str(row.get("split") or "").strip().lower()
-            split_aliases = {"validation": "val", "valid": "val"}
+            split_aliases = {
+                "training": "train",
+                "validation": "val",
+                "valid": "val",
+                "holdout": "test",
+                "heldout": "test",
+                "held_out": "test",
+                "held-out": "test",
+                "test_holdout": "test",
+            }
             split = split_aliases.get(split, split)
+            if split == "exclude":
+                continue
             if split in excluded:
                 raise SystemExit(
                     f"[manifest] row {row_i}: split {split!r} is excluded by --exclude_splits"
                 )
-            if split not in {"train", "val"}:
+            if split not in {"train", "val"} and not split.startswith("test"):
                 raise SystemExit(
-                    f"[manifest] row {row_i}: split must be 'train' or 'val', got {split!r}"
+                    f"[manifest] row {row_i}: split must be 'train', 'val', or 'test*', got {split!r}"
                 )
             video_path = Path(str(row.get("video_path") or "").strip())
             annot_path = Path(str(row.get("annot_path") or "").strip())
@@ -455,7 +468,8 @@ def discover_sources_from_manifest(
     logger.info(
         f"[manifest] loaded user-video sources from {manifest_csv}: "
         f"train={sum(1 for s in sources if s.split == 'train')} "
-        f"val={sum(1 for s in sources if s.split == 'val')}"
+        f"val={sum(1 for s in sources if s.split == 'val')} "
+        f"heldout={sum(1 for s in sources if s.split.startswith('test'))}"
     )
     return sources
 
@@ -1039,6 +1053,8 @@ def main() -> int:
         raise SystemExit("[full-video] --npz_writers must be >= 1")
     if not (0 <= int(args.npz_compresslevel) <= 9):
         raise SystemExit("[full-video] --npz_compresslevel must be between 0 and 9")
+    if int(args.n_animals) <= 0:
+        raise SystemExit("[full-video] --n_animals must be >= 1")
 
     class_names, class_to_idx = build_class_maps(load_class_names(args))
     args.class_names_resolved = class_names
@@ -1092,6 +1108,20 @@ def main() -> int:
 
     logger.info(f"[full-video] loading YOLO weights: {args.yolo_weights}")
     model = load_yolo_model(args.yolo_weights, device=args.device, task=args.yolo_task)
+    keypoints_per_animal = inspect_yolo_keypoint_count(str(args.yolo_weights))
+    if keypoints_per_animal is None:
+        keypoints_per_animal = 7
+        logger.warning(
+            "[full-video] could not inspect YOLO keypoint count; falling back "
+            "to keypoints_per_animal=7. Pass a standard Ultralytics pose "
+            "checkpoint to make this auditable for non-MARS schemas."
+        )
+    keypoints_per_animal = int(keypoints_per_animal)
+    if keypoints_per_animal <= 0:
+        raise SystemExit(
+            f"[full-video] resolved keypoints_per_animal={keypoints_per_animal}; expected > 0"
+        )
+    logger.info(f"[full-video] keypoints_per_animal: {keypoints_per_animal}")
 
     npz_writer = _AsyncNPZWriter(
         num_workers=int(args.npz_writers),
@@ -1099,7 +1129,10 @@ def main() -> int:
         compresslevel=int(args.npz_compresslevel),
     )
 
-    splits_out: Dict[str, List[dict]] = {"train": [], "val": []}
+    splits_out: Dict[str, List[dict]] = {
+        split: []
+        for split in sorted({str(src.split) for src in sources} | {"train", "val"})
+    }
     class_counts_total: Counter = Counter()
     per_video_summary: List[dict] = []
 
@@ -1117,7 +1150,7 @@ def main() -> int:
                 "status": "error", "error": str(exc),
             })
             continue
-        splits_out[src.split].extend(samples)
+        splits_out.setdefault(src.split, []).extend(samples)
         class_counts_total.update(cls_counts)
         per_video_summary.append({
             "split": src.split, "video_id": src.video_id,
@@ -1139,7 +1172,7 @@ def main() -> int:
         "window_size": int(args.window_size),
         "window_stride": int(args.window_stride),
         "n_animals": int(args.n_animals),
-        "keypoints_per_animal": 7,
+        "keypoints_per_animal": int(keypoints_per_animal),
         "class_names": list(class_names),
         "label_min_dominance": float(args.label_min_dominance),
         "other_subsample": float(args.other_subsample),
@@ -1154,8 +1187,12 @@ def main() -> int:
         "exclude_splits": list(args.exclude_splits),
         "build_elapsed_s": round(elapsed, 1),
         "class_counts": dict(class_counts_total),
-        "n_source_videos_train": len({s["source_video"] for s in splits_out["train"]}),
-        "n_source_videos_val": len({s["source_video"] for s in splits_out["val"]}),
+        "n_source_videos_by_split": {
+            split: len({s["source_video"] for s in rows})
+            for split, rows in sorted(splits_out.items())
+        },
+        "n_source_videos_train": len({s["source_video"] for s in splits_out.get("train", [])}),
+        "n_source_videos_val": len({s["source_video"] for s in splits_out.get("val", [])}),
     }
     write_manifest(manifest_path, splits_out, meta, class_to_idx)
     logger.info(f"[full-video] manifest -> {manifest_path}")
@@ -1175,12 +1212,14 @@ def main() -> int:
         "manifest_path": str(manifest_path),
         "output_root": str(output_root),
         "elapsed_s": round(elapsed, 1),
-        "windows_total": n_train + n_val,
+        "windows_total": sum(len(rows) for rows in splits_out.values()),
         "windows_train": n_train,
         "windows_val": n_val,
+        "windows_by_split": {split: len(rows) for split, rows in sorted(splits_out.items())},
         "class_counts": dict(class_counts_total),
         "n_source_videos_train": meta["n_source_videos_train"],
         "n_source_videos_val": meta["n_source_videos_val"],
+        "n_source_videos_by_split": meta["n_source_videos_by_split"],
     }
     if args.validate_manifest:
         # Light validation: schema check via load_n_manifest + payload check on a sample
@@ -1200,7 +1239,7 @@ def main() -> int:
                         data, sample_id=s.id,
                         num_frames=int(args.window_size),
                         n_animals=int(args.n_animals),
-                        num_keypoints=7,
+                        num_keypoints=int(keypoints_per_animal),
                         rel_feature_dim=REL_FEATURE_DIM,
                         require_schema_version=True,
                     )
@@ -1233,3 +1272,4 @@ if __name__ == "__main__":
     except Exception as exc:
         print(f"[full-video] ERROR: {exc}", file=sys.stderr)
         raise
+

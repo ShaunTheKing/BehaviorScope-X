@@ -369,10 +369,18 @@ class PrepareDatasetPanel(WorkflowPanel):
         self.output_root = self._path_row("Output dataset root", mode="dir")
         self.manifest_path = self._path_row("Manifest path", mode="file", file_filter="JSON (*.json);;All files (*.*)", save=True)
         self.clip_metadata_csv = self._path_row("clips_metadata.csv", mode="file", file_filter="CSV (*.csv);;All files (*.*)")
+        self.split_map_csv = self._path_row("split_map_csv (explicit split)", mode="file", file_filter="CSV (*.csv);;All files (*.*)")
         self.window_size = self._spin_row("Window size", 32, 1)
         self.window_stride = self._spin_row("Window stride", 16, 1)
         self.n_animals = self._spin_row("Animals", 2, 1)
         self.crop_size = self._spin_row("Animal crop size", 224, 16)
+        self.group_crop_size = self._spin_row("Group crop size", 224, 16)
+        self.animal_scale_factor = self._double_row("Animal scale factor", 4.0, 0.01, 100.0, 3)
+        self.group_scale_factor = self._double_row("Group scale factor", 8.0, 0.01, 100.0, 3)
+        self.body_length_px = self._double_row("Body length px (0 = auto)", 0.0, 0.0, 100000.0, 3)
+        self.pose_conf_threshold = self._double_row("Pose confidence threshold", 0.3, 0.0, 1.0, 3)
+        self.yolo_conf = self._double_row("YOLO confidence", 0.25, 0.0, 1.0, 3)
+        self.yolo_iou = self._double_row("YOLO IoU", 0.45, 0.0, 1.0, 3)
         self.yolo_imgsz = self._spin_row("YOLO image size", 640, 32)
         self.device = self._line_row("Device", "cuda:0")
         self.train_ratio = self._double_row("Train ratio", 0.8, 0.0, 1.0, 3)
@@ -428,6 +436,18 @@ class PrepareDatasetPanel(WorkflowPanel):
             cmd.extend(["--manifest_path", self.manifest_path.text().strip()])
         if self.clip_metadata_csv.text().strip():
             cmd.extend(["--clip_metadata_csv", self.clip_metadata_csv.text().strip()])
+        if self.split_strategy.currentText() == "explicit" and not (self.clip_metadata_csv.text().strip() or self.split_map_csv.text().strip()):
+            raise ValueError("Explicit split strategy requires clips_metadata.csv or split_map_csv.")
+        if self.split_map_csv.text().strip():
+            cmd.extend(["--split_map_csv", self.split_map_csv.text().strip()])
+        cmd.extend(["--group_crop_size", str(self.group_crop_size.value())])
+        cmd.extend(["--animal_scale_factor", str(self.animal_scale_factor.value())])
+        cmd.extend(["--group_scale_factor", str(self.group_scale_factor.value())])
+        if self.body_length_px.value() > 0:
+            cmd.extend(["--body_length_px", str(self.body_length_px.value())])
+        cmd.extend(["--pose_conf_threshold", str(self.pose_conf_threshold.value())])
+        cmd.extend(["--yolo_conf", str(self.yolo_conf.value())])
+        cmd.extend(["--yolo_iou", str(self.yolo_iou.value())])
         if self.skip_existing.isChecked():
             cmd.append("--skip_existing")
         if self.keep_last_box.isChecked():
@@ -456,10 +476,19 @@ class PrepareFullVideoDatasetPanel(WorkflowPanel):
         self.manifest_path = self._path_row("Manifest path", mode="file", file_filter="JSON (*.json);;All files (*.*)", save=True)
         self.window_size = self._spin_row("Window size", 32, 1)
         self.window_stride = self._spin_row("Window stride", 16, 1)
+        self.source_mode = self._combo_row("Source mode", ["mp4", "seq"], "mp4")
         self.n_animals = self._spin_row("Animals", 2, 1)
         self.crop_size = self._spin_row("Animal crop size", 224, 16)
+        self.group_crop_size = self._spin_row("Group crop size", 224, 16)
+        self.animal_scale_factor = self._double_row("Animal scale factor", 4.0, 0.01, 100.0, 3)
+        self.group_scale_factor = self._double_row("Group scale factor", 8.0, 0.01, 100.0, 3)
+        self.body_length_px = self._double_row("Body length px (0 = estimate)", 0.0, 0.0, 100000.0, 3)
+        self.pose_conf_threshold = self._double_row("Pose confidence threshold", 0.3, 0.0, 1.0, 3)
+        self.yolo_conf = self._double_row("YOLO confidence", 0.25, 0.0, 1.0, 3)
+        self.yolo_iou = self._double_row("YOLO IoU", 0.45, 0.0, 1.0, 3)
         self.yolo_imgsz = self._spin_row("YOLO image size", 640, 32)
         self.yolo_batch = self._spin_row("YOLO batch", 64, 1)
+        self.fps = self._double_row("Fallback FPS", 30.0, 0.1, 1000.0, 3)
         self.npz_writers = self._spin_row("NPZ writers", 4, 1)
         self.npz_compresslevel = self._spin_row("NPZ deflate level", 1, 0, 9)
         self.label_min_dominance = self._double_row("Label min dominance", 0.5, 0.0, 1.0, 3)
@@ -490,12 +519,28 @@ class PrepareFullVideoDatasetPanel(WorkflowPanel):
             str(self.window_stride.value()),
             "--crop_size",
             str(self.crop_size.value()),
+            "--group_crop_size",
+            str(self.group_crop_size.value()),
+            "--source_mode",
+            self.source_mode.currentText(),
             "--n_animals",
             str(self.n_animals.value()),
+            "--animal_scale_factor",
+            str(self.animal_scale_factor.value()),
+            "--group_scale_factor",
+            str(self.group_scale_factor.value()),
+            "--pose_conf_threshold",
+            str(self.pose_conf_threshold.value()),
+            "--yolo_conf",
+            str(self.yolo_conf.value()),
+            "--yolo_iou",
+            str(self.yolo_iou.value()),
             "--yolo_imgsz",
             str(self.yolo_imgsz.value()),
             "--yolo_batch",
             str(self.yolo_batch.value()),
+            "--fps",
+            str(self.fps.value()),
             "--npz_writers",
             str(self.npz_writers.value()),
             "--npz_compresslevel",
@@ -513,6 +558,8 @@ class PrepareFullVideoDatasetPanel(WorkflowPanel):
             cmd.extend(["--output_root", self.output_root.text().strip()])
         if self.manifest_path.text().strip():
             cmd.extend(["--manifest_path", self.manifest_path.text().strip()])
+        if self.body_length_px.value() > 0:
+            cmd.extend(["--body_length_px", str(self.body_length_px.value())])
         if self.skip_existing.isChecked():
             cmd.append("--skip_existing")
         if self.validate_manifest.isChecked():
@@ -536,6 +583,7 @@ class FeatureCachePanel(WorkflowPanel):
         self.num_workers = self._spin_row("Workers", 2, 0)
         self.device = self._line_row("Device", "cuda")
         self.cache_dtype = self._combo_row("Cache dtype", ["float32", "float16"], "float32")
+        self.amp_dtype = self._combo_row("AMP dtype", ["auto", "bf16", "fp16"], "auto")
         self.yolo_backbone_end_layer = self._spin_row("YOLO backbone end layer", 10, 1)
         self.n_animals = self._spin_row("Animals", 2, 1)
         self.num_keypoints = self._spin_row("Keypoints (0 = auto)", 0, 0)
@@ -584,6 +632,7 @@ class FeatureCachePanel(WorkflowPanel):
             cmd.append("--skip_invalid_samples")
         if self.amp.isChecked():
             cmd.append("--amp")
+            cmd.extend(["--amp_dtype", self.amp_dtype.currentText()])
         cmd.extend(self._extra())
         return cmd
 
@@ -607,18 +656,18 @@ class TrainPanel(WorkflowPanel):
         self.scheduler = self._combo_row("Scheduler", ["plateau", "cosine", "none"], "plateau")
         self.class_weighting = self._combo_row("Class weighting", ["sqrt_inverse", "inverse", "none"], "sqrt_inverse")
         self.class_weight_clamp = self._double_row("Class weight clamp", 1.5, 0.0, 100.0, 3)
-        self.train_sampler = self._combo_row("Train sampler", ["random", "weighted"], "random")
+        self.train_sampler = self._combo_row("Train sampler", ["random", "weighted"], "weighted")
         self.n_animals = self._spin_row("Animals", 2, 1)
         self.num_keypoints = self._spin_row("Keypoints (0 = auto)", 0, 0)
         self.hidden_dim = self._spin_row("Hidden dim", 256, 16)
         self.num_lstm_layers = self._spin_row("LSTM layers", 1, 1)
         self.bidirectional_lstm = self._checkbox_row("Bidirectional LSTM", False)
         self.pose_fusion_dim = self._spin_row("Pose fusion dim", 128, 16)
-        self.pose_fusion_strategy = self._combo_row("Pose fusion", ["gated_attention", "concat", "cross_modal_transformer"], "gated_attention")
-        self.sequence_model = self._combo_row("Sequence model", ["attention", "lstm"], "attention")
+        self.pose_fusion_strategy = self._combo_row("Pose fusion", ["gated_attention", "concat"], "gated_attention")
+        self.sequence_model = self._combo_row("Sequence model", ["lstm", "attention"], "lstm")
         self.use_attention_pool = self._checkbox_row("Attention pool after LSTM", False)
         self.attention_heads = self._spin_row("Attention heads", 4, 1)
-        self.positional_encoding = self._combo_row("Positional encoding", ["sinusoidal", "learned", "none"], "sinusoidal")
+        self.positional_encoding = self._combo_row("Positional encoding", ["learned", "sinusoidal", "none"], "learned")
         self.yolo_backbone_end_layer = self._spin_row("YOLO backbone end layer", 10, 1)
         self.train_backbone = self._checkbox_row("Fine-tune YOLO visual backbone", False)
         self.backbone_lr = self._line_row("Backbone learning rate", "1e-5")
@@ -635,9 +684,24 @@ class TrainPanel(WorkflowPanel):
         self.allow_test_split_training = self._checkbox_row("Allow test split training", False)
         self.skip_invalid_samples = self._checkbox_row("Skip invalid samples", False)
         self.amp = self._checkbox_row("AMP", True)
+        self.amp_dtype = self._combo_row("AMP dtype", ["auto", "bf16", "fp16"], "auto")
         self.per_class_metrics = self._checkbox_row("Per-class metrics", True)
         self.confusion_matrix = self._checkbox_row("Confusion matrix", True)
         self.disable_threshold_decoder = self._checkbox_row("Disable auto threshold decoder", False)
+        self.background_class = self._line_row("Background class", "auto")
+        self.threshold_grid_min = self._double_row("Threshold grid min", 0.30, 0.0, 1.0, 3)
+        self.threshold_grid_max = self._double_row("Threshold grid max", 0.95, 0.0, 1.0, 3)
+        self.threshold_grid_step = self._double_row("Threshold grid step", 0.05, 0.001, 1.0, 3)
+        self.threshold_fit_rounds = self._spin_row("Threshold fit rounds", 3, 1)
+        self.save_decoder_json = self._checkbox_row("Save decoder JSON sidecar", False)
+        self.save_temporal_splitter_json = self._checkbox_row("Save temporal splitter JSON sidecar", False)
+        self.disable_visual_streams = self._checkbox_row("Disable all visual streams", False)
+        self.disable_group_rgb = self._checkbox_row("Disable group RGB stream", False)
+        self.disable_per_animal_rgb = self._checkbox_row("Disable per-animal RGB stream", False)
+        self.disable_pose_self = self._checkbox_row("Disable pose-self stream", False)
+        self.disable_relations = self._checkbox_row("Disable relations stream", False)
+        self.relations_pose_only = self._checkbox_row("Relations use pose only", False)
+        self.pose_dropout_p_uniform = self._double_row("Pose dropout p uniform", 0.0, 0.0, 1.0, 3)
         self.export_single_model = self._checkbox_row("Export single bundled .pt after training", True)
         self.single_model_path = self._path_row("Bundled .pt output", mode="file", file_filter="PyTorch (*.pt);;All files (*.*)", save=True)
         # Temporal splitter — manuscript-grade GT fitting
@@ -661,6 +725,8 @@ class TrainPanel(WorkflowPanel):
         script = _script_path("train_y.py")
         if not script.exists():
             raise ValueError(f"Missing script: {script}")
+        if self.train_backbone.isChecked() and (self.auto_feature_cache.isChecked() or self.use_feature_cache.text().strip()):
+            raise ValueError("Fine-tuning the YOLO backbone is incompatible with frozen feature cache use.")
         cmd = [
             *_python_invocation(),
             str(script),
@@ -746,12 +812,36 @@ class TrainPanel(WorkflowPanel):
             cmd.append("--skip_invalid_samples")
         if self.amp.isChecked():
             cmd.append("--amp")
+            cmd.extend(["--amp_dtype", self.amp_dtype.currentText()])
         if self.per_class_metrics.isChecked():
             cmd.append("--per_class_metrics")
         if self.confusion_matrix.isChecked():
             cmd.extend(["--confusion_matrix", "--confusion_matrix_interval", "1"])
+        cmd.extend(["--background_class", self.background_class.text().strip() or "auto"])
+        cmd.extend(["--threshold_grid_min", str(self.threshold_grid_min.value())])
+        cmd.extend(["--threshold_grid_max", str(self.threshold_grid_max.value())])
+        cmd.extend(["--threshold_grid_step", str(self.threshold_grid_step.value())])
+        cmd.extend(["--threshold_fit_rounds", str(self.threshold_fit_rounds.value())])
         if self.disable_threshold_decoder.isChecked():
             cmd.append("--disable_threshold_decoder")
+        if self.save_decoder_json.isChecked():
+            cmd.append("--save_decoder_json")
+        if self.save_temporal_splitter_json.isChecked():
+            cmd.append("--save_temporal_splitter_json")
+        if self.disable_visual_streams.isChecked():
+            cmd.append("--disable_visual_streams")
+        if self.disable_group_rgb.isChecked():
+            cmd.append("--disable_group_rgb")
+        if self.disable_per_animal_rgb.isChecked():
+            cmd.append("--disable_per_animal_rgb")
+        if self.disable_pose_self.isChecked():
+            cmd.append("--disable_pose_self")
+        if self.disable_relations.isChecked():
+            cmd.append("--disable_relations")
+        if self.relations_pose_only.isChecked():
+            cmd.append("--relations_pose_only")
+        if self.pose_dropout_p_uniform.value() > 0:
+            cmd.extend(["--pose_dropout_p_uniform", str(self.pose_dropout_p_uniform.value())])
         if self.export_single_model.isChecked():
             cmd.append("--export_single_model")
             if self.single_model_path.text().strip():
@@ -797,17 +887,30 @@ class InferencePanel(WorkflowPanel):
         self.device = self._line_row("Device", "cuda")
         self.yolo_batch = self._spin_row("YOLO batch", 64, 1)
         self.fps = self._double_row("Fallback FPS", 30.0, 0.1, 1000.0, 3)
+        self.crop_size = self._spin_row("Animal crop size", 224, 16)
+        self.animal_scale_factor = self._double_row("Animal scale factor", 4.0, 0.01, 100.0, 3)
+        self.group_scale_factor = self._double_row("Group scale factor", 8.0, 0.01, 100.0, 3)
+        self.body_length_px = self._double_row("Body length px (0 = config/calibration)", 0.0, 0.0, 100000.0, 3)
+        self.calibration_json = self._path_row("Calibration JSON", mode="file", file_filter="JSON (*.json);;All files (*.*)")
+        self.pose_conf_threshold = self._double_row("Pose confidence threshold", 0.3, 0.0, 1.0, 3)
         self.num_frames = self._spin_row("Window frames (0 = model config)", 0, 0)
         self.window_stride = self._spin_row("Window stride (0 = model config)", 0, 0)
         self.temporal_smoothing_window = self._spin_row("Median smoothing window", 0, 0)
         self.bout_min_duration = self._spin_row("Bout min duration frames", 0, 0)
         self.csv_flush_interval = self._spin_row("CSV flush interval", 50, 1)
+        self.decoder_config = self._path_row("Decoder config JSON", mode="file", file_filter="JSON (*.json);;All files (*.*)")
+        self.disable_threshold_decoder = self._checkbox_row("Disable threshold decoder", False)
+        self.temporal_splitter_config = self._path_row("Temporal splitter JSON", mode="file", file_filter="JSON (*.json);;All files (*.*)")
+        self.disable_temporal_splitter = self._checkbox_row("Disable temporal splitter", False)
         self.smooth_bouts = self._checkbox_row("Smooth bouts for MP4/frame CSV", True)
         self.log_metrics = self._checkbox_row("Log runtime metrics", True)
+        self.metrics_log_interval = self._spin_row("Metrics log interval", 30, 1)
         self.amp = self._checkbox_row("Inference AMP", True)
+        self.amp_dtype = self._combo_row("AMP dtype", ["auto", "bf16", "fp16"], "auto")
         self.export_pose = self._checkbox_row("Export pose CSV (keypoints + bbox per frame)", False)
         self.no_bboxes = self._checkbox_row("Hide boxes in review MP4", False)
         self.no_keypoints = self._checkbox_row("Hide keypoints in review MP4", False)
+        self.no_video_header = self._checkbox_row("Do not write video metadata header", False)
         runner = ProcessRunner(command_builder=self.build_command, graceful_stop=self.request_stop)
         title = "Batch process a folder with BehaviorScope-Y" if batch_mode else "Run BehaviorScope-Y inference"
         self._wrap(title, runner)
@@ -829,6 +932,14 @@ class InferencePanel(WorkflowPanel):
             str(self.yolo_batch.value()),
             "--fps",
             str(self.fps.value()),
+            "--crop_size",
+            str(self.crop_size.value()),
+            "--animal_scale_factor",
+            str(self.animal_scale_factor.value()),
+            "--group_scale_factor",
+            str(self.group_scale_factor.value()),
+            "--pose_conf_threshold",
+            str(self.pose_conf_threshold.value()),
             "--num_frames",
             str(self.num_frames.value()),
             "--window_stride",
@@ -844,6 +955,10 @@ class InferencePanel(WorkflowPanel):
             cmd.extend(["--yolo_weights", self.yolo_weights.text().strip()])
         if self.model_config.text().strip():
             cmd.extend(["--model_config", self.model_config.text().strip()])
+        if self.body_length_px.value() > 0:
+            cmd.extend(["--body_length_px", str(self.body_length_px.value())])
+        if self.calibration_json.text().strip():
+            cmd.extend(["--calibration_json", self.calibration_json.text().strip()])
         if self.output.text().strip() and not self.batch_mode:
             cmd.extend(["--output", self.output.text().strip()])
         if self.output_dir.text().strip():
@@ -852,18 +967,30 @@ class InferencePanel(WorkflowPanel):
             cmd.extend(["--output_video", self.output_video.text().strip()])
         if self.output_video_dir.text().strip():
             cmd.extend(["--output_video_dir", self.output_video_dir.text().strip()])
+        if self.decoder_config.text().strip():
+            cmd.extend(["--decoder_config", self.decoder_config.text().strip()])
+        if self.disable_threshold_decoder.isChecked():
+            cmd.append("--disable_threshold_decoder")
+        if self.temporal_splitter_config.text().strip():
+            cmd.extend(["--temporal_splitter_config", self.temporal_splitter_config.text().strip()])
+        if self.disable_temporal_splitter.isChecked():
+            cmd.append("--disable_temporal_splitter")
         if self.smooth_bouts.isChecked():
             cmd.append("--smooth_bouts")
         if self.log_metrics.isChecked():
             cmd.append("--log_metrics")
+            cmd.extend(["--metrics_log_interval", str(self.metrics_log_interval.value())])
         if self.amp.isChecked():
             cmd.append("--amp")
+            cmd.extend(["--amp_dtype", self.amp_dtype.currentText()])
         if self.export_pose.isChecked():
             cmd.append("--export_pose")
         if self.no_bboxes.isChecked():
             cmd.append("--no_bboxes")
         if self.no_keypoints.isChecked():
             cmd.append("--no_keypoints")
+        if self.no_video_header.isChecked():
+            cmd.append("--no_video_header")
         stop_flag = self._stop_flag_path()
         cmd.extend(["--stop_flag_file", str(stop_flag)])
         cmd.extend(self._extra())

@@ -110,6 +110,8 @@ def resolve_amp_dtype(requested: str) -> str:
 
 def main():
     args = parse_args()
+    if int(args.n_animals) <= 0:
+        raise SystemExit("--n_animals must be >= 1.")
     device = torch.device(args.device)
     out_dir = Path(args.output_dir)
     out_dir.mkdir(parents=True, exist_ok=True)

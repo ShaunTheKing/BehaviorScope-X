@@ -1,0 +1,81 @@
+# Python/runtime artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+build/
+dist/
+*.egg-info/
+
+# Local environments and machine-specific settings
+.venv/
+venv/
+env/
+.env
+.env.*
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Logs and temporary files
+*.log
+*.tmp
+*.temp
+*.bak
+*.swp
+
+# Local tutorial media and generated workflow outputs.
+# Keep tutorial manifests/annotations in Git; distribute MP4s separately
+# via Hugging Face or another data host to avoid GitHub's regular file limit.
+tutorial_data/**/videos/**/*.mp4
+tutorial_data/**/videos/**/*.avi
+tutorial_data/**/videos/**/*.mov
+tutorial_data/**/videos/**/*.mkv
+tutorial_data/**/videos/*.mp4
+tutorial_data/**/videos/*.avi
+tutorial_data/**/videos/*.mov
+tutorial_data/**/videos/*.mkv
+tutorial_data/**/outputs/
+
+# Local GUI/project outputs
+.behaviorscope_y/
+BehaviorScope-Y_tutorial_outputs/
+*.sqlite
+*.sqlite-journal
+*.db
+*.db-journal
+
+# Training/inference artifacts that can become large or machine-specific
+runs/
+outputs/
+logs/
+wandb/
+mlruns/
+lightning_logs/
+checkpoints/
+weights/
+models/
+**/prepared_npz/
+**/feature_cache/
+**/inference_outputs/
+**/batch_outputs/
+*.pt
+*.pth
+*.ckpt
+*.onnx
+*.npz
+*.npy
+*.pkl
+*.pickle
+
+# Archives and packaged data drops
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.7z

@@ -33,6 +33,27 @@ def slugify(name: str) -> str:
     return cleaned.strip("_") or "behavior"
 
 
+def normalize_video_split(split: str) -> str:
+    value = str(split or "train").strip().lower()
+    aliases = {
+        "training": "train",
+        "validation": "val",
+        "valid": "val",
+        "holdout": "test",
+        "heldout": "test",
+        "held_out": "test",
+        "held-out": "test",
+        "test_holdout": "test",
+        "exclude": "exclude",
+        "excluded": "exclude",
+    }
+    value = aliases.get(value, value)
+    allowed = {"train", "val", "test", "exclude"}
+    if value not in allowed:
+        raise ValueError(f"Unsupported video split {split!r}; expected one of {sorted(allowed)}.")
+    return value
+
+
 def default_color(index: int) -> str:
     hue = (index * 137.508) % 360.0
     r, g, b = colorsys.hls_to_rgb(hue / 360.0, 0.48, 0.62)
@@ -147,6 +168,7 @@ class AnnotationStore:
                 imported_at TEXT NOT NULL,
                 last_position_ms INTEGER NOT NULL DEFAULT 0,
                 status TEXT NOT NULL DEFAULT 'unseen',
+                split TEXT NOT NULL DEFAULT 'train',
                 notes TEXT NOT NULL DEFAULT '',
                 UNIQUE(project_id, sha256, file_size),
                 FOREIGN KEY(project_id) REFERENCES projects(id) ON DELETE CASCADE
@@ -204,6 +226,14 @@ class AnnotationStore:
         self.conn.commit()
 
     def _apply_schema_migrations(self) -> None:
+        video_columns = {
+            str(row["name"])
+            for row in self.conn.execute("PRAGMA table_info(videos)").fetchall()
+        }
+        if "split" not in video_columns:
+            self.conn.execute(
+                "ALTER TABLE videos ADD COLUMN split TEXT NOT NULL DEFAULT 'train'"
+            )
         behavior_columns = {
             str(row["name"])
             for row in self.conn.execute("PRAGMA table_info(behaviors)").fetchall()
@@ -265,6 +295,7 @@ class AnnotationStore:
             "resume_behavior_id": "",
             "bookmark_span_ms": "2000",
             "full_video_annotation_guidance_seen": "0",
+            "show_workflow_guide_on_startup": "1",
             "full_video_annotation_root": str((self.db_path.parent / "full_video_annotations").resolve()),
             "full_video_val_ratio": "0.20",
         }
@@ -676,8 +707,8 @@ class AnnotationStore:
                 """
                 INSERT INTO videos
                 (project_id, path, filename, sha256, file_size, fps, total_frames,
-                 duration_ms, width, height, codec, imported_at, last_position_ms, status, notes)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 'unseen', '')
+                 duration_ms, width, height, codec, imported_at, last_position_ms, status, split, notes)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 'unseen', 'train', '')
                 """,
                 (
                     project_id,
@@ -717,6 +748,7 @@ class AnnotationStore:
                 v.imported_at,
                 v.last_position_ms,
                 v.status,
+                v.split,
                 COUNT(a.id) AS annotation_count,
                 SUM(CASE WHEN a.is_ambiguous = 1 THEN 1 ELSE 0 END) AS ambiguous_count,
                 SUM(CASE WHEN a.status = 'approved' THEN 1 ELSE 0 END) AS approved_count
@@ -746,6 +778,7 @@ class AnnotationStore:
                 imported_at=str(row["imported_at"]),
                 last_position_ms=int(row["last_position_ms"]),
                 status=str(row["status"]),
+                split=str(row["split"] or "train"),
                 annotation_count=int(row["annotation_count"] or 0),
                 ambiguous_count=int(row["ambiguous_count"] or 0),
                 approved_count=int(row["approved_count"] or 0),
@@ -779,6 +812,25 @@ class AnnotationStore:
                 "UPDATE videos SET last_position_ms = ?, status = ? WHERE id = ?",
                 (int(position_ms), status, video_id),
             )
+        self.conn.commit()
+
+    def set_video_split(self, video_id: int, split: str) -> None:
+        split = normalize_video_split(split)
+        self.conn.execute(
+            "UPDATE videos SET split = ? WHERE id = ?",
+            (split, int(video_id)),
+        )
+        self.conn.commit()
+
+    def set_video_splits(self, video_ids: Iterable[int], split: str) -> None:
+        split = normalize_video_split(split)
+        ids = [int(video_id) for video_id in video_ids]
+        if not ids:
+            return
+        self.conn.executemany(
+            "UPDATE videos SET split = ? WHERE id = ?",
+            [(split, video_id) for video_id in ids],
+        )
         self.conn.commit()
 
     def save_resume_state(

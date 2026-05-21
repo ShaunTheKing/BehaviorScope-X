@@ -1,52 +1,154 @@
-# BehaviorScope-Y
+﻿# BehaviorScope-Y
 
-BehaviorScope-Y is a YOLO-backed behavior-classification workflow for multi-animal videos. A YOLO-pose checkpoint is reused for both keypoint detection and frozen visual feature extraction, while a temporal classifier learns behavior from visual tokens, pose-self features, and inter-animal relational geometry.
+BehaviorScope-Y is a desktop application for building animal behavior classifiers from video. It combines YOLO-pose detection with a temporal behavior model so researchers can annotate videos, train a classifier, and run inference from a single GUI-driven workflow.
 
-The public workflow is:
+The application supports the full path from raw videos to reviewable predictions:
 
-1. Annotate full videos or export class-folder clips with the Qt app.
-2. Build BehaviorScope-Y NPZ windows.
-3. Build or reuse a YOLO visual feature cache.
-4. Train a classifier with configurable LSTM or attention temporal heads.
-5. Export a bundled single `.pt` that contains both the classifier and YOLO-pose weights.
-6. Run inference with that single `.pt`, without juggling a separate YOLO path.
+- import and annotate videos,
+- assign videos to train, validation, and held-out test splits,
+- prepare full-video training windows,
+- train a temporal behavior classifier,
+- bundle the classifier and YOLO-pose model into one `.pt` file,
+- run inference on one video or a folder of videos,
+- export prediction CSVs and annotated review MP4s.
 
-## Install
+Command-line scripts are included for automation and reproducible batch runs, but the recommended starting point is the Qt GUI.
+
+## Quick Start
 
 ```bash
 python -m venv .venv
 .venv\Scripts\activate
 pip install -r requirements.txt
+python behaviorscope_y_qt.py
 ```
 
-For GPU training, install the CUDA build of PyTorch first, then install the rest of the requirements:
+For GPU training, install the CUDA build of PyTorch before installing the remaining dependencies:
 
 ```bash
 pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121
 pip install -r requirements.txt
 ```
 
-`ffmpeg` is recommended for clip extraction and video conversion.
+`ffmpeg` is recommended for video conversion and some export workflows.
 
-## Launch The App
+## Requirements
+
+- Python 3.10 or newer is recommended.
+- A YOLO-pose `.pt` checkpoint for the target animal/video setup.
+- Videos readable by OpenCV/Qt, such as `.mp4`.
+- An NVIDIA GPU is recommended for training and faster inference.
+
+## GUI Workflow
+
+Launch the application:
 
 ```bash
 python behaviorscope_y_qt.py
 ```
 
-The Qt workflow tabs are ordered for the normal user path:
+The main tabs are ordered by workflow:
 
-- `Annotate + Clip`: import videos, annotate spans, and export full-video annotation manifests.
-- `Prepare Full Video`: converts full-video annotation exports into NPZ windows.
-- `Feature Cache`: precomputes frozen YOLO visual tokens for selected splits.
-- `Train`: trains the temporal classifier and can export a bundled single `.pt`.
-- `Inference` / `Batch`: runs prediction on one video or a folder.
+- `Annotate + Clip`: import videos, annotate behavior spans, review labels, and export full-video annotation manifests.
+- `Prepare Full Video`: convert full-video annotations into training windows.
+- `Feature Cache`: precompute YOLO visual features for faster training.
+- `Train`: train the temporal behavior classifier and export a bundled model.
+- `Inference`: run prediction on a single video and optionally save an annotated review MP4.
+- `Batch`: run prediction on a folder of videos.
 
-After each successful step, the app fills the next tab's paths automatically.
+After a step completes successfully, the GUI fills the next tab's paths where possible.
 
-## Command Line Workflow
+## GUI Screenshots
 
-Prepare full-video NPZs:
+The screenshots below show the main GUI workflow with annotated callouts for new users. The image files are stored in `docs/screenshots/annotated/` so GitHub can render them directly from the repository.
+
+### Annotation Workspace
+
+![Annotated screenshot of the annotation workspace](docs/screenshots/annotated/01_annotate_tutorial_annotated.png)
+
+### Prepare Full-Video Dataset
+
+![Annotated screenshot of the Prepare Full Video tab](docs/screenshots/annotated/02_prepare_full_video_annotated.png)
+
+### Feature Cache
+
+![Annotated screenshot of the Feature Cache tab](docs/screenshots/annotated/03_feature_cache_annotated.png)
+
+### Train
+
+![Annotated screenshot of the Train tab](docs/screenshots/annotated/04_train_annotated.png)
+
+### Inference
+
+![Annotated screenshot of the Inference tab](docs/screenshots/annotated/05_inference_annotated.png)
+
+### Batch Inference
+
+![Annotated screenshot of the Batch tab](docs/screenshots/annotated/06_batch_annotated.png)
+
+## Tutorial Dataset
+
+BehaviorScope-Y includes a guided tutorial based on a small MARS mouse-behavior subset. In the GUI, choose:
+
+```text
+Tutorial > Download/Load BehaviorScope-Y tutorial...
+```
+
+The tutorial loader downloads or locates the tutorial data, imports the videos, adds behavior labels, assigns train/validation/test splits, converts `.annot` files into timeline annotations, and fills the downstream workflow paths.
+
+If the automatic download fails, manual download instructions are available in [`tutorial_data/README.md`](tutorial_data/README.md).
+
+## Annotation And Splits
+
+The annotation workspace supports:
+
+- importing individual videos or folders,
+- creating and editing behavior spans on a timeline,
+- marking spans as draft, ready, approved, or rejected,
+- locking reviewed spans,
+- assigning videos to `train`, `val`, `test`, or `exclude`,
+- exporting full-video annotations for training.
+
+For full-video training, use:
+
+```text
+Project > Export full-video annotations...
+```
+
+Legacy clip extraction remains available from the Project menu, but full-video annotation export is the recommended training path.
+
+## Model Bundling
+
+BehaviorScope-Y uses two model components during training:
+
+- a YOLO-pose model for detection, keypoints, and visual feature extraction,
+- a temporal classifier for behavior prediction.
+
+Training can export a bundled `.pt` file containing both components. Existing classifier and YOLO-pose checkpoints can also be bundled from the GUI:
+
+```text
+Model Tools > Bundle existing classifier + YOLO...
+```
+
+The bundled model is the preferred inference format because users do not need to manage separate classifier, config, and YOLO paths.
+
+## Inference Outputs
+
+Inference can produce:
+
+- behavior prediction CSV files,
+- smoothed per-frame outputs,
+- runtime metrics,
+- optional pose exports,
+- annotated review MP4s.
+
+Review MP4s make it easier to inspect predictions visually and share model outputs with collaborators.
+
+## Command-Line Use
+
+The GUI is the recommended entry point. The CLI remains useful for scripted runs, remote machines, and reproducible experiments.
+
+Prepare full-video training windows:
 
 ```bash
 python prepare_full_video_npz.py ^
@@ -57,89 +159,50 @@ python prepare_full_video_npz.py ^
   --validate_manifest
 ```
 
-Build the visual feature cache:
-
-```bash
-python precompute_visual_features_y.py ^
-  --manifest_path runs\my_dataset_npz\sequence_manifest.json ^
-  --yolo_weights path\to\yolo_pose_best.pt ^
-  --output_dir runs\my_dataset_npz\yolo_feature_cache ^
-  --splits train val ^
-  --cache_dtype float32
-```
-
-Train with an LSTM temporal head:
-
-```bash
-python train_y.py ^
-  --manifest_path runs\my_dataset_npz\sequence_manifest.json ^
-  --yolo_weights path\to\yolo_pose_best.pt ^
-  --use_feature_cache runs\my_dataset_npz\yolo_feature_cache ^
-  --sequence_model lstm ^
-  --hidden_dim 896 ^
-  --num_lstm_layers 1 ^
-  --attention_heads 4 ^
-  --project runs ^
-  --name my_lstm896_run ^
-  --export_single_model
-```
-
-Train with an attention temporal head:
+Train and export a bundled model:
 
 ```bash
 python train_y.py ^
   --manifest_path runs\my_dataset_npz\sequence_manifest.json ^
   --yolo_weights path\to\yolo_pose_best.pt ^
   --auto_feature_cache ^
-  --sequence_model attention ^
-  --hidden_dim 896 ^
-  --attention_heads 8 ^
-  --positional_encoding sinusoidal ^
+  --sequence_model lstm ^
   --project runs ^
-  --name my_attention_run ^
+  --name my_behavior_model ^
   --export_single_model
 ```
 
-Run inference with the bundled model:
+Run inference:
 
 ```bash
 python infer_y.py ^
-  --model_path runs\my_lstm896_run\behaviorscope_y_single_model.pt ^
+  --model_path runs\my_behavior_model\behaviorscope_y_single_model.pt ^
   --source path\to\video.mp4 ^
-  --output runs\my_lstm896_run\inference_outputs\video.behavior.csv ^
-  --output_video runs\my_lstm896_run\inference_outputs\video.annotated.mp4
+  --output runs\my_behavior_model\inference_outputs\video.behavior.csv ^
+  --output_video runs\my_behavior_model\inference_outputs\video.annotated.mp4
 ```
 
-For older two-file checkpoints, pass `--model_path`, optional `--model_config`, and `--yolo_weights`.
+## Repository Layout
 
-## Architecture Knobs
+- `behaviorscope_y_qt.py`: Qt GUI launcher.
+- `annotation_app/`: GUI application code.
+- `prepare_full_video_npz.py`: full-video dataset preparation.
+- `precompute_visual_features_y.py`: YOLO feature-cache generation.
+- `train_y.py`: behavior classifier training.
+- `infer_y.py`: inference and review-video export.
+- `package_single_model_y.py`: single-file model bundling.
+- `docs/screenshots/`: reusable raw and annotated GUI screenshots for documentation.
+- `tutorial_data/`: tutorial metadata and local tutorial cache.
 
-The CLI and Qt training panel expose the manuscript-relevant model controls:
+## Data License
 
-- Temporal head: `--sequence_model lstm|attention`
-- Recurrent capacity: `--hidden_dim`, `--num_lstm_layers`, `--bidirectional_lstm`
-- Attention behavior: `--attention_heads`, `--use_attention_pool`, `--positional_encoding`
-- Fusion: `--pose_fusion_dim`, `--pose_fusion_strategy`
-- YOLO visual trunk: `--yolo_backbone_end_layer`, `--train_backbone`, `--backbone_lr`
-- Stream ablations: `--disable_group_rgb`, `--disable_per_animal_rgb`, `--disable_pose_self`, `--disable_relations`, `--disable_visual_streams`
-- Cache behavior: `--auto_feature_cache`, `--use_feature_cache`, `--feature_cache_dtype`
+The tutorial media and annotations are derived from MARS data and are distributed under `CC BY-NC 4.0` terms with attribution. The tutorial dataset is separate from the software license.
 
-## Single-File Model Packaging
+## License
 
-Training can write the bundled model automatically:
+BehaviorScope-Y source code is licensed under the GNU Affero General Public License v3.0. See [`LICENSE`](LICENSE) for the full license text.
 
-```bash
-python train_y.py ... --export_single_model
-```
 
-You can also package an existing run:
 
-```bash
-python package_single_model_y.py ^
-  --classifier_checkpoint runs\my_run\best_model_macro_f1.pt ^
-  --model_config runs\my_run\config.json ^
-  --yolo_weights path\to\yolo_pose_best.pt ^
-  --output runs\my_run\behaviorscope_y_single_model.pt
-```
 
-The bundled `.pt` embeds the classifier checkpoint, training config, decoder metadata, temporal splitter metadata when present, and the raw YOLO-pose checkpoint bytes.
+

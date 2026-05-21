@@ -9,7 +9,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
 from .models import AnnotationRecord, BehaviorRecord, VideoRecord
-from .store import AnnotationStore, write_clip_manifest
+from .store import AnnotationStore, normalize_video_split, write_clip_manifest
 
 
 def extract_approved_clips(
@@ -244,7 +244,7 @@ def export_full_video_annotations(
 
     This is the bridge from user-owned videos to `prepare_full_video_npz.py`.
     It preserves full source videos, writes one .annot file per video, and
-    emits a source_manifest.csv with train/val assignments.
+    emits a source_manifest.csv with the GUI's per-video split assignments.
     """
     output_root = Path(output_root)
     annot_dir = output_root / "annotations"
@@ -266,19 +266,24 @@ def export_full_video_annotations(
         encoding="utf-8",
     )
 
-    split_by_video = _assign_video_splits(videos, val_ratio=float(val_ratio))
     rows: list[dict] = []
     batch_videos: list[dict] = []
-    class_counts_by_split: dict[str, Counter[str]] = {"train": Counter(), "val": Counter()}
+    class_counts_by_split: dict[str, Counter[str]] = {
+        "train": Counter(),
+        "val": Counter(),
+        "test": Counter(),
+    }
     span_counts_by_class: Counter[str] = Counter()
     for video in videos:
+        split = normalize_video_split(getattr(video, "split", "train"))
+        if split == "exclude":
+            continue
         anns = sorted(
             annotations_by_video.get(video.id, []),
             key=lambda a: (a.start_ms, a.end_ms, a.id),
         )
         annot_path = annot_dir / f"{Path(video.filename).stem}.annot"
         _write_bento_annot(annot_path, video, anns, behavior_by_id)
-        split = split_by_video.get(video.id, "train")
         batch_annotations = []
         for annotation in anns:
             behavior = behavior_by_id.get(annotation.behavior_id)
@@ -361,6 +366,7 @@ def export_full_video_annotations(
         "approved_annotation_count": sum(len(v) for v in annotations_by_video.values()),
         "class_names": class_names,
         "val_ratio": float(val_ratio),
+        "split_source": "per_video_gui_assignment",
         "split_counts": dict(Counter(row["split"] for row in rows)),
         "videos": batch_videos,
     }
@@ -389,6 +395,7 @@ def export_full_video_annotations(
         "approved_annotation_count": sum(len(v) for v in annotations_by_video.values()),
         "class_names": class_names,
         "val_ratio": float(val_ratio),
+        "split_source": "per_video_gui_assignment",
         "split_counts": dict(Counter(row["split"] for row in rows)),
         "preflight": preflight,
     }
