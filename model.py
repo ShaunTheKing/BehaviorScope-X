@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 import math
 import warnings
@@ -1139,3 +1139,4 @@ class BehaviorSequenceClassifier(nn.Module):
 
         logits = self.head(pooled)
         return logits
+

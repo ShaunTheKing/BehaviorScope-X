@@ -43,7 +43,9 @@ tutorial_data/**/videos/*.mkv
 tutorial_data/**/outputs/
 
 # Local GUI/project outputs
+.behaviorscope_x/
 .behaviorscope_y/
+BehaviorScope-X_tutorial_outputs/
 BehaviorScope-Y_tutorial_outputs/
 *.sqlite
 *.sqlite-journal

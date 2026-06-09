@@ -1,0 +1,39 @@
+{
+  "analysis": "MARS MobileNetV3-native backbone generalization",
+  "dataset": "MARS resident-intruder",
+  "pose_backbone": "MobileNetV3-large pose checkpoint",
+  "feature_tap": "MobileNetV3 final feature block with adaptive average pooling, 960 dimensions per crop",
+  "temporal_sequence_classifiers": {
+    "heads": ["lstm", "attention"],
+    "model_ids": ["full_lstm256"],
+    "hidden_dim": 256,
+    "seeds": [42, 43, 44],
+    "window_size": 32,
+    "window_stride": 16,
+    "class_weighting": "sqrt_inverse",
+    "class_weight_clamp": 1.5,
+    "train_sampler": "weighted",
+    "tcn": "excluded from final manuscript comparison"
+  },
+  "classical_baselines": {
+    "included": true,
+    "visual_backend": "mobilenetv3_native",
+    "models": ["Random Forest", "XGBoost"],
+    "feature_sets": [
+      "pose_frame",
+      "pose_window",
+      "pose_visual_frame_pca",
+      "pose_visual_window_pca"
+    ],
+    "visual_pca_dim_per_frame": 64,
+    "seeds": [42, 43, 44]
+  },
+  "cache_rebuild": {
+    "flag": "--rebuild_npz",
+    "training_npz": "outputs/npz_cache/mars_full_video",
+    "heldout_npz": "outputs/npz_cache/mars_heldout_eval",
+    "mobilenet_feature_cache_stage": "build_visual_cache",
+    "heldout_split_policy": "Build MARS test_1/test_2 through the NPZ builder train/val slots while retaining mars_split for evaluation."
+  },
+  "heldout_units": "same 30 full MARS videos from test_1 and test_2"
+}

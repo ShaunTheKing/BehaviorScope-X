@@ -1,14 +1,14 @@
-﻿# BehaviorScope-Y Tutorial Data
+﻿# BehaviorScope-X Tutorial Data
 
 This directory is the default local cache for the GUI tutorial dataset.
 
-The GitHub repository keeps lightweight tutorial metadata in `BehaviorScope-Y_tutorial`, including manifests, class names, provenance, and ground-truth `.annot` files. The MP4 videos are distributed separately because regular GitHub repositories block files larger than 100 MiB.
+The GitHub repository keeps lightweight tutorial metadata in `BehaviorScope-Y_tutorial`, including manifests, class names, provenance, reference `.annot` files, and optional tutorial model manifests. The folder name is retained for compatibility with existing tutorial manifests, while the GUI presents the workflow as BehaviorScope-X. The MP4 videos and large tutorial checkpoints may be distributed separately because regular GitHub repositories block files larger than 100 MiB.
 
 ## Automatic Download
 
 In the GUI, use:
 
-`Tutorial > Download/Load BehaviorScope-Y tutorial...`
+`Tutorial > Download/Load BehaviorScope-X tutorial...`
 
 If the tutorial videos are missing locally, the GUI can download the Hugging Face dataset into this `tutorial_data` directory and then import the videos, splits, labels, and timeline annotations.
 
@@ -29,16 +29,28 @@ tutorial_data/
     class_names.txt
     provenance.json
     annotations/
+    tutorial_models/
+      full_pose_mobilenetv3/
+      full_attn_classifier_mobilenetv3/
     videos/
       train/
       val/
       test/
 ```
 
-Then launch the GUI and choose `Tutorial > Download/Load BehaviorScope-Y tutorial...`. If the folder is not detected automatically, choose `Locate Folder` and select `BehaviorScope-Y_tutorial`.
+Then launch the GUI and choose `Tutorial > Download/Load BehaviorScope-X tutorial...`. If the folder is not detected automatically, choose `Locate Folder` and select `BehaviorScope-Y_tutorial`.
+
+You can check whether the local tutorial cache is complete with:
+
+```bash
+python tutorial_data/validate_tutorial_data.py
+```
+
+The validator checks tutorial videos, reference annotations, MobileNetV3 tutorial checkpoints, classifier configuration portability, and the tutorial model manifest.
 
 ## License
 
-The tutorial media and annotations are derived from MARS data and should be distributed under the original MARS-compatible `CC BY-NC 4.0` terms with attribution. The tutorial data is separate from the BehaviorScope-Y software license and is not AGPL-licensed.
+The tutorial media and annotations are derived from MARS data and should be distributed under the original MARS-compatible `CC BY-NC 4.0` terms with attribution. The tutorial data is separate from the BehaviorScope-X software license and is not AGPL-licensed.
+
 
 

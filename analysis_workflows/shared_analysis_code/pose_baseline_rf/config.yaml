@@ -1,0 +1,68 @@
+# Controlled RF/XGBoost baselines for reproducible reruns.
+# Paths are resolved relative to the repository root unless absolute.
+
+project:
+  output_root: outputs/pose_baseline_rf_controlled
+  random_seed: 42
+
+paths:
+  train_manifest: outputs/npz_cache/mars_full_video/sequence_manifest.json
+  heldout_manifest: outputs/npz_cache/mars_heldout_eval/sequence_manifest.json
+  train_feature_cache: outputs/npz_cache/mars_full_video/yolo_feature_cache
+  heldout_feature_cache: outputs/eval_feature_cache/mars_stride16
+  mars_data_root: MARS-data
+  shared_scripts: .
+
+features:
+  dataset: mars
+  n_animals: 2
+  n_keypoints: 7
+  relation_dim: 11
+  pose_reliability_dim_per_animal: 4
+  relation_reliability_dim_per_pair: 2
+  visual_raw_dim_per_frame: 768
+  visual_pca_dim_per_frame: 64
+  expected_pose_relation_dim_per_frame: 132
+  expected_pose_visual_pca_dim_per_frame: 196
+  feature_sets:
+    - pose_frame
+    - pose_window
+    - pose_visual_frame_pca
+    - pose_visual_window_pca
+
+pca:
+  enabled: true
+  n_components: 64
+  algorithm: incremental
+  batch_size: 8192
+  fit_split: train
+
+random_forest:
+  n_estimators: 500
+  max_depth: null
+  min_samples_leaf: 5
+  max_features: sqrt
+  class_weight: balanced
+  n_jobs: -1
+  random_state: 42
+
+xgboost:
+  enabled: true
+  n_estimators: 1000
+  max_depth: 8
+  learning_rate: 0.1
+  subsample: 0.8
+  colsample_bytree: 0.8
+  early_stopping_rounds: 50
+  eval_metric: mlogloss
+  n_jobs: -1
+  random_state: 42
+
+evaluation:
+  classes: [attack, investigation, mount, other]
+  behavior_classes: [attack, investigation, mount]
+  fps: 30.0
+  temporal_smoothing_window: 5
+  bout_min_duration_frames: 15
+  splits: [test_1, test_2]
+  allow_pred_named_annots: false

@@ -1,4 +1,4 @@
-import numpy as np
+﻿import numpy as np
 
 def compute_pairwise_distances(keypoints: np.ndarray) -> np.ndarray:
     """
@@ -108,3 +108,5 @@ def extract_rich_pose_features(keypoints: np.ndarray) -> np.ndarray:
     rich_features = np.concatenate([flat_coords, dists, speeds], axis=1)
     
     return rich_features.astype(np.float32)
+
+

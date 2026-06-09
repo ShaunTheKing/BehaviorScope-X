@@ -1,6 +1,6 @@
-﻿{
+{
     "created_at":  "2026-05-21T05:15:21.781583+00:00",
-    "description":  "Curated MARS subset for BehaviorScope-Y GUI tutorial and functional workflow testing.",
+    "description":  "Curated MARS subset for BehaviorScope-X GUI tutorial and functional workflow testing.",
     "source_dataset_root":  "Caltech MARS mouse-behavior dataset; local source path omitted",
     "test_mp4_cache":  "Preconverted tutorial MP4 cache; local source path omitted",
     "selection_note":  "Small subset chosen to keep tutorial size manageable while covering attack, investigation, and mount.",

@@ -1,0 +1,21 @@
+﻿site_name: BehaviorScope-X
+site_description: GUI and reproducible workflows for pose-assisted animal behavior classification.
+repo_url: ""
+theme:
+  name: readthedocs
+nav:
+  - Home: index.md
+  - Installation: installation.md
+  - GUI Overview: gui-overview.md
+  - Annotation Workflow: annotation-workflow.md
+  - YOLO-pose Workflow: yolo-pose-workflow.md
+  - MobileNetV3 Workflow: mobilenetv3-workflow.md
+  - DeepLabCut-HRNet Workflow: deeplabcut-hrnet-workflow.md
+  - Feature Taps: feature-taps.md
+  - Outputs and Provenance: outputs-and-provenance.md
+  - Troubleshooting: troubleshooting.md
+markdown_extensions:
+  - admonition
+  - toc:
+      permalink: true
+

@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 from dataclasses import dataclass
 
@@ -71,3 +71,4 @@ class AnnotationSessionState:
 
     def has_pending_pair(self) -> bool:
         return self.pending_start_ms is not None and self.pending_end_ms is not None
+

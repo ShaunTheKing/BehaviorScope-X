@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import argparse
 import yaml
@@ -121,3 +121,5 @@ def merge_args_with_config(args: Any, config: Dict[str, Any]) -> Any:
             setattr(args, key, value)
             
     return args
+
+

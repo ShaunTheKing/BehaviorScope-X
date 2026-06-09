@@ -1,7 +1,7 @@
-﻿"""Prepare BehaviorScope-Y full-video training NPZ from source videos using a
+"""Prepare BehaviorScope-Y full-video training NPZ from source videos using a
 sliding window over the entire timeline.
 
-Unlike `prepare_clips_y.py`, which samples windows from inside pre-extracted
+Unlike `prepare_clips_x.py`, which samples windows from inside pre-extracted
 bout clips, this script:
 
   * Discovers full source videos under the MARS dataset root (train + validation).
@@ -15,7 +15,7 @@ bout clips, this script:
     minimum dominance threshold); optionally subsamples "other" windows to
     keep the class balance reasonable.
   * Writes a manifest in the same ``behaviorscope-n-v1`` schema that
-    ``train_y.py`` already consumes.
+    ``train_x.py`` already consumes.
 
 This full-video workflow is the recommended dataset-preparation path for
 new GUI projects because it preserves temporal context and avoids requiring
@@ -56,25 +56,27 @@ if __package__ is None or __package__ == "":  # pragma: no cover - CLI entry
     THIS = Path(__file__).resolve().parent
     sys.path.insert(0, str(THIS))
     from cropping import load_yolo_model
-    from cropping_y import NCropDetection, iterate_yolo_n_crops
-    from data_y import load_n_manifest, validate_n_npz_payload
-    from model_y import inspect_yolo_keypoint_count
+    from cropping_x import NCropDetection, iterate_yolo_n_crops
+    from data_x import load_n_manifest, validate_n_npz_payload
+    from mobilenetv3_pose_x import load_mobilenetv3_pose_model, iterate_mobilenetv3_n_crops
+    from model_x import inspect_yolo_keypoint_count
     from utils.logging_utils import setup_logger
-    from utils.pose_features_y import REL_FEATURE_DIM
+    from utils.pose_features_x import REL_FEATURE_DIM
 else:  # pragma: no cover
     from .cropping import load_yolo_model
-    from .cropping_y import NCropDetection, iterate_yolo_n_crops
-    from .data_y import load_n_manifest, validate_n_npz_payload
-    from .model_y import inspect_yolo_keypoint_count
+    from .cropping_x import NCropDetection, iterate_yolo_n_crops
+    from .data_x import load_n_manifest, validate_n_npz_payload
+    from .mobilenetv3_pose_x import load_mobilenetv3_pose_model, iterate_mobilenetv3_n_crops
+    from .model_x import inspect_yolo_keypoint_count
     from .utils.logging_utils import setup_logger
-    from .utils.pose_features_y import REL_FEATURE_DIM
+    from .utils.pose_features_x import REL_FEATURE_DIM
 
 # Reuse `.annot` parsing and `.seq` conversion from the existing scripts
 # modules, so conversion and evaluation share one implementation.
 _REPO_ROOT = Path(__file__).resolve().parent.parent
 _SCRIPTS_DIR = _REPO_ROOT / "scripts"
 sys.path.insert(0, str(_SCRIPTS_DIR))
-from batch_infer_eval_behaviorscope_y import (  # noqa: E402
+from batch_infer_eval_behaviorscope_x import (  # noqa: E402
     convert_seq_to_mp4,
     find_seq,
     find_annot,
@@ -204,7 +206,7 @@ def expand_gt_to_frames_for_classes(
 
 
 # ---------------------------------------------------------------------------
-# Async NPZ writer — same design as v4 prepare_clips_y._AsyncNPZWriter
+# Async NPZ writer, shared with the clip-based cache builder design.
 # ---------------------------------------------------------------------------
 class _AsyncNPZWriter:
     def __init__(
@@ -610,10 +612,16 @@ def _video_build_signature(src: VideoSource, args, class_names: Sequence[str]) -
         "animal_scale_factor": float(args.animal_scale_factor),
         "group_scale_factor": float(args.group_scale_factor),
         "body_length_px": None if args.body_length_px is None else float(args.body_length_px),
-        "yolo_weights": str(Path(args.yolo_weights).resolve()),
-        "yolo_conf": float(args.yolo_conf),
-        "yolo_iou": float(args.yolo_iou),
-        "yolo_imgsz": int(args.yolo_imgsz),
+        "pose_backend": str(getattr(args, "pose_backend", "yolo")),
+        "yolo_weights": str(Path(args.yolo_weights).resolve()) if getattr(args, "yolo_weights", None) else None,
+        "mobilenetv3_checkpoint": (
+            str(Path(args.mobilenetv3_checkpoint).resolve())
+            if getattr(args, "mobilenetv3_checkpoint", None)
+            else None
+        ),
+        "pose_conf": float(args.pose_model_conf),
+        "pose_iou": float(args.pose_model_iou),
+        "pose_imgsz": int(args.pose_model_imgsz),
         "source_mode": str(args.source_mode),
         "pose_conf_threshold": float(args.pose_conf_threshold),
         "keep_last_box": bool(args.keep_last_box),
@@ -737,7 +745,7 @@ def process_video(
     """Process one source video end-to-end with **streaming windows**:
        * convert .seq -> .mp4 if needed
        * parse .annot -> per-frame label
-       * stream YOLO detections; emit windows on the fly using a deque buffer
+       * stream pose detections; emit windows on the fly using a deque buffer
          of size `window_size` (so memory is O(window_size), not O(n_frames))
        * write NPZs asynchronously
 
@@ -821,25 +829,45 @@ def process_video(
     # [next_window_t, next_window_t + window_size - 1], emit/label/write the
     # window and advance next_window_t by window_stride. This keeps RAM
     # bounded to window_size frames regardless of total video length.
-    detections_iter = iterate_yolo_n_crops(
-        model=model,
-        video_path=src.mp4_path,
-        n_animals=int(args.n_animals),
-        crop_size=int(args.crop_size),
-        group_crop_size=int(args.group_crop_size or args.crop_size),
-        animal_scale_factor=float(args.animal_scale_factor),
-        group_scale_factor=float(args.group_scale_factor),
-        body_length_px=args.body_length_px,
-        crop_strategy="fixed_scale",
-        conf_threshold=float(args.yolo_conf),
-        iou_threshold=float(args.yolo_iou),
-        imgsz=int(args.yolo_imgsz),
-        device=str(args.device),
-        keep_last_box=bool(args.keep_last_box),
-        pose_conf_threshold=float(args.pose_conf_threshold),
-        fps=fps,
-        batch_size=int(args.yolo_batch),
-    )
+    if str(getattr(args, "pose_backend", "yolo")).lower() == "mobilenetv3":
+        detections_iter = iterate_mobilenetv3_n_crops(
+            runtime=model,
+            video_path=src.mp4_path,
+            n_animals=int(args.n_animals),
+            crop_size=int(args.crop_size),
+            group_crop_size=int(args.group_crop_size or args.crop_size),
+            animal_scale_factor=float(args.animal_scale_factor),
+            group_scale_factor=float(args.group_scale_factor),
+            body_length_px=args.body_length_px,
+            conf_threshold=float(args.pose_model_conf),
+            iou_threshold=float(args.pose_model_iou),
+            device=str(args.device),
+            keep_last_box=bool(args.keep_last_box),
+            pose_conf_threshold=float(args.pose_conf_threshold),
+            fps=fps,
+            batch_size=int(args.pose_model_batch),
+            pre_nms_topk=int(args.mobilenetv3_pre_nms_topk),
+        )
+    else:
+        detections_iter = iterate_yolo_n_crops(
+            model=model,
+            video_path=src.mp4_path,
+            n_animals=int(args.n_animals),
+            crop_size=int(args.crop_size),
+            group_crop_size=int(args.group_crop_size or args.crop_size),
+            animal_scale_factor=float(args.animal_scale_factor),
+            group_scale_factor=float(args.group_scale_factor),
+            body_length_px=args.body_length_px,
+            crop_strategy="fixed_scale",
+            conf_threshold=float(args.pose_model_conf),
+            iou_threshold=float(args.pose_model_iou),
+            imgsz=int(args.pose_model_imgsz),
+            device=str(args.device),
+            keep_last_box=bool(args.keep_last_box),
+            pose_conf_threshold=float(args.pose_conf_threshold),
+            fps=fps,
+            batch_size=int(args.pose_model_batch),
+        )
 
     # Buffer holds (frame_idx, NCropDetection) for the most recent
     # window_size+stride frames so we can both emit the current window and
@@ -990,7 +1018,12 @@ def parse_args() -> argparse.Namespace:
                    help="Behavior classes in model order. 'other' is appended if omitted.")
     p.add_argument("--class_names_file", type=Path, default=None,
                    help="Optional newline-delimited class names file; overrides --class_names.")
-    p.add_argument("--yolo_weights", type=Path, required=True)
+    p.add_argument("--pose_backend", choices=["yolo", "mobilenetv3"], default="yolo",
+                   help="Pose model family used to build crops, keypoints, and window NPZs.")
+    p.add_argument("--yolo_weights", type=Path, default=None,
+                   help="Required when --pose_backend yolo.")
+    p.add_argument("--mobilenetv3_checkpoint", type=Path, default=None,
+                   help="Required when --pose_backend mobilenetv3.")
     p.add_argument("--output_root", type=Path,
                    default=Path("mars_behaviorscope_npz_full_video"))
     p.add_argument("--manifest_path", type=Path, default=None,
@@ -1006,11 +1039,12 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--group_scale_factor", type=float, default=8.0)
     p.add_argument("--body_length_px", type=float, default=None)
     p.add_argument("--pose_conf_threshold", type=float, default=0.3)
-    p.add_argument("--yolo_conf", type=float, default=0.25)
-    p.add_argument("--yolo_iou", type=float, default=0.45)
-    p.add_argument("--yolo_imgsz", type=int, default=640)
-    p.add_argument("--yolo_batch", type=int, default=64)
+    p.add_argument("--pose_model_conf", "--yolo_conf", dest="pose_model_conf", type=float, default=0.25)
+    p.add_argument("--pose_model_iou", "--yolo_iou", dest="pose_model_iou", type=float, default=0.45)
+    p.add_argument("--pose_model_imgsz", "--yolo_imgsz", dest="pose_model_imgsz", type=int, default=640)
+    p.add_argument("--pose_model_batch", "--yolo_batch", dest="pose_model_batch", type=int, default=64)
     p.add_argument("--yolo_task", default=None)
+    p.add_argument("--mobilenetv3_pre_nms_topk", type=int, default=1000)
     p.add_argument("--device", default="cuda:0")
     p.add_argument("--keep_last_box", action="store_true", default=True)
     p.add_argument("--fps", type=float, default=DEFAULT_FPS,
@@ -1055,6 +1089,10 @@ def main() -> int:
         raise SystemExit("[full-video] --npz_compresslevel must be between 0 and 9")
     if int(args.n_animals) <= 0:
         raise SystemExit("[full-video] --n_animals must be >= 1")
+    if args.pose_backend == "yolo" and args.yolo_weights is None:
+        raise SystemExit("[full-video] --yolo_weights is required when --pose_backend yolo")
+    if args.pose_backend == "mobilenetv3" and args.mobilenetv3_checkpoint is None:
+        raise SystemExit("[full-video] --mobilenetv3_checkpoint is required when --pose_backend mobilenetv3")
 
     class_names, class_to_idx = build_class_maps(load_class_names(args))
     args.class_names_resolved = class_names
@@ -1076,6 +1114,7 @@ def main() -> int:
     logger.info(f"[full-video] other_subsample: {args.other_subsample}")
     logger.info(f"[full-video] class_names:     {class_names}")
     logger.info(f"[full-video] npz_compression: {args.npz_compression} level={args.npz_compresslevel}")
+    logger.info(f"[full-video] pose_backend:    {args.pose_backend}")
 
     if args.source_manifest_csv is not None:
         sources = discover_sources_from_manifest(
@@ -1106,16 +1145,21 @@ def main() -> int:
         logger.info("[full-video] dry run complete.")
         return 0
 
-    logger.info(f"[full-video] loading YOLO weights: {args.yolo_weights}")
-    model = load_yolo_model(args.yolo_weights, device=args.device, task=args.yolo_task)
-    keypoints_per_animal = inspect_yolo_keypoint_count(str(args.yolo_weights))
-    if keypoints_per_animal is None:
-        keypoints_per_animal = 7
-        logger.warning(
-            "[full-video] could not inspect YOLO keypoint count; falling back "
-            "to keypoints_per_animal=7. Pass a standard Ultralytics pose "
-            "checkpoint to make this auditable for non-MARS schemas."
-        )
+    if args.pose_backend == "mobilenetv3":
+        logger.info(f"[full-video] loading MobileNetV3 pose checkpoint: {args.mobilenetv3_checkpoint}")
+        model = load_mobilenetv3_pose_model(args.mobilenetv3_checkpoint, device=args.device)
+        keypoints_per_animal = int(model.num_keypoints)
+    else:
+        logger.info(f"[full-video] loading YOLO weights: {args.yolo_weights}")
+        model = load_yolo_model(args.yolo_weights, device=args.device, task=args.yolo_task)
+        keypoints_per_animal = inspect_yolo_keypoint_count(str(args.yolo_weights))
+        if keypoints_per_animal is None:
+            keypoints_per_animal = 7
+            logger.warning(
+                "[full-video] could not inspect YOLO keypoint count; falling back "
+                "to keypoints_per_animal=7. Pass a standard Ultralytics pose "
+                "checkpoint to make this auditable for non-MARS schemas."
+            )
     keypoints_per_animal = int(keypoints_per_animal)
     if keypoints_per_animal <= 0:
         raise SystemExit(
@@ -1178,8 +1222,13 @@ def main() -> int:
         "other_subsample": float(args.other_subsample),
         "npz_compression": str(args.npz_compression),
         "npz_compresslevel": int(args.npz_compresslevel),
-        "yolo_weights": str(args.yolo_weights),
-        "yolo_imgsz": int(args.yolo_imgsz),
+        "pose_backend": str(args.pose_backend),
+        "pose_checkpoint": (
+            str(args.mobilenetv3_checkpoint)
+            if args.pose_backend == "mobilenetv3"
+            else str(args.yolo_weights)
+        ),
+        "pose_model_imgsz": int(args.pose_model_imgsz),
         "mars_root": str(args.mars_root),
         "source_manifest_csv": str(args.source_manifest_csv) if args.source_manifest_csv else None,
         "train_splits": list(args.train_splits),
@@ -1272,4 +1321,6 @@ if __name__ == "__main__":
     except Exception as exc:
         print(f"[full-video] ERROR: {exc}", file=sys.stderr)
         raise
+
+
 

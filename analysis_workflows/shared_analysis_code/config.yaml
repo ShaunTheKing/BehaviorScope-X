@@ -1,0 +1,456 @@
+﻿# BehaviorScope-Y final canonical run configuration
+# This is the single hand-edited configuration file for the final run folder.
+
+project:
+  name: BehaviorScope-Y final canonical run
+  version: 2026-05-16
+  root_policy: config_relative
+  output_root: outputs
+  logs_root: logs
+  provenance_root: provenance
+
+active_path_profile: self_contained_project
+
+path_profiles:
+  self_contained_project:
+    mars_data_root: MARS-data
+    mars_train_root: MARS-data/train
+    mars_validation_root: MARS-data/validation
+    mars_test_roots:
+      test_1: MARS-data/test_1
+      test_2: MARS-data/test_2
+    fly_data_root: Fly-v-Fly
+    mars_yolo_model_root: MARS_YOLO_Pose_Model
+    mars_yolo_weights: MARS_YOLO_Pose_Model/weights/best.pt
+    fly_yolo_model_root: Fly_YOLO_Pose_Model
+    fly_yolo_weights: Fly_YOLO_Pose_Model/weights/best.pt
+    source_mp4_cache_root: outputs/source_mp4_cache/mars
+    npz_full_video_root: outputs/npz_cache/mars_full_video
+    heldout_eval_npz_root: outputs/npz_cache/mars_heldout_eval
+    npz_clip_control_root: outputs/npz_cache/clip_control
+    clip_training_runs_root: outputs/training_runs_clip_control
+    clip_test_eval_root: outputs/test_eval_clip_control
+    npz_fly_root: outputs/npz_cache/fly
+    fly_training_runs_root: outputs/fly_training_runs
+    fly_test_eval_root: outputs/fly_test_eval
+    train_feature_cache_root: outputs/train_feature_cache
+    eval_feature_cache_root: outputs/eval_feature_cache
+    calibration_json: outputs/npz_cache/mars_full_video/calibration.json
+    manuscript_tex: shared_scripts/manuscript_scripts/manuscript_rerun_v4.tex
+    supplemental_tex: shared_scripts/manuscript_scripts/manuscript_rerun_v4_supplemental.tex
+environment:
+  expected_conda_env: BehaviorScope
+  python_executable: python
+  device_default: cuda:0
+  amp: true
+  amp_dtype: auto
+  package_freeze_command: python -m pip freeze
+
+preprocessing:
+  rebuild_training_npz: true
+  rebuild_training_feature_cache: true
+  build_heldout_eval_feature_cache: true
+  convert_seq_to_mp4:
+    enabled: true
+    reason: NorPix .seq handling by OpenCV/Ultralytics is environment-dependent; MP4 is the stable inference source.
+    codec: mp4v
+    fps: 30.0
+    cache_root_ref: source_mp4_cache_root
+    splits: [train, validation, test_1, test_2]
+    keep_mp4_cache: true
+    overwrite_existing: false
+    conversion_retries: 3
+    conversion_retry_delay_s: 2.0
+  full_video_npz:
+    train_splits: [train]
+    val_splits: [validation]
+    exclude_splits: [test_1, test_2]
+    source_mode: mp4
+    source_mp4_cache_ref: source_mp4_cache_root
+    output_root_ref: npz_full_video_root
+    skip_existing: true
+    yolo_batch: 16
+    npz_writers: 1
+  heldout_eval_cache:
+    source_mode: mp4
+    source_mp4_cache_ref: source_mp4_cache_root
+    npz_output_root_ref: heldout_eval_npz_root
+    feature_output_root_ref: eval_feature_cache_root
+    splits: [test_1, test_2]
+    strides: [16, 8, 4]
+    skip_existing: true
+    tolerate_bad_seq_frames: true
+    allow_pred_named_annots: true
+    yolo_batch: 16
+    npz_writers: 1
+    feature_cache_batch: 16
+    feature_cache_num_workers: 0
+    feature_cache_pin_memory: false
+
+global_eval_recipe:
+  fps: 30.0
+  window_stride: 16
+  yolo_batch: 16
+  batch: 16
+  num_workers: 0
+  pose_conf_threshold: 0.2
+  animal_scale_factor: 4.0
+  group_scale_factor: 8.0
+  temporal_smoothing_window: 5
+  bout_min_duration_frames: 15
+  log_metrics: true
+
+fly_eval_recipe:
+  fps: 30.0
+  window_stride: 4
+  yolo_batch: 16
+  pose_conf_threshold: 0.2
+  animal_scale_factor: 4.0
+  group_scale_factor: 8.0
+  temporal_smoothing_window: 3
+  bout_min_duration_frames: 3
+  iou_thresholds: [0.10, 0.25, 0.50]
+
+recipes:
+  mars_cw15_sqrt_pe:
+    class_weighting: sqrt_inverse
+    class_weight_clamp: 1.5
+    train_sampler: weighted
+    positional_encoding: learned
+    sequence_model: lstm
+    dropout: 0.5
+    num_lstm_layers: 1
+    pose_fusion_strategy: gated_attention
+    pose_fusion_dim: 128
+    lr: 5.0e-5
+    weight_decay: 3.0e-4
+    epochs: 10
+    batch: 16
+    num_workers: 0
+    patience: 15
+    feature_cache_batch: 16
+    feature_cache_num_workers: 0
+    yolo_backbone_end_layer: 10
+    window_size: 32
+    window_stride: 16
+    crop_size: 224
+    n_animals: 2
+  fly_full_w16s8:
+    sequence_model: lstm
+    window_size: 16
+    window_stride: 8
+    hidden_dims: [256, 512, 896]
+    epochs: 40
+    batch: 16
+    num_workers: 0
+    lr: 5.0e-5
+    weight_decay: 3.0e-4
+    dropout: 0.5
+    num_lstm_layers: 1
+    class_weighting: sqrt_inverse
+    class_weight_clamp: 1.5
+    train_sampler: weighted
+    positional_encoding: learned
+    yolo_backbone_end_layer: 10
+    patience: 20
+    pose_fusion_strategy: gated_attention
+    pose_fusion_dim: 128
+    feature_cache_batch: 16
+    feature_cache_num_workers: 0
+    crop_size: 224
+    n_animals: 2
+    val_movie_ids: [3, 5]
+    other_subsample: 0.30
+    seed: 42
+    yolo_batch: 16
+    npz_writers: 1
+    pose_conf_threshold: 0.2
+  fly_full_w8s4:
+    sequence_model: lstm
+    window_size: 8
+    window_stride: 4
+    hidden_dims: [256, 512, 896]
+    epochs: 40
+    batch: 16
+    num_workers: 0
+    lr: 5.0e-5
+    weight_decay: 3.0e-4
+    dropout: 0.5
+    num_lstm_layers: 1
+    class_weighting: sqrt_inverse
+    class_weight_clamp: 1.5
+    train_sampler: weighted
+    positional_encoding: learned
+    yolo_backbone_end_layer: 10
+    patience: 20
+    pose_fusion_strategy: gated_attention
+    pose_fusion_dim: 128
+    feature_cache_batch: 16
+    feature_cache_num_workers: 0
+    crop_size: 224
+    n_animals: 2
+    val_movie_ids: [3, 5]
+    other_subsample: 0.30
+    seed: 42
+    yolo_batch: 16
+    npz_writers: 1
+    pose_conf_threshold: 0.2
+
+models:
+  animal_visual_only_lstm256:
+    domain: mars
+    legacy_alias: R1_256
+    recipe: mars_cw15_sqrt_pe
+    hidden_dim: 256
+    streams: [animal_visual]
+  animal_visual_only_lstm512:
+    domain: mars
+    legacy_alias: R1_512
+    recipe: mars_cw15_sqrt_pe
+    hidden_dim: 512
+    streams: [animal_visual]
+  animal_visual_only_lstm896:
+    domain: mars
+    legacy_alias: R1_896
+    recipe: mars_cw15_sqrt_pe
+    hidden_dim: 896
+    streams: [animal_visual]
+  pose_relations_only_lstm256:
+    domain: mars
+    legacy_alias: R2_256
+    recipe: mars_cw15_sqrt_pe
+    hidden_dim: 256
+    streams: [pose_self, relations]
+  pose_relations_only_lstm512:
+    domain: mars
+    legacy_alias: R2_512
+    recipe: mars_cw15_sqrt_pe
+    hidden_dim: 512
+    streams: [pose_self, relations]
+  pose_relations_only_lstm896:
+    domain: mars
+    legacy_alias: R2_896
+    recipe: mars_cw15_sqrt_pe
+    hidden_dim: 896
+    streams: [pose_self, relations]
+  visual_only_lstm256:
+    domain: mars
+    legacy_alias: R3_256
+    recipe: mars_cw15_sqrt_pe
+    hidden_dim: 256
+    streams: [group_visual, animal_visual]
+  visual_only_lstm512:
+    domain: mars
+    legacy_alias: R3_512
+    recipe: mars_cw15_sqrt_pe
+    hidden_dim: 512
+    streams: [group_visual, animal_visual]
+  visual_only_lstm896:
+    domain: mars
+    legacy_alias: R3_896
+    recipe: mars_cw15_sqrt_pe
+    hidden_dim: 896
+    streams: [group_visual, animal_visual]
+  no_group_visual_lstm256:
+    domain: mars
+    legacy_alias: R4_256
+    recipe: mars_cw15_sqrt_pe
+    hidden_dim: 256
+    streams: [animal_visual, pose_self, relations]
+  no_group_visual_lstm512:
+    domain: mars
+    legacy_alias: R4_512
+    recipe: mars_cw15_sqrt_pe
+    hidden_dim: 512
+    streams: [animal_visual, pose_self, relations]
+  no_group_visual_lstm896:
+    domain: mars
+    legacy_alias: R4_896
+    recipe: mars_cw15_sqrt_pe
+    hidden_dim: 896
+    streams: [animal_visual, pose_self, relations]
+  no_relations_lstm256:
+    domain: mars
+    legacy_alias: R4b_256
+    recipe: mars_cw15_sqrt_pe
+    hidden_dim: 256
+    streams: [group_visual, animal_visual, pose_self]
+  no_relations_lstm512:
+    domain: mars
+    legacy_alias: R4b_512
+    recipe: mars_cw15_sqrt_pe
+    hidden_dim: 512
+    streams: [group_visual, animal_visual, pose_self]
+  no_relations_lstm896:
+    domain: mars
+    legacy_alias: R4b_896
+    recipe: mars_cw15_sqrt_pe
+    hidden_dim: 896
+    streams: [group_visual, animal_visual, pose_self]
+  full_lstm256:
+    domain: mars
+    legacy_alias: R5_256
+    recipe: mars_cw15_sqrt_pe
+    hidden_dim: 256
+    streams: [group_visual, animal_visual, pose_self, relations]
+  full_lstm512:
+    domain: mars
+    legacy_alias: R5_512
+    recipe: mars_cw15_sqrt_pe
+    hidden_dim: 512
+    streams: [group_visual, animal_visual, pose_self, relations]
+  full_lstm896:
+    domain: mars
+    legacy_alias: R5_896
+    recipe: mars_cw15_sqrt_pe
+    hidden_dim: 896
+    streams: [group_visual, animal_visual, pose_self, relations]
+  clip_full_lstm256:
+    domain: mars_clip_control
+    legacy_alias: clip_full_256
+    recipe: mars_cw15_sqrt_pe
+    hidden_dim: 256
+    train_manifest: npz_clip_control_root/sequence_manifest.json
+    streams: [group_visual, animal_visual, pose_self, relations]
+  clip_full_lstm512:
+    domain: mars_clip_control
+    legacy_alias: clip_full_512
+    recipe: mars_cw15_sqrt_pe
+    hidden_dim: 512
+    train_manifest: npz_clip_control_root/sequence_manifest.json
+    streams: [group_visual, animal_visual, pose_self, relations]
+  clip_full_lstm896:
+    domain: mars_clip_control
+    legacy_alias: clip_full_896
+    recipe: mars_cw15_sqrt_pe
+    hidden_dim: 896
+    train_manifest: npz_clip_control_root/sequence_manifest.json
+    streams: [group_visual, animal_visual, pose_self, relations]
+  fly_full_lstm256_w16s8:
+    domain: fly
+    recipe: fly_full_w16s8
+    hidden_dim: 256
+    streams: [full_fly_feature_set]
+  fly_full_lstm512_w16s8:
+    domain: fly
+    recipe: fly_full_w16s8
+    hidden_dim: 512
+    streams: [full_fly_feature_set]
+  fly_full_lstm896_w16s8:
+    domain: fly
+    recipe: fly_full_w16s8
+    hidden_dim: 896
+    streams: [full_fly_feature_set]
+  fly_full_lstm256_w8s4:
+    domain: fly
+    recipe: fly_full_w8s4
+    hidden_dim: 256
+    streams: [full_fly_feature_set]
+  fly_full_lstm512_w8s4:
+    domain: fly
+    recipe: fly_full_w8s4
+    hidden_dim: 512
+    streams: [full_fly_feature_set]
+  fly_full_lstm896_w8s4:
+    domain: fly
+    recipe: fly_full_w8s4
+    hidden_dim: 896
+    streams: [full_fly_feature_set]
+
+experiments:
+  mars_full_video_canonical:
+    enabled: true
+    models: [animal_visual_only_lstm256, animal_visual_only_lstm512, animal_visual_only_lstm896, pose_relations_only_lstm256, pose_relations_only_lstm512, pose_relations_only_lstm896, visual_only_lstm256, visual_only_lstm512, visual_only_lstm896, no_group_visual_lstm256, no_group_visual_lstm512, no_group_visual_lstm896, no_relations_lstm256, no_relations_lstm512, no_relations_lstm896, full_lstm256, full_lstm512, full_lstm896]
+    train_manifest: npz_full_video_root/sequence_manifest.json
+    eval_feature_cache: eval_feature_cache_root/mars_stride16
+    eval_splits: [test_1, test_2]
+  clip_vs_full_video:
+    enabled: true
+    models: [clip_full_lstm256, clip_full_lstm512, clip_full_lstm896, full_lstm256, full_lstm512, full_lstm896]
+    eval_feature_cache: eval_feature_cache_root/mars_stride16
+    eval_splits: [test_1, test_2]
+  stride_accuracy_remeasurement:
+    enabled: true
+    model: full_lstm896
+    strides: [16, 8, 4]
+    eval_feature_caches:
+      16: eval_feature_cache_root/mars_stride16
+      8: eval_feature_cache_root/mars_stride8
+      4: eval_feature_cache_root/mars_stride4
+  fly_transfer:
+    enabled: true
+    models: [fly_full_lstm256_w16s8, fly_full_lstm512_w16s8, fly_full_lstm896_w16s8, fly_full_lstm256_w8s4, fly_full_lstm512_w8s4, fly_full_lstm896_w8s4]
+    data_root: fly_data_root
+    yolo_weights: fly_yolo_weights
+    label_policy:
+      movie6_actions_file: movie6_actions.mat
+      ignore_extra_action_files: [movie6_second_actions.mat]
+    eval_movies: [movie6, movie7, movie8, movie9, movie10]
+  deployment_benchmark:
+    enabled: true
+    benchmark_mode: end_to_end_yolo_plus_classifier
+    repeats: 3
+    max_videos: 5
+    default_profiles: [cuda_default]
+    default_models: [full_lstm896]
+    profiles:
+      cuda_default:
+        expected_host: ""
+        device: cuda:0
+        amp: true
+      cpu_current_host:
+        expected_host: ""
+        device: cpu
+        amp: false
+
+validation_gates:
+  forbid_output_overwrite_without_resume: true
+  require_self_contained_data_roots: true
+  require_seq_or_mp4_sources: true
+  mars_annotation_policy:
+    skip_pred_named_annotations: true
+    reason: .annot files containing pred/prediction are treated as model-output annotations, not human ground truth.
+  expected_mars_discoverable_videos:
+    train: 57
+    validation: 33
+    test_1: 10
+    test_2: 20
+  require_mp4_cache_for_yolo_eval: true
+  require_rebuilt_training_npz: true
+  require_rebuilt_training_feature_cache: true
+  require_heldout_eval_feature_cache: true
+  require_mars_yolo_pose_kpt_shape: [7, 3]
+  require_fly_yolo_pose_model_present: true
+  require_yolo_model_roots_self_contained: true
+  require_yolo_backbone_end_layer: 10
+  require_yolo_feature_dim: 256
+  require_manifest_num_frames: 32
+  require_manifest_window_stride: 16
+  require_classes: [attack, investigation, mount, other]
+  require_metrics_sidecars: true
+  expected_fly_movies: 10
+  require_fly_mp4_per_movie: true
+  require_fly_actions_mat_per_movie: true
+  require_fly_feat_mat_per_movie: true
+  require_fly_track_mat_per_movie: true
+  fly_movie6_action_policy: use movie6_actions.mat and ignore movie6_second_actions.mat unless explicitly overridden
+
+pipeline_order:
+  run_all:
+    - status_preflight
+    - write_hashes_and_environment
+    - rebuild_mars_training_npz
+    - rebuild_mars_heldout_eval_npz
+    - build_mars_heldout_eval_feature_cache
+    - train_mars_lstm_models
+    - train_clip_control_models
+    - run_fly_transfer_pipeline
+    - evaluate_mars_models
+    - evaluate_clip_control_models
+    - final_status_report
+  execution_policy:
+    stop_on_first_failure: true
+    write_resolved_command_plan_before_execution: true
+    write_stage_status_after_each_step: true
+    forbid_config_mutation_during_run: true
+    require_clean_validation_gates_before_long_stages: true

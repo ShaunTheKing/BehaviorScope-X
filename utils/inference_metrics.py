@@ -1,4 +1,4 @@
-﻿"""
+"""
 Runtime-metrics logger for BehaviorScope-Y inference.
 
 Writes a sidecar CSV alongside the predictions CSV with per-interval
@@ -7,7 +7,7 @@ hardware + pynvml are available) GPU utilization, memory and temperature.
 
 Design goals:
   * Default-off at the CLI level — preserves bit-identical behavior
-    of any pipeline calling `infer_y.run_inference_on_source()`.
+    of any pipeline calling `infer_x.run_inference_on_source()`.
     The GUI flips it on by default.
   * Graceful degradation: missing psutil or pynvml just blanks those
     columns; the CSV still writes.
@@ -17,7 +17,7 @@ Design goals:
   * Self-describing CSV: header line + one row per flush. Pandas/Excel
     friendly.
 
-Usage (inside infer_y.py):
+Usage (inside infer_x.py):
 
     from utils.inference_metrics import MetricsLogger, NullMetricsLogger
 
@@ -418,3 +418,5 @@ def derive_metrics_csv_path(predictions_csv: Path | str) -> Path:
     """Default sidecar path: <basename>.metrics.csv next to the predictions CSV."""
     p = Path(predictions_csv)
     return p.with_name(p.stem + ".metrics.csv")
+
+

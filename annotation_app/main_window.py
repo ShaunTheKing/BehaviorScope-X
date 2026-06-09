@@ -7,18 +7,16 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
-from PySide6.QtCore import QObject, QEvent, QSignalBlocker, QThread, QTimer, Qt, QUrl, Signal
-from PySide6.QtGui import QAction, QColor, QIcon, QKeySequence, QPainter, QPixmap, QShortcut, QTextOption
+from PySide6.QtCore import QEvent, QSignalBlocker, QThread, QTimer, Qt, QUrl
+from PySide6.QtGui import QAction, QKeySequence, QShortcut, QTextOption
 from PySide6.QtMultimedia import QAudioOutput, QMediaPlayer
 from PySide6.QtMultimediaWidgets import QVideoWidget
 from PySide6.QtWidgets import (
     QAbstractItemView,
     QApplication,
     QCheckBox,
-    QColorDialog,
     QComboBox,
     QDialog,
-    QDialogButtonBox,
     QDoubleSpinBox,
     QFileDialog,
     QFormLayout,
@@ -46,6 +44,22 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from app_metadata import (
+    ANNOTATION_WORKSPACE_NAME,
+    APP_NAME,
+    DEFAULT_TUTORIAL_HF_REPO,
+    TUTORIAL_FOLDER_NAME,
+    TUTORIAL_OUTPUTS_DIR,
+)
+from .dialogs import (
+    BehaviorManagerDialog,
+    BundleExistingModelDialog,
+    HotkeyDialog,
+    HotkeyMapDialog,
+    ProjectMetadataDialog,
+    ScientificWorkflowDialog,
+    WorkflowGuideDialog,
+)
 from .extractor import export_full_video_annotations, extract_approved_clips
 from .models import (
     AnnotationRecord,
@@ -56,528 +70,28 @@ from .models import (
     VideoRecord,
 )
 from .state import AnnotationSessionState
-from .store import AnnotationStore, PROJECT_METADATA_FIELDS, default_color, normalize_video_split
+from .store import AnnotationStore, default_color, normalize_video_split
 from .timeline import AnnotationTimeline, BehaviorLaneLabels
+from .tutorial import TutorialDownloadWorker
+from .widgets import BehaviorButton, VideoListItem, color_swatch_icon, format_ms
 from .workflow_panels import (
+    ArtifactInspectorPanel,
+    EthogramSummaryPanel,
     FeatureCachePanel,
     InferencePanel,
+    MobileNetFullVideoDatasetPanel,
+    MobileNetFeatureCachePanel,
     PrepareDatasetPanel,
     PrepareFullVideoDatasetPanel,
+    ReleaseStagePanel,
     TrainPanel,
 )
-
-
-TUTORIAL_FOLDER_NAME = "BehaviorScope-Y_tutorial"
-DEFAULT_TUTORIAL_HF_REPO = "farhanaugustine/BehaviorScope-Y_tutorial"
-
-
-def format_ms(ms: int) -> str:
-    total_seconds = max(0, int(round(ms / 1000.0)))
-    minutes, seconds = divmod(total_seconds, 60)
-    return f"{minutes}:{seconds:02d}"
-
-
-def color_swatch_icon(color: str, size: int = 14) -> QIcon:
-    pixmap = QPixmap(size, size)
-    pixmap.fill(Qt.transparent)
-    painter = QPainter(pixmap)
-    painter.setRenderHint(QPainter.Antialiasing, True)
-    painter.setPen(Qt.NoPen)
-    painter.setBrush(QColor(color))
-    painter.drawRoundedRect(1, 1, size - 2, size - 2, 3, 3)
-    painter.end()
-    return QIcon(pixmap)
 
 
 @dataclass
 class _VideoWidgetRefs:
     item: QListWidgetItem
     video_id: int
-
-
-class TutorialDownloadWorker(QObject):
-    progress = Signal(int, int, str)
-    finished = Signal(str)
-    failed = Signal(str)
-
-    def __init__(self, *, repo_id: str, local_dir: Path):
-        super().__init__()
-        self.repo_id = repo_id
-        self.local_dir = local_dir
-        self._cancelled = False
-
-    def cancel(self) -> None:
-        self._cancelled = True
-
-    def run(self) -> None:
-        try:
-            try:
-                from huggingface_hub import HfApi, hf_hub_download
-            except ImportError as exc:
-                raise RuntimeError(
-                    "The Hugging Face download helper is not installed. "
-                    "Install project dependencies with: pip install -r requirements.txt"
-                ) from exc
-
-            self.local_dir.mkdir(parents=True, exist_ok=True)
-            api = HfApi()
-            files = [
-                path
-                for path in api.list_repo_files(self.repo_id, repo_type="dataset")
-                if path and not path.endswith("/")
-            ]
-            if not files:
-                raise RuntimeError(f"No files found in Hugging Face dataset: {self.repo_id}")
-            total = len(files)
-            for index, filename in enumerate(files, start=1):
-                if self._cancelled:
-                    raise RuntimeError("Tutorial download was cancelled.")
-                self.progress.emit(index - 1, total, filename)
-                kwargs = {
-                    "repo_id": self.repo_id,
-                    "repo_type": "dataset",
-                    "filename": filename,
-                    "local_dir": str(self.local_dir),
-                }
-                try:
-                    hf_hub_download(local_dir_use_symlinks=False, **kwargs)
-                except TypeError:
-                    hf_hub_download(**kwargs)
-                self.progress.emit(index, total, filename)
-            self.finished.emit(str(self.local_dir))
-        except Exception as exc:
-            self.failed.emit(str(exc))
-
-
-class HotkeyDialog(QDialog):
-    def __init__(self, bindings: list[HotkeyBinding], parent: QWidget | None = None):
-        super().__init__(parent)
-        self.setWindowTitle("Hotkeys")
-        self.resize(540, 420)
-        layout = QVBoxLayout(self)
-        self.table = QTableWidget(len(bindings), 2, self)
-        self.table.setHorizontalHeaderLabels(["Action", "Shortcut"])
-        self.table.horizontalHeader().setSectionResizeMode(0, QHeaderView.Stretch)
-        self.table.horizontalHeader().setSectionResizeMode(1, QHeaderView.Stretch)
-        self.table.verticalHeader().setVisible(False)
-        self.table.setSelectionMode(QAbstractItemView.NoSelection)
-        for row, binding in enumerate(bindings):
-            action_item = QTableWidgetItem(binding.action.replace("_", " ").title())
-            action_item.setData(Qt.UserRole, binding.action)
-            self.table.setItem(row, 0, action_item)
-            editor = QLineEdit(binding.key_sequence)
-            self.table.setCellWidget(row, 1, editor)
-        layout.addWidget(self.table)
-        buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, parent=self)
-        buttons.accepted.connect(self.accept)
-        buttons.rejected.connect(self.reject)
-        layout.addWidget(buttons)
-
-    def bindings(self) -> list[HotkeyBinding]:
-        result: list[HotkeyBinding] = []
-        for row in range(self.table.rowCount()):
-            action_item = self.table.item(row, 0)
-            editor = self.table.cellWidget(row, 1)
-            if action_item is None or not isinstance(editor, QLineEdit):
-                continue
-            result.append(
-                HotkeyBinding(
-                    action=str(action_item.data(Qt.UserRole)),
-                    key_sequence=editor.text().strip(),
-                )
-            )
-        return result
-
-
-class HotkeyMapDialog(QDialog):
-    def __init__(
-        self,
-        bindings: list[HotkeyBinding],
-        behaviors: list[BehaviorRecord],
-        parent: QWidget | None = None,
-    ):
-        super().__init__(parent)
-        self.setWindowTitle("Hotkey Map")
-        self.resize(620, 520)
-        layout = QVBoxLayout(self)
-
-        header = QLabel(
-            "Quick reference for transport, annotation, review, and behavior selection."
-        )
-        header.setWordWrap(True)
-        layout.addWidget(header)
-
-        self.table = QTableWidget(0, 2, self)
-        self.table.setHorizontalHeaderLabels(["Action", "Shortcut"])
-        self.table.horizontalHeader().setSectionResizeMode(0, QHeaderView.Stretch)
-        self.table.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeToContents)
-        self.table.verticalHeader().setVisible(False)
-        self.table.setEditTriggers(QAbstractItemView.NoEditTriggers)
-        self.table.setSelectionMode(QAbstractItemView.NoSelection)
-        self.table.setFocusPolicy(Qt.NoFocus)
-        layout.addWidget(self.table, 1)
-
-        rows: list[tuple[str, str]] = []
-        for binding in sorted(bindings, key=lambda item: item.action):
-            rows.append((binding.action.replace("_", " ").title(), binding.key_sequence))
-        for behavior in behaviors:
-            if behavior.hotkey:
-                rows.append((f"Select behavior: {behavior.name}", behavior.hotkey))
-
-        self.table.setRowCount(len(rows))
-        for row, (action, key) in enumerate(rows):
-            self.table.setItem(row, 0, QTableWidgetItem(action))
-            self.table.setItem(row, 1, QTableWidgetItem(key))
-
-        buttons = QDialogButtonBox(QDialogButtonBox.Close, parent=self)
-        buttons.rejected.connect(self.reject)
-        buttons.accepted.connect(self.accept)
-        layout.addWidget(buttons)
-
-
-class BehaviorManagerDialog(QDialog):
-    def __init__(self, behaviors: list[BehaviorRecord], parent: QWidget | None = None):
-        super().__init__(parent)
-        self.setWindowTitle("Behaviors")
-        self.resize(760, 480)
-        layout = QVBoxLayout(self)
-        self.table = QTableWidget(len(behaviors), 4, self)
-        self.table.setHorizontalHeaderLabels(["Name", "Definition", "Color", "Hotkey"])
-        self.table.horizontalHeader().setSectionResizeMode(0, QHeaderView.Stretch)
-        self.table.horizontalHeader().setSectionResizeMode(1, QHeaderView.Stretch)
-        self.table.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeToContents)
-        self.table.horizontalHeader().setSectionResizeMode(3, QHeaderView.ResizeToContents)
-        self.table.verticalHeader().setVisible(False)
-        self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
-        self.table.setEditTriggers(QAbstractItemView.AllEditTriggers)
-        for row, behavior in enumerate(behaviors):
-            name_item = QTableWidgetItem(behavior.name)
-            name_item.setData(Qt.UserRole, behavior.id)
-            self.table.setItem(row, 0, name_item)
-            self.table.setItem(row, 1, QTableWidgetItem(behavior.definition))
-            color_btn = QPushButton(behavior.color)
-            color_btn.setProperty("behaviorColor", behavior.color)
-            color_btn.setStyleSheet(f"background:{behavior.color}; color:white; border-radius:6px; padding:4px 10px;")
-            color_btn.clicked.connect(lambda _=False, btn=color_btn: self._pick_color(btn))
-            self.table.setCellWidget(row, 2, color_btn)
-            hotkey_edit = QLineEdit(behavior.hotkey or "")
-            self.table.setCellWidget(row, 3, hotkey_edit)
-        layout.addWidget(self.table)
-
-        button_row = QHBoxLayout()
-        add_btn = QPushButton("Add behavior")
-        add_btn.clicked.connect(self._add_row)
-        button_row.addWidget(add_btn)
-        remove_btn = QPushButton("Remove selected")
-        remove_btn.clicked.connect(self._remove_selected_rows)
-        button_row.addWidget(remove_btn)
-        button_row.addStretch(1)
-        layout.addLayout(button_row)
-
-        buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, parent=self)
-        buttons.accepted.connect(self.accept)
-        buttons.rejected.connect(self.reject)
-        layout.addWidget(buttons)
-
-    def _pick_color(self, button: QPushButton) -> None:
-        current = QColor(button.property("behaviorColor") or "#378ADD")
-        color = QColorDialog.getColor(current, self, "Select behavior color")
-        if not color.isValid():
-            return
-        value = color.name().upper()
-        button.setProperty("behaviorColor", value)
-        button.setText(value)
-        button.setStyleSheet(f"background:{value}; color:white; border-radius:6px; padding:4px 10px;")
-
-    def _add_row(self) -> None:
-        row = self.table.rowCount()
-        self.table.insertRow(row)
-        name_item = QTableWidgetItem(f"Behavior {row + 1}")
-        name_item.setData(Qt.UserRole, None)
-        self.table.setItem(row, 0, name_item)
-        self.table.setItem(row, 1, QTableWidgetItem(""))
-        color = default_color(row)
-        color_btn = QPushButton(color)
-        color_btn.setProperty("behaviorColor", color)
-        color_btn.setStyleSheet(f"background:{color}; color:white; border-radius:6px; padding:4px 10px;")
-        color_btn.clicked.connect(lambda _=False, btn=color_btn: self._pick_color(btn))
-        self.table.setCellWidget(row, 2, color_btn)
-        self.table.setCellWidget(row, 3, QLineEdit(""))
-        self.table.setCurrentCell(row, 0)
-        self.table.editItem(name_item)
-
-    def _remove_selected_rows(self) -> None:
-        selected = sorted({index.row() for index in self.table.selectionModel().selectedRows()}, reverse=True)
-        for row in selected:
-            self.table.removeRow(row)
-
-    def rows(self) -> list[dict]:
-        out: list[dict] = []
-        for row in range(self.table.rowCount()):
-            name_item = self.table.item(row, 0)
-            definition_item = self.table.item(row, 1)
-            color_btn = self.table.cellWidget(row, 2)
-            hotkey_edit = self.table.cellWidget(row, 3)
-            if name_item is None or not isinstance(color_btn, QPushButton) or not isinstance(hotkey_edit, QLineEdit):
-                continue
-            name = name_item.text().strip()
-            if not name:
-                continue
-            out.append(
-                {
-                    "id": name_item.data(Qt.UserRole),
-                    "name": name,
-                    "definition": "" if definition_item is None else definition_item.text().strip(),
-                    "color": str(color_btn.property("behaviorColor") or default_color(row)),
-                    "hotkey": hotkey_edit.text().strip() or None,
-                }
-            )
-        return out
-
-
-class ProjectMetadataDialog(QDialog):
-    def __init__(self, metadata: dict[str, str], parent: QWidget | None = None):
-        super().__init__(parent)
-        self.setWindowTitle("Project metadata")
-        self.resize(720, 560)
-        layout = QVBoxLayout(self)
-        self.form = QFormLayout()
-        self.editors: dict[str, QWidget] = {}
-
-        for key, label in PROJECT_METADATA_FIELDS:
-            if key in {"project_summary", "peer_review_notes"}:
-                editor = QPlainTextEdit()
-                editor.setPlainText(metadata.get(key, ""))
-                editor.setMinimumHeight(92)
-            else:
-                editor = QLineEdit(metadata.get(key, ""))
-            self.editors[key] = editor
-            self.form.addRow(label, editor)
-
-        form_card = QWidget()
-        form_card.setLayout(self.form)
-        scroll = QScrollArea()
-        scroll.setWidgetResizable(True)
-        scroll.setFrameShape(QFrame.NoFrame)
-        scroll.setWidget(form_card)
-        layout.addWidget(scroll, 1)
-
-        buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, parent=self)
-        buttons.accepted.connect(self.accept)
-        buttons.rejected.connect(self.reject)
-        layout.addWidget(buttons)
-
-    def values(self) -> dict[str, str]:
-        out: dict[str, str] = {}
-        for key, editor in self.editors.items():
-            if isinstance(editor, QPlainTextEdit):
-                out[key] = editor.toPlainText().strip()
-            elif isinstance(editor, QLineEdit):
-                out[key] = editor.text().strip()
-        return out
-
-
-class BundleExistingModelDialog(QDialog):
-    def __init__(self, parent: QWidget | None = None):
-        super().__init__(parent)
-        self.setWindowTitle("Bundle Existing Model")
-        self.resize(760, 260)
-        layout = QVBoxLayout(self)
-        self.form = QFormLayout()
-        layout.addLayout(self.form)
-
-        self.classifier_checkpoint = self._path_row(
-            "Classifier checkpoint",
-            "PyTorch (*.pt);;All files (*.*)",
-            save=False,
-        )
-        self.model_config = self._path_row(
-            "Model config.json",
-            "JSON (*.json);;All files (*.*)",
-            save=False,
-        )
-        self.yolo_weights = self._path_row(
-            "YOLO pose weights",
-            "PyTorch (*.pt);;All files (*.*)",
-            save=False,
-        )
-        self.output_path = self._path_row(
-            "Bundled output .pt",
-            "PyTorch (*.pt);;All files (*.*)",
-            save=True,
-        )
-
-        buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, parent=self)
-        buttons.button(QDialogButtonBox.Ok).setText("Bundle")
-        buttons.accepted.connect(self.accept)
-        buttons.rejected.connect(self.reject)
-        layout.addWidget(buttons)
-
-    def _path_row(self, label: str, file_filter: str, *, save: bool) -> QLineEdit:
-        edit = QLineEdit()
-        button = QPushButton("Browse")
-
-        def browse() -> None:
-            start = edit.text().strip() or str(Path.cwd())
-            if save:
-                path, _ = QFileDialog.getSaveFileName(self, f"Select {label}", start, file_filter)
-            else:
-                path, _ = QFileDialog.getOpenFileName(self, f"Select {label}", start, file_filter)
-            if path:
-                edit.setText(path)
-
-        button.clicked.connect(browse)
-        row = QWidget()
-        row_layout = QHBoxLayout(row)
-        row_layout.setContentsMargins(0, 0, 0, 0)
-        row_layout.addWidget(edit, 1)
-        row_layout.addWidget(button)
-        self.form.addRow(label, row)
-        return edit
-
-    def values(self) -> dict[str, str]:
-        return {
-            "classifier_checkpoint": self.classifier_checkpoint.text().strip(),
-            "model_config": self.model_config.text().strip(),
-            "yolo_weights": self.yolo_weights.text().strip(),
-            "output": self.output_path.text().strip(),
-        }
-
-
-class WorkflowGuideDialog(QDialog):
-    def __init__(self, *, show_on_startup: bool, parent: QWidget | None = None):
-        super().__init__(parent)
-        self.setWindowTitle("BehaviorScope-Y Workflow Guide")
-        self.resize(760, 620)
-        layout = QVBoxLayout(self)
-        header = QLabel("End-to-end GUI workflow")
-        header.setObjectName("SectionHeader")
-        layout.addWidget(header)
-
-        intro = QLabel(
-            "Use this sequence for full-video BehaviorScope-Y projects. The legacy clip export remains available for QA and older datasets."
-        )
-        intro.setWordWrap(True)
-        intro.setObjectName("HintLabel")
-        layout.addWidget(intro)
-
-        steps = [
-            ("1. Import videos", "File > Import videos... or File > Import folder..."),
-            ("2. Assign video splits", "Project > Assign selected videos to Train, Validation, Held-out Test, or Exclude."),
-            ("3. Annotate and approve spans", "Use the Annotate + Clip tab. Approved spans are exported for training."),
-            ("4. Export full-video annotations", "Project > Export full-video annotations... writes source_manifest.csv and .annot files."),
-            ("5. Prepare full-video dataset", "Use Prepare Full Video. Export paths are filled automatically after annotation export."),
-            ("6. Build or reuse feature cache", "Use Feature Cache, or let Train auto-build the cache when enabled."),
-            ("7. Train classifier", "Use Train. Training can export a bundled single .pt automatically."),
-            ("8. Bundle an existing model", "Model Tools > Bundle existing classifier + YOLO... for models trained earlier."),
-            ("9. Run inference", "Use Inference or Batch. Bundled .pt models do not need separate YOLO weights."),
-        ]
-        table = QTableWidget(len(steps), 2, self)
-        table.setHorizontalHeaderLabels(["Step", "What to do"])
-        table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeToContents)
-        table.horizontalHeader().setSectionResizeMode(1, QHeaderView.Stretch)
-        table.verticalHeader().setVisible(False)
-        table.setEditTriggers(QAbstractItemView.NoEditTriggers)
-        table.setSelectionMode(QAbstractItemView.NoSelection)
-        table.setFocusPolicy(Qt.NoFocus)
-        for row, (step, detail) in enumerate(steps):
-            table.setItem(row, 0, QTableWidgetItem(step))
-            table.setItem(row, 1, QTableWidgetItem(detail))
-        table.resizeRowsToContents()
-        layout.addWidget(table, 1)
-
-        self.show_on_startup = QCheckBox("Show this guide when opening a project")
-        self.show_on_startup.setChecked(bool(show_on_startup))
-        layout.addWidget(self.show_on_startup)
-
-        buttons = QDialogButtonBox(QDialogButtonBox.Close, parent=self)
-        buttons.rejected.connect(self.reject)
-        buttons.accepted.connect(self.accept)
-        layout.addWidget(buttons)
-
-    def should_show_on_startup(self) -> bool:
-        return self.show_on_startup.isChecked()
-
-
-class VideoListItem(QWidget):
-    def __init__(self, video: VideoRecord, selected: bool = False, parent: QWidget | None = None):
-        super().__init__(parent)
-        layout = QHBoxLayout(self)
-        layout.setContentsMargins(8, 6, 8, 6)
-        layout.setSpacing(8)
-        dot = QLabel()
-        dot.setFixedSize(10, 10)
-        dot.setStyleSheet(f"background:{self._dot_color(video, selected)}; border-radius:5px;")
-        layout.addWidget(dot)
-
-        text_col = QVBoxLayout()
-        text_col.setContentsMargins(0, 0, 0, 0)
-        name = QLabel(video.filename)
-        name.setObjectName("videoName")
-        counts = QLabel(f"{video.annotation_count} spans  |  {format_ms(video.duration_ms)}")
-        counts.setObjectName("videoMeta")
-        text_col.addWidget(name)
-        text_col.addWidget(counts)
-        layout.addLayout(text_col, 1)
-
-        split = normalize_video_split(getattr(video, "split", "train"))
-        split_badge = QLabel(split.upper())
-        split_badge.setObjectName("SplitBadge")
-        split_badge.setStyleSheet(
-            f"background:{self._split_color(split)}; color:#EAF0F6; "
-            "border-radius:6px; padding:3px 6px; font-size:10px; font-weight:700;"
-        )
-        layout.addWidget(split_badge)
-
-    @staticmethod
-    def _dot_color(video: VideoRecord, selected: bool) -> str:
-        if selected:
-            return "#3E8EDE"
-        if video.approved_count > 0:
-            return "#2EA96B"
-        if video.annotation_count > 0:
-            return "#D58A2D"
-        return "#76889A"
-
-    @staticmethod
-    def _split_color(split: str) -> str:
-        return {
-            "train": "#245C3A",
-            "val": "#255A78",
-            "test": "#6B4F22",
-            "exclude": "#4B5563",
-        }.get(split, "#4B5563")
-
-
-class BehaviorButton(QPushButton):
-    def __init__(self, behavior: BehaviorRecord, selected: bool = False, parent: QWidget | None = None):
-        super().__init__(parent)
-        self.behavior = behavior
-        self.setCheckable(True)
-        self.setChecked(selected)
-        label = behavior.name if not behavior.hotkey else f"{behavior.name} [{behavior.hotkey}]"
-        self.setText(label)
-        self.setCursor(Qt.PointingHandCursor)
-        accent = behavior.color
-        self.setStyleSheet(
-            f"""
-            QPushButton {{
-                text-align: left;
-                padding: 8px 10px;
-                border-radius: 8px;
-                border: 1px solid #2A3948;
-                background: #111923;
-                color: #E7EDF4;
-            }}
-            QPushButton:checked {{
-                border: 2px solid {accent};
-                background: #152030;
-            }}
-            QPushButton:hover {{
-                background: #172231;
-            }}
-            """
-        )        
 
 
 class AnnotationMainWindow(QMainWindow):
@@ -609,7 +123,7 @@ class AnnotationMainWindow(QMainWindow):
         self.position_persist_timer.timeout.connect(self._persist_resume_state)
         self.position_persist_timer.start()
 
-        self.setWindowTitle(f"BehaviorScope-Y Annotation Workspace - {self.project.name}")
+        self.setWindowTitle(f"{ANNOTATION_WORKSPACE_NAME} - {self.project.name}")
         self.setAttribute(Qt.WA_DeleteOnClose, True)
         self._apply_initial_window_size()
         self._build_actions()
@@ -644,6 +158,9 @@ class AnnotationMainWindow(QMainWindow):
             "show_workflow_guide_on_startup",
             "1" if dialog.should_show_on_startup() else "0",
         )
+
+    def _show_scientific_workflow(self) -> None:
+        ScientificWorkflowDialog(parent=self).exec()
 
     def closeEvent(self, event):  # pragma: no cover - UI event
         self.position_persist_timer.stop()
@@ -729,7 +246,7 @@ class AnnotationMainWindow(QMainWindow):
         model_tools_menu.addAction(bundle_model_action)
 
         tutorial_menu = menu.addMenu("&Tutorial")
-        load_mars_tutorial_action = QAction("Download/Load BehaviorScope-Y tutorial...", self)
+        load_mars_tutorial_action = QAction(f"Download/Load {APP_NAME} tutorial...", self)
         load_mars_tutorial_action.triggered.connect(self._load_mars_gui_tutorial)
         tutorial_menu.addAction(load_mars_tutorial_action)
 
@@ -737,6 +254,9 @@ class AnnotationMainWindow(QMainWindow):
         workflow_guide_action = QAction("Workflow Guide...", self)
         workflow_guide_action.triggered.connect(self._show_workflow_guide)
         help_menu.addAction(workflow_guide_action)
+        scientific_workflow_action = QAction("Scientific Workflow...", self)
+        scientific_workflow_action.triggered.connect(self._show_scientific_workflow)
+        help_menu.addAction(scientific_workflow_action)
 
     def _spawn_annotation_window(self, db_path: Path) -> None:
         store = AnnotationStore(db_path)
@@ -790,7 +310,7 @@ class AnnotationMainWindow(QMainWindow):
         target, _ = QFileDialog.getSaveFileName(
             self,
             "Export project database",
-            str(self.store.db_path.with_name(f"{self.store.db_path.stem}_peer_review.sqlite")),
+            str(self.store.db_path.with_name(f"{self.store.db_path.stem}_shared_review.sqlite")),
             "SQLite database (*.sqlite *.db);;All files (*.*)",
         )
         if not target:
@@ -811,7 +331,7 @@ class AnnotationMainWindow(QMainWindow):
             return
         self.store.save_project_metadata(self.project.id, dialog.values())
         self.project = self.store.get_or_create_default_project()
-        self.setWindowTitle(f"BehaviorScope-Y Annotation Workspace - {self.project.name}")
+        self.setWindowTitle(f"{ANNOTATION_WORKSPACE_NAME} - {self.project.name}")
 
     def _build_ui(self) -> None:
         central = QWidget(self)
@@ -824,7 +344,11 @@ class AnnotationMainWindow(QMainWindow):
         central_layout.addWidget(self.workflow_tabs, 1)
 
         annotation_page = QWidget()
-        self.workflow_tabs.addTab(annotation_page, "Annotate + Clip")
+        annotation_idx = self.workflow_tabs.addTab(annotation_page, "Annotate + Clip")
+        self.workflow_tabs.setTabToolTip(
+            annotation_idx,
+            "Import videos, assign splits, label bouts, approve spans, and export full-video annotations.",
+        )
         root = QHBoxLayout(annotation_page)
         root.setContentsMargins(0, 0, 0, 0)
         root.setSpacing(12)
@@ -871,6 +395,52 @@ class AnnotationMainWindow(QMainWindow):
         player_layout = QVBoxLayout(player_row)
         player_layout.setContentsMargins(0, 0, 0, 0)
         player_layout.setSpacing(0)
+        self.empty_state = QFrame()
+        self.empty_state.setObjectName("EmptyState")
+        empty_layout = QVBoxLayout(self.empty_state)
+        empty_layout.setContentsMargins(24, 24, 24, 24)
+        empty_layout.setSpacing(12)
+        empty_layout.addStretch(1)
+        empty_title = QLabel("Start with tutorial data or your own videos")
+        empty_title.setObjectName("EmptyStateTitle")
+        empty_title.setAlignment(Qt.AlignCenter)
+        empty_layout.addWidget(empty_title)
+        empty_hint = QLabel("Load the tutorial for a guided amortized-pose-vision workflow, or import videos and define behavior labels.")
+        empty_hint.setObjectName("HintLabel")
+        empty_hint.setAlignment(Qt.AlignCenter)
+        empty_hint.setWordWrap(True)
+        empty_layout.addWidget(empty_hint)
+        empty_actions = QHBoxLayout()
+        empty_actions.addStretch(1)
+        load_tutorial_btn = QPushButton("Load tutorial")
+        load_tutorial_btn.setObjectName("PrimaryButton")
+        load_tutorial_btn.setToolTip("Download or locate the curated tutorial project and fill the first workflow paths.")
+        load_tutorial_btn.clicked.connect(self._load_mars_gui_tutorial)
+        empty_actions.addWidget(load_tutorial_btn)
+        import_videos_btn = QPushButton("Import videos")
+        import_videos_btn.setToolTip("Select one or more video files to add to this annotation project.")
+        import_videos_btn.clicked.connect(self._import_video_files)
+        empty_actions.addWidget(import_videos_btn)
+        import_folder_btn = QPushButton("Import folder")
+        import_folder_btn.setToolTip("Add every supported video file from a folder.")
+        import_folder_btn.clicked.connect(self._import_video_folder)
+        empty_actions.addWidget(import_folder_btn)
+        labels_btn = QPushButton("Behavior labels")
+        labels_btn.setToolTip("Add or edit the behavior names, definitions, colors, and hotkeys before annotating.")
+        labels_btn.clicked.connect(self._manage_behaviors)
+        empty_actions.addWidget(labels_btn)
+        guide_btn = QPushButton("Workflow guide")
+        guide_btn.setToolTip("Open the end-to-end workflow map.")
+        guide_btn.clicked.connect(self._show_workflow_guide)
+        empty_actions.addWidget(guide_btn)
+        science_btn = QPushButton("Scientific workflow")
+        science_btn.setToolTip("Show how the GUI maps to the manuscript workflow, outputs, and provenance.")
+        science_btn.clicked.connect(self._show_scientific_workflow)
+        empty_actions.addWidget(science_btn)
+        empty_actions.addStretch(1)
+        empty_layout.addLayout(empty_actions)
+        empty_layout.addStretch(1)
+        player_layout.addWidget(self.empty_state, 1)
         self.video_widget = QVideoWidget()
         self.video_widget.setMinimumHeight(260)
         self.video_widget.setObjectName("VideoSurface")
@@ -1038,15 +608,18 @@ class AnnotationMainWindow(QMainWindow):
 
         form = QFormLayout()
         self.behavior_combo = QComboBox()
+        self.behavior_combo.setToolTip("Relabel the selected span without redrawing it on the timeline.")
         self.behavior_combo.currentIndexChanged.connect(self._save_annotation_fields)
         form.addRow("Behavior", self.behavior_combo)
         self.confidence_spin = QDoubleSpinBox()
         self.confidence_spin.setDecimals(2)
         self.confidence_spin.setRange(0.0, 1.0)
         self.confidence_spin.setSingleStep(0.05)
+        self.confidence_spin.setToolTip("Optional confidence score for this annotation. Use 1.00 when boundaries and behavior are clear.")
         self.confidence_spin.valueChanged.connect(self._save_annotation_fields)
         form.addRow("Confidence", self.confidence_spin)
         self.ambiguous_check = QCheckBox("Ambiguous")
+        self.ambiguous_check.setToolTip("Mark this span when the behavior or boundary is uncertain but still worth reviewing.")
         self.ambiguous_check.toggled.connect(self._save_annotation_fields)
         form.addRow("", self.ambiguous_check)
         self.locked_check = QCheckBox("Lock position")
@@ -1065,7 +638,7 @@ class AnnotationMainWindow(QMainWindow):
         inspector_layout.addWidget(note_label)
         self.notes_edit = QPlainTextEdit()
         self._enforce_notes_edit_left_to_right()
-        self.notes_edit.setPlaceholderText("Notes about uncertainty, reviewer comments, or bout context.")
+        self.notes_edit.setPlaceholderText("Notes about uncertainty, quality-control checks, or bout context.")
         self.notes_edit.setToolTip("Free-text notes for this span. Text entry is left-to-right.")
         self.notes_edit.setMinimumHeight(96)
         self.notes_edit.setObjectName("NotesEdit")
@@ -1079,7 +652,7 @@ class AnnotationMainWindow(QMainWindow):
         self.status_badge.setObjectName("StatusBadge")
         inspector_layout.addWidget(self.status_badge)
         self.status_hint = QLabel(
-            "Draft spans are private working notes. Move a span to Ready when boundaries look correct, then Approve or Reject during review."
+            "Draft spans are working notes. Move a span to Ready when boundaries look correct, then Approve or Reject during quality control."
         )
         self.status_hint.setWordWrap(True)
         self.status_hint.setObjectName("HintLabel")
@@ -1089,18 +662,22 @@ class AnnotationMainWindow(QMainWindow):
         self.draft_btn = QPushButton("Draft")
         self.draft_btn.setCheckable(True)
         self.draft_btn.setProperty("statusRole", "draft")
+        self.draft_btn.setToolTip("Working annotation that is not ready for quality control.")
         self.draft_btn.clicked.connect(lambda: self._set_selected_status(AnnotationStatus.DRAFT))
         self.ready_btn = QPushButton("Ready")
         self.ready_btn.setCheckable(True)
         self.ready_btn.setProperty("statusRole", "ready")
+        self.ready_btn.setToolTip("Boundary and label look correct; mark for review.")
         self.ready_btn.clicked.connect(lambda: self._set_selected_status(AnnotationStatus.READY))
         self.approve_btn = QPushButton("Approve")
         self.approve_btn.setCheckable(True)
         self.approve_btn.setProperty("statusRole", "approved")
+        self.approve_btn.setToolTip("Accept this span for export and training.")
         self.approve_btn.clicked.connect(lambda: self._set_selected_status(AnnotationStatus.APPROVED))
         self.reject_btn = QPushButton("Reject")
         self.reject_btn.setCheckable(True)
         self.reject_btn.setProperty("statusRole", "rejected")
+        self.reject_btn.setToolTip("Exclude this span from approved training/export outputs.")
         self.reject_btn.clicked.connect(lambda: self._set_selected_status(AnnotationStatus.REJECTED))
         action_row.addWidget(self.draft_btn)
         action_row.addWidget(self.ready_btn)
@@ -1183,21 +760,204 @@ class AnnotationMainWindow(QMainWindow):
         self.state_label = QLabel("Ready")
         self.statusBar().addPermanentWidget(self.state_label)
 
+        app_root = Path(__file__).resolve().parents[1]
+        analysis_root = app_root / "analysis_workflows"
+
+        self.yolo_page = QWidget()
+        yolo_layout = QVBoxLayout(self.yolo_page)
+        yolo_layout.setContentsMargins(0, 0, 0, 0)
+        self.yolo_tabs = QTabWidget()
+        yolo_layout.addWidget(self.yolo_tabs, 1)
+        yolo_idx = self.workflow_tabs.addTab(self.yolo_page, color_swatch_icon("#3E8EDE"), "YOLO-pose")
+        self.workflow_tabs.setTabToolTip(
+            yolo_idx,
+            "YOLO-pose cache building, feature extraction, temporal classifier training, inference, ethograms, batch processing, and outputs.",
+        )
+
         self.prepare_dataset_panel = PrepareDatasetPanel(self, on_success=self._on_prepare_dataset_success)
         self.prepare_full_video_panel = PrepareFullVideoDatasetPanel(self, on_success=self._on_prepare_full_video_success)
         self.feature_cache_panel = FeatureCachePanel(self, on_success=self._on_feature_cache_success)
-        self.train_panel = TrainPanel(self, on_success=self._on_train_success)
+        self.train_panel = TrainPanel(self, on_success=self._on_train_success, workflow_label="YOLO-pose", feature_mode="yolo")
         self.inference_panel = InferencePanel(batch_mode=False, parent=self)
         self.batch_panel = InferencePanel(batch_mode=True, parent=self)
-        self._add_workflow_tab(self.prepare_dataset_panel, "Prepare Dataset", "#6A7A89")
-        self._add_workflow_tab(self.prepare_full_video_panel, "Prepare Full Video", "#2EA96B")
-        self._add_workflow_tab(self.feature_cache_panel, "Feature Cache", "#B9872F")
-        self._add_workflow_tab(self.train_panel, "Train", "#7C6BD6")
-        self._add_workflow_tab(self.inference_panel, "Inference", "#3E8EDE")
-        self._add_workflow_tab(self.batch_panel, "Batch", "#3E8EDE")
+        self.yolo_ethogram_panel = EthogramSummaryPanel(
+            workflow_label="YOLO-pose",
+            default_output_root=app_root / "outputs" / "yolo_pose",
+            parent=self,
+        )
+        self.yolo_outputs_panel = ArtifactInspectorPanel(
+            title="YOLO-pose outputs and summaries",
+            default_root=app_root / "outputs",
+            parent=self,
+        )
+        self._add_model_workflow_tab(self.yolo_tabs, self.prepare_dataset_panel, "Legacy Clip Cache", "#6A7A89", "Build windows from class-folder clips for older datasets.")
+        self._add_model_workflow_tab(self.yolo_tabs, self.prepare_full_video_panel, "Full-Video Cache", "#2EA96B", "Build sliding-window NPZ caches from full videos and exported annotations.")
+        self._add_model_workflow_tab(self.yolo_tabs, self.feature_cache_panel, "Train/Val Feature Cache", "#B9872F", "Precompute frozen YOLO-pose visual descriptors for train/validation windows.")
+        self._add_model_workflow_tab(self.yolo_tabs, self.train_panel, "Train + Validation Eval", "#7C6BD6", "Train the temporal behavior classifier and evaluate on validation windows.")
+        self._add_model_workflow_tab(self.yolo_tabs, self.inference_panel, "Inference", "#3E8EDE", "Run a trained bundled model on one video and export behavior predictions.")
+        self._add_model_workflow_tab(self.yolo_tabs, self.batch_panel, "Batch", "#3E8EDE", "Run a trained bundled model across a folder of videos.")
+        self._add_model_workflow_tab(self.yolo_tabs, self.yolo_ethogram_panel, "Ethograms + Bouts", "#C27A34", "Create model-agnostic ethogram timelines and bout summaries from YOLO-pose temporal predictions.")
+        self._add_model_workflow_tab(self.yolo_tabs, self.yolo_outputs_panel, "Outputs", "#52606D", "Inspect YOLO-pose caches, logs, metrics, ethograms, and exported files.")
+
+        self.mobilenet_page = QWidget()
+        mobilenet_layout = QVBoxLayout(self.mobilenet_page)
+        mobilenet_layout.setContentsMargins(0, 0, 0, 0)
+        self.mobilenet_tabs = QTabWidget()
+        mobilenet_layout.addWidget(self.mobilenet_tabs, 1)
+        mobilenet_idx = self.workflow_tabs.addTab(self.mobilenet_page, color_swatch_icon("#1FA37A"), "MobileNetV3")
+        self.workflow_tabs.setTabToolTip(
+            mobilenet_idx,
+            "MobileNetV3 cache building, pose-backbone feature extraction, temporal classifier training, ethograms, held-out evaluation, and summary stages.",
+        )
+        self.mobilenet_full_video_panel = MobileNetFullVideoDatasetPanel(self, on_success=self._on_prepare_full_video_success)
+        self.mobilenet_feature_cache_panel = MobileNetFeatureCachePanel(self)
+        self.mobilenet_train_panel = TrainPanel(
+            self,
+            on_success=self._on_train_success,
+            workflow_label="MobileNetV3",
+            feature_mode="cached",
+        )
+        self.mobilenet_ethogram_panel = EthogramSummaryPanel(
+            workflow_label="MobileNetV3",
+            default_output_root=app_root / "outputs" / "mobilenetv3",
+            parent=self,
+        )
+        self._add_model_workflow_tab(
+            self.mobilenet_tabs,
+            self.mobilenet_full_video_panel,
+            "Full-Video Cache",
+            "#2EA96B",
+            "Build sliding-window NPZ caches directly from videos using the MobileNetV3 pose checkpoint.",
+        )
+        self._add_model_workflow_tab(
+            self.mobilenet_tabs,
+            self.mobilenet_feature_cache_panel,
+            "Train/Val Feature Cache",
+            "#1FA37A",
+            "Extract MobileNetV3-large pose-backbone visual descriptors from MobileNetV3 sequence windows.",
+        )
+        self._add_model_workflow_tab(
+            self.mobilenet_tabs,
+            self.mobilenet_train_panel,
+            "Train + Validation Eval",
+            "#7C6BD6",
+            "Train the temporal behavior classifier from MobileNetV3 visual features plus pose-derived streams.",
+        )
+        mobilenet_runner = analysis_root / "mobilenetv3_backbone" / "run_mobilenetv3_backbone.py"
+        for stage, title, description in (
+            ("build_npz", "Full-Video + Held-Out Caches", "Build or reuse the MARS train/validation and held-out sequence NPZ caches."),
+            ("build_visual_cache", "Train/Val Feature Cache", "Extract MobileNetV3 visual descriptors for train/validation and held-out manifests."),
+            ("train_neural", "Train Temporal Classifiers", "Train LSTM and attention temporal classifiers from MobileNetV3 visual features plus pose-derived streams."),
+            ("eval_neural", "Held-Out Evaluation", "Evaluate trained MobileNetV3 temporal classifiers on held-out MARS videos."),
+            ("train_classical", "Static Baseline Training", "Train RF/XGBoost negative-control baselines from tabularized pose and PCA-compressed visual features."),
+            ("eval_classical", "Static Baseline Evaluation", "Evaluate RF/XGBoost baselines on held-out MARS videos."),
+            ("summarize", "Suite Summary Tables", "Collect frame, bout, per-video, and confusion-matrix summary tables across MobileNetV3 runs."),
+        ):
+            self._add_model_workflow_tab(
+                self.mobilenet_tabs,
+                ReleaseStagePanel(
+                    title=title,
+                    description=description,
+                    runner_script=mobilenet_runner,
+                    stage=stage,
+                    workflow_kind="mobilenetv3",
+                    parent=self,
+                ),
+                title,
+                "#1FA37A",
+                description,
+            )
+        self._add_model_workflow_tab(
+            self.mobilenet_tabs,
+            self.mobilenet_ethogram_panel,
+            "Ethograms + Bouts",
+            "#C27A34",
+            "Create model-agnostic ethogram timelines and bout summaries from MobileNetV3 temporal predictions.",
+        )
+        self._add_model_workflow_tab(
+            self.mobilenet_tabs,
+            ArtifactInspectorPanel(
+                title="MobileNetV3 outputs and summaries",
+                default_root=app_root,
+                parent=self,
+            ),
+            "Outputs",
+            "#52606D",
+            "Inspect MobileNetV3 caches, trained models, metrics, static-baseline outputs, and summaries.",
+        )
+
+        self.dlc_page = QWidget()
+        dlc_layout = QVBoxLayout(self.dlc_page)
+        dlc_layout.setContentsMargins(0, 0, 0, 0)
+        self.dlc_tabs = QTabWidget()
+        dlc_layout.addWidget(self.dlc_tabs, 1)
+        dlc_idx = self.workflow_tabs.addTab(self.dlc_page, color_swatch_icon("#8A63D2"), "DeepLabCut-HRNet")
+        self.workflow_tabs.setTabToolTip(
+            dlc_idx,
+            "DeepLabCut SuperAnimal fine-tuning, top-down cache building, HRNet feature extraction, temporal classifier training, ethograms, and held-out evaluation.",
+        )
+        dlc_runner = analysis_root / "dlc_superanimal_topdown" / "run_dlc_superanimal_topdown.py"
+        self.dlc_ethogram_panel = EthogramSummaryPanel(
+            workflow_label="DeepLabCut-HRNet",
+            default_output_root=app_root / "outputs" / "dlc_superanimal_topdown",
+            parent=self,
+        )
+        for stage, title, description in (
+            ("train_dlc_pose_detector", "Pose + Detector Fine-Tuning", "Fine-tune the DLC SuperAnimal pose model and detector with validation-based model selection."),
+            ("build_trainval_npz", "Full-Video Train/Val Cache", "Run the DLC top-down detector and pose model to build full-video train/validation sequence windows."),
+            ("build_trainval_hrnet_cache", "Train/Val HRNet Feature Cache", "Extract pooled multi-resolution HRNet-W32 visual descriptors from DLC top-down crops."),
+            ("train_classifier", "Classifier Train + Validation", f"Train the {APP_NAME} temporal classifier using DLC pose-derived and HRNet visual features."),
+            ("prepare_heldout_manifest", "Held-Out Manifest", "Prepare the held-out MP4/.annot manifest used for test-video evaluation."),
+            ("build_heldout_npz", "Held-Out Full-Video Cache", "Build held-out DLC top-down sequence windows."),
+            ("build_heldout_hrnet_cache", "Held-Out HRNet Feature Cache", "Extract HRNet visual descriptors for held-out DLC top-down windows."),
+            ("evaluate_heldout", "Held-Out Evaluation", "Evaluate frame, bout, per-video, confusion-matrix, and ethogram-level outputs."),
+        ):
+            self._add_model_workflow_tab(
+                self.dlc_tabs,
+                ReleaseStagePanel(
+                    title=title,
+                    description=description,
+                    runner_script=dlc_runner,
+                    stage=stage,
+                    workflow_kind="dlc",
+                    parent=self,
+                ),
+                title,
+                "#8A63D2",
+                description,
+            )
+        self._add_model_workflow_tab(
+            self.dlc_tabs,
+            self.dlc_ethogram_panel,
+            "Ethograms + Bouts",
+            "#C27A34",
+            "Create model-agnostic ethogram timelines and bout summaries from DeepLabCut-HRNet temporal predictions.",
+        )
+        self._add_model_workflow_tab(
+            self.dlc_tabs,
+            ArtifactInspectorPanel(
+                title="DeepLabCut-HRNet outputs and summaries",
+                default_root=app_root / "outputs" / "dlc_superanimal_topdown",
+                parent=self,
+            ),
+            "Outputs",
+            "#52606D",
+            "Inspect DeepLabCut-HRNet caches, trained classifiers, held-out metrics, ethograms, and summaries.",
+        )
 
     def _add_workflow_tab(self, widget: QWidget, title: str, color: str) -> None:
         self.workflow_tabs.addTab(widget, color_swatch_icon(color), title)
+
+    def _add_model_workflow_tab(self, tabs: QTabWidget, widget: QWidget, title: str, color: str, tooltip: str = "") -> None:
+        idx = tabs.addTab(widget, color_swatch_icon(color), title)
+        if tooltip:
+            tabs.setTabToolTip(idx, tooltip)
+
+    def _select_yolo_panel(self, widget: QWidget) -> None:
+        if hasattr(self, "yolo_page"):
+            self.workflow_tabs.setCurrentWidget(self.yolo_page)
+        if hasattr(self, "yolo_tabs"):
+            self.yolo_tabs.setCurrentWidget(widget)
 
     def _cmd_arg(self, command: list[str], flag: str) -> str | None:
         try:
@@ -1283,7 +1043,7 @@ class AnnotationMainWindow(QMainWindow):
     def _locate_mars_tutorial_root(self, initial_root: Path) -> Path | None:
         folder = QFileDialog.getExistingDirectory(
             self,
-            "Locate BehaviorScope-Y tutorial data folder",
+            f"Locate {APP_NAME} tutorial data folder",
             str(initial_root if initial_root.exists() else Path.cwd()),
         )
         if not folder:
@@ -1328,7 +1088,7 @@ class AnnotationMainWindow(QMainWindow):
             100,
             self,
         )
-        progress.setWindowTitle("Downloading BehaviorScope-Y tutorial")
+        progress.setWindowTitle(f"Downloading {APP_NAME} tutorial")
         progress.setWindowModality(Qt.WindowModal)
         progress.setMinimumDuration(0)
         progress.setAutoClose(False)
@@ -1396,7 +1156,7 @@ class AnnotationMainWindow(QMainWindow):
             (
                 "The download finished, but the expected tutorial folder was not found.\n\n"
                 f"Expected: {candidate}\n\n"
-                "The Hugging Face dataset should contain the BehaviorScope-Y_tutorial folder "
+                f"The tutorial dataset should contain the {APP_NAME} tutorial folder "
                 "with source_manifest.csv, class_names.txt, videos/, and annotations/."
             ),
         )
@@ -1407,7 +1167,7 @@ class AnnotationMainWindow(QMainWindow):
         box.setWindowTitle("Tutorial data not available")
         box.setIcon(QMessageBox.Information)
         box.setText(
-            "The BehaviorScope-Y tutorial videos are not available locally."
+            f"The {APP_NAME} tutorial videos are not available locally."
         )
         box.setInformativeText(
             f"{reason}\n\nDownload the tutorial dataset from Hugging Face, "
@@ -1446,11 +1206,11 @@ class AnnotationMainWindow(QMainWindow):
 
         proceed = QMessageBox.question(
             self,
-            "Load BehaviorScope-Y tutorial?",
+            f"Load {APP_NAME} tutorial?",
             (
                 "This will import the tutorial videos into the current project, assign their "
                 "train/validation/test splits, add the tutorial behavior labels, and fill the "
-                "Prepare Full Video workflow paths.\n\n"
+                "model workflow paths.\n\n"
                 "It will not start preprocessing, training, or inference."
             ),
             QMessageBox.Yes | QMessageBox.Cancel,
@@ -1514,23 +1274,70 @@ class AnnotationMainWindow(QMainWindow):
                 ),
                 self.videos[0],
             )
-            self._set_current_video(first_tutorial.id, 0)
-        self.workflow_tabs.setCurrentWidget(self.prepare_full_video_panel)
+        self._set_current_video(first_tutorial.id, 0)
+        if self._tutorial_has_mobilenet_models(tutorial_root) and hasattr(self, "mobilenet_page"):
+            self.workflow_tabs.setCurrentWidget(self.mobilenet_page)
+            self.mobilenet_tabs.setCurrentWidget(self.mobilenet_full_video_panel)
+        else:
+            self._select_yolo_panel(self.prepare_full_video_panel)
         readme_note = f"\n\nTutorial README:\n{readme}" if readme.exists() else ""
+        model_note = self._tutorial_model_note(tutorial_root)
         QMessageBox.information(
             self,
-            "BehaviorScope-Y tutorial loaded",
+            f"{APP_NAME} tutorial loaded",
             (
                 f"Imported {imported_count} new video(s).\n"
                 f"Loaded {annotation_count} tutorial annotation span(s).\n"
                 f"Split assignments: {split_counts}\n\n"
-                "The timeline now shows the converted MARS ground-truth spans. The Prepare "
-                "Full Video tab is filled with the tutorial manifest and class-name paths. "
-                "Add YOLO pose weights, choose whether to keep the suggested output folder, "
-                "then press Start."
+                "Next step: build a window NPZ cache from the tutorial videos. If "
+                "the bundled MobileNetV3 pose model is present, the MobileNetV3 > "
+                "Full-Video Cache tab has been filled and selected. Otherwise, use "
+                "YOLO-pose > Full-Video Cache with an Ultralytics YOLO-pose checkpoint."
+                f"{model_note}"
                 f"{readme_note}"
             ),
         )
+
+    def _tutorial_has_mobilenet_models(self, tutorial_root: Path) -> bool:
+        required = [
+            tutorial_root / "tutorial_models" / "full_pose_mobilenetv3" / "best_pose_map5095.pt",
+            tutorial_root
+            / "tutorial_models"
+            / "full_attn_classifier_mobilenetv3"
+            / "best_model_macro_f1.pt",
+            tutorial_root / "tutorial_models" / "full_attn_classifier_mobilenetv3" / "config.json",
+        ]
+        return all(path.is_file() for path in required)
+
+    def _tutorial_model_note(self, tutorial_root: Path) -> str:
+        models = [
+            (
+                "MobileNetV3 pose model",
+                tutorial_root / "tutorial_models" / "full_pose_mobilenetv3" / "best_pose_map5095.pt",
+            ),
+            (
+                "MobileNetV3 classifier",
+                tutorial_root
+                / "tutorial_models"
+                / "full_attn_classifier_mobilenetv3"
+                / "best_model_macro_f1.pt",
+            ),
+            (
+                "MobileNetV3 classifier config",
+                tutorial_root / "tutorial_models" / "full_attn_classifier_mobilenetv3" / "config.json",
+            ),
+        ]
+        available = [label for label, path in models if path.is_file()]
+        if len(available) == len(models):
+            return (
+                "\n\nMobileNetV3 tutorial models were found in tutorial_models. They are "
+                "ready for the MobileNetV3 full-video cache, feature-cache, and "
+                "classifier workflow."
+            )
+        if available:
+            missing = [label for label, path in models if not path.is_file()]
+            return "\n\nSome tutorial MobileNetV3 model assets are missing: " + ", ".join(missing) + "."
+        return ""
 
     def _read_tutorial_manifest(self, manifest_path: Path, tutorial_root: Path) -> list[dict[str, str]]:
         required_columns = {"split", "video_id", "video_path", "annot_path"}
@@ -1579,7 +1386,7 @@ class AnnotationMainWindow(QMainWindow):
                 {
                     "name": name.strip(),
                     "color": colors.get(key, default_color(index)),
-                    "definition": "BehaviorScope-Y tutorial behavior label.",
+                    "definition": f"{APP_NAME} tutorial behavior label.",
                     "hotkey": hotkeys.get(key),
                 }
             )
@@ -1658,7 +1465,7 @@ class AnnotationMainWindow(QMainWindow):
                 self.store.update_annotation(
                     ann_id,
                     status=AnnotationStatus.APPROVED,
-                    notes="Imported from BehaviorScope-Y tutorial ground truth.",
+                    notes=f"Imported from {APP_NAME} tutorial reference annotations.",
                 )
                 existing.add(signature)
                 imported += 1
@@ -1717,10 +1524,14 @@ class AnnotationMainWindow(QMainWindow):
         source_manifest: Path,
         class_names_file: Path,
     ) -> None:
-        output_base = Path(self.store.db_path).resolve().parent / "BehaviorScope-Y_tutorial_outputs"
+        output_base = Path(self.store.db_path).resolve().parent / TUTORIAL_OUTPUTS_DIR
         output_root = output_base / "prepared_npz"
         sequence_manifest = output_root / "sequence_manifest.json"
         feature_cache_root = output_root / "yolo_feature_cache"
+        mobilenet_output_root = output_base / "prepared_npz_mobilenetv3"
+        mobilenet_sequence_manifest = mobilenet_output_root / "sequence_manifest.json"
+        mobilenet_pose = tutorial_root / "tutorial_models" / "full_pose_mobilenetv3" / "best_pose_map5095.pt"
+        mobilenet_cache_root = output_base / "mobilenetv3_feature_cache"
         training_root = output_base / "training_runs"
         inference_root = output_base / "inference"
         review_video_root = output_base / "review_mp4"
@@ -1741,16 +1552,50 @@ class AnnotationMainWindow(QMainWindow):
         self.feature_cache_panel.output_dir.setText(str(feature_cache_root.resolve()))
         self.feature_cache_panel.splits.setText("train val")
 
+        if hasattr(self, "mobilenet_full_video_panel"):
+            self.mobilenet_full_video_panel.source_manifest_csv.setText(str(source_manifest.resolve()))
+            self.mobilenet_full_video_panel.class_names_file.setText(str(class_names_file.resolve()))
+            if mobilenet_pose.is_file():
+                self.mobilenet_full_video_panel.checkpoint.setText(str(mobilenet_pose.resolve()))
+            self.mobilenet_full_video_panel.output_root.setText(str(mobilenet_output_root.resolve()))
+            self.mobilenet_full_video_panel.manifest_path.setText(str(mobilenet_sequence_manifest.resolve()))
+            idx_m = self.mobilenet_full_video_panel.source_mode.findText("mp4")
+            if idx_m >= 0:
+                self.mobilenet_full_video_panel.source_mode.setCurrentIndex(idx_m)
+            self.mobilenet_full_video_panel.window_size.setValue(32)
+            self.mobilenet_full_video_panel.window_stride.setValue(16)
+            self.mobilenet_full_video_panel.n_animals.setValue(2)
+            self.mobilenet_full_video_panel.fps.setValue(30.0)
+        if hasattr(self, "mobilenet_feature_cache_panel"):
+            self.mobilenet_feature_cache_panel.manifest_path.setText(str(mobilenet_sequence_manifest.resolve()))
+            if mobilenet_pose.is_file():
+                self.mobilenet_feature_cache_panel.checkpoint.setText(str(mobilenet_pose.resolve()))
+            self.mobilenet_feature_cache_panel.output_dir.setText(str(mobilenet_cache_root.resolve()))
+            self.mobilenet_feature_cache_panel.splits.setText("train val")
+        if hasattr(self, "mobilenet_train_panel"):
+            self.mobilenet_train_panel.manifest_path.setText(str(mobilenet_sequence_manifest.resolve()))
+            self.mobilenet_train_panel.project.setText(str(training_root.resolve()))
+            self.mobilenet_train_panel.name.setText("BehaviorScope-X_tutorial_mobilenetv3")
+            self.mobilenet_train_panel.train_splits.setText("train")
+            self.mobilenet_train_panel.val_splits.setText("val")
+            self.mobilenet_train_panel.use_feature_cache.setText(str(mobilenet_cache_root.resolve()))
+            self.mobilenet_train_panel.auto_feature_cache.setChecked(False)
+            self.mobilenet_train_panel.yolo_weights.setText("")
+            self.mobilenet_train_panel.temporal_splitter_annot_root.setText(str((tutorial_root / "annotations").resolve()))
+            self.mobilenet_train_panel.single_model_path.setText(
+                str((training_root / "BehaviorScope-X_tutorial_mobilenetv3" / "behaviorscope_x_single_model.pt").resolve())
+            )
+
         self.train_panel.manifest_path.setText(str(sequence_manifest.resolve()))
         self.train_panel.project.setText(str(training_root.resolve()))
-        self.train_panel.name.setText("BehaviorScope-Y_tutorial")
+        self.train_panel.name.setText("BehaviorScope-X_tutorial")
         self.train_panel.train_splits.setText("train")
         self.train_panel.val_splits.setText("val")
         self.train_panel.use_feature_cache.setText(str(feature_cache_root.resolve()))
         self.train_panel.auto_feature_cache.setChecked(True)
         self.train_panel.temporal_splitter_annot_root.setText(str((tutorial_root / "annotations").resolve()))
         self.train_panel.single_model_path.setText(
-            str((training_root / "BehaviorScope-Y_tutorial" / "behaviorscope_y_single_model.pt").resolve())
+            str((training_root / "BehaviorScope-X_tutorial" / "behaviorscope_x_single_model.pt").resolve())
         )
 
         first_test_video = next((tutorial_root / "videos" / "test").glob("*.mp4"), None)
@@ -1774,7 +1619,7 @@ class AnnotationMainWindow(QMainWindow):
             self.inference_panel.output_dir.setText(str(model_dir / "inference_outputs"))
         if not self.batch_panel.output_dir.text().strip():
             self.batch_panel.output_dir.setText(str(model_dir / "batch_outputs"))
-        self.workflow_tabs.setCurrentWidget(self.inference_panel)
+        self._select_yolo_panel(self.inference_panel)
 
     def _bundle_existing_model(self) -> None:
         dialog = BundleExistingModelDialog(self)
@@ -1801,7 +1646,7 @@ class AnnotationMainWindow(QMainWindow):
         if model_config is not None and not model_config.is_file():
             QMessageBox.warning(self, "Path not found", f"Model config was not found:\n{model_config}")
             return
-        script = Path(__file__).resolve().parents[1] / "package_single_model_y.py"
+        script = Path(__file__).resolve().parents[1] / "package_single_model_x.py"
         if not script.is_file():
             QMessageBox.critical(self, "Missing bundler", f"Could not find:\n{script}")
             return
@@ -1846,7 +1691,7 @@ class AnnotationMainWindow(QMainWindow):
         dataset_root = self._cmd_arg(command, "--dataset_root")
         manifest_path = self._cmd_arg(command, "--manifest_path")
         if not manifest_path:
-            base = Path(output_root) if output_root else Path(dataset_root or "") / "behaviorscope_y_processed"
+            base = Path(output_root) if output_root else Path(dataset_root or "") / "behaviorscope_x_processed"
             manifest_path = str((base / "sequence_manifest.json").resolve())
         self._fill_training_inputs(manifest_path, self._cmd_arg(command, "--yolo_weights"))
         self._fill_feature_cache_inputs(manifest_path, self._cmd_arg(command, "--yolo_weights"), output_root)
@@ -1893,7 +1738,7 @@ class AnnotationMainWindow(QMainWindow):
             self.train_panel.manifest_path.setText(manifest_path)
         if yolo_weights:
             self.train_panel.yolo_weights.setText(yolo_weights)
-        self.workflow_tabs.setCurrentWidget(self.train_panel)
+        self._select_yolo_panel(self.train_panel)
         self.statusBar().showMessage("Training inputs were filled from the completed preprocessing run.", 6000)
 
     def _on_train_success(self, command: list[str]) -> None:
@@ -1905,7 +1750,7 @@ class AnnotationMainWindow(QMainWindow):
             model_path = run_dir / "best_model.pt"
         single_model_path = self._cmd_arg(command, "--single_model_path")
         if not single_model_path:
-            candidate_single = run_dir / "behaviorscope_y_single_model.pt"
+            candidate_single = run_dir / "behaviorscope_x_single_model.pt"
             if candidate_single.exists():
                 single_model_path = str(candidate_single)
         config_path = run_dir / "config.json"
@@ -1923,7 +1768,7 @@ class AnnotationMainWindow(QMainWindow):
                 panel.model_config.setText(str(config_path))
         self.inference_panel.output_dir.setText(str(run_dir / "inference_outputs"))
         self.batch_panel.output_dir.setText(str(run_dir / "batch_outputs"))
-        self.workflow_tabs.setCurrentWidget(self.inference_panel)
+        self._select_yolo_panel(self.inference_panel)
         self.statusBar().showMessage("Inference and batch inputs were filled from the completed training run.", 6000)
 
     def _apply_styles(self) -> None:
@@ -1987,15 +1832,60 @@ class AnnotationMainWindow(QMainWindow):
                 font-weight: 600;
                 color: #E8EEF4;
             }
+            QLabel#EmptyStateTitle {
+                font-size: 18px;
+                font-weight: 700;
+                color: #FFFFFF;
+            }
             QLabel#TimeLabel {
                 color: #8B9EB2;
             }
             QVideoWidget#VideoSurface {
                 background: #04070B;
             }
+            QFrame#EmptyState {
+                background: #071019;
+                border: none;
+            }
             QFrame#TimelineFrame, QFrame#InspectorCard {
                 background: #10161E;
                 border-top: 1px solid #263645;
+            }
+            QTabWidget::pane {
+                background: #0B1118;
+                border: 1px solid #263645;
+                border-radius: 8px;
+                top: -1px;
+            }
+            QTabWidget::tab-bar {
+                left: 8px;
+            }
+            QTabBar::tab {
+                background: #101A25;
+                color: #C9D4DF;
+                border: 1px solid #2A3948;
+                border-bottom-color: #263645;
+                padding: 8px 14px;
+                margin-right: 2px;
+                min-height: 20px;
+                font-size: 14px;
+                font-weight: 600;
+            }
+            QTabBar::tab:selected {
+                background: #1A2A3A;
+                color: #FFFFFF;
+                border-color: #3E8EDE;
+                border-bottom-color: #1A2A3A;
+                font-weight: 700;
+            }
+            QTabBar::tab:hover:!selected {
+                background: #162332;
+                color: #E8EEF4;
+                border-color: #3A5065;
+            }
+            QTabBar::tab:disabled {
+                background: #0F1721;
+                color: #667789;
             }
             QLabel#SectionHeader {
                 color: #E8EEF4;
@@ -2141,6 +2031,8 @@ class AnnotationMainWindow(QMainWindow):
         self.total_time.setText("0:00")
         self.scrubber.setRange(0, 0)
         self.annotations = []
+        self.empty_state.show()
+        self.video_widget.hide()
         self._refresh_annotation_table()
         self._refresh_timeline()
         self._update_footer()
@@ -2363,8 +2255,8 @@ class AnnotationMainWindow(QMainWindow):
     def _update_status_display(self, status: str) -> None:
         palette = {
             AnnotationStatus.DRAFT.value: ("Draft", "#3B4754", "#75889A", "Draft spans are working bookmarks. Use this while boundaries or labels are still being refined."),
-            AnnotationStatus.READY.value: ("Ready", "#1D4E67", "#57A9CF", "Ready spans look correct and are waiting for final review or approval."),
-            AnnotationStatus.APPROVED.value: ("Approved", "#1E5B3A", "#52C584", "Approved spans will be included when you extract clips."),
+            AnnotationStatus.READY.value: ("Ready", "#1D4E67", "#57A9CF", "Ready spans look correct and are waiting for quality control or approval."),
+            AnnotationStatus.APPROVED.value: ("Approved", "#1E5B3A", "#52C584", "Approved spans are included in full-video annotation export and legacy clip extraction."),
             AnnotationStatus.REJECTED.value: ("Rejected", "#6B2727", "#E27B7B", "Rejected spans are kept for traceability but should not be exported."),
         }
         label, background, border, hint = palette.get(
@@ -2417,6 +2309,8 @@ class AnnotationMainWindow(QMainWindow):
             )
         self.current_video = video
         self.session.set_video(video)
+        self.empty_state.hide()
+        self.video_widget.show()
         self.video_title.setText(video.filename)
         self.total_time.setText(format_ms(video.duration_ms))
         self.time_label.setText(f"{format_ms(position_ms)} / {format_ms(video.duration_ms)}")
@@ -2828,7 +2722,7 @@ class AnnotationMainWindow(QMainWindow):
         ) or "No clips exported."
         summary += (
             "\n\nWrote clips.json and clips_metadata.csv. "
-            "Use clips_metadata.csv with prepare_clips_y.py for source-grouped splits."
+            "Use clips_metadata.csv with prepare_clips_x.py for source-grouped splits."
         )
         warnings = manifest.get("warnings", [])
         if warnings:
@@ -2892,7 +2786,7 @@ class AnnotationMainWindow(QMainWindow):
             default_npz_root = export_root / "behaviorscope_npz"
             if not self.prepare_full_video_panel.output_root.text().strip():
                 self.prepare_full_video_panel.output_root.setText(str(default_npz_root))
-            self.workflow_tabs.setCurrentWidget(self.prepare_full_video_panel)
+            self._select_yolo_panel(self.prepare_full_video_panel)
         preflight = manifest.get("preflight", {})
         warnings = list(preflight.get("warnings", []))
         info = list(preflight.get("info", []))
@@ -2903,7 +2797,7 @@ class AnnotationMainWindow(QMainWindow):
             f"Excluded videos: {split_counts['exclude']}\n\n"
             "Wrote source_manifest.csv, class_names.txt, full_video_annotations.json, "
             "full_video_annotations.batch.json, preflight_report.json, and one .annot file per video.\n\n"
-            "The Prepare Full Video tab has been filled with the export paths."
+            "The YOLO-pose > Full-Video Cache tab has been filled with the export paths."
         )
         if warnings:
             summary += "\n\nPreflight warnings:\n" + "\n".join(warnings[:6])
@@ -3079,3 +2973,4 @@ class AnnotationMainWindow(QMainWindow):
             bar.setValue(max(0, playhead_x - margin))
         elif playhead_x > right - margin:
             bar.setValue(max(0, playhead_x - viewport_width + margin))
+

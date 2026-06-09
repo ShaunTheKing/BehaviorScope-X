@@ -1,20 +1,18 @@
-"""
-Utilities for training and running the flexible behavior classifier (LSTM,
-attention pooling, and SlowFast-style video backbone).
+"""BehaviorScope-Y helpers for training and running behavior classifiers."""
 
-Exposes dataset helpers and the BehaviorSequenceClassifier model so scripts can
-import them without reaching into module internals.
-"""
-
-from .data_y import (
+from .app_metadata import APP_NAME, APP_SLUG, APP_VERSION
+from .data_x import (
     MultiAnimalSequenceDataset,
     collate_multi_animal,
     compute_class_weights,
     load_n_manifest,
 )
-from .model_y import MultiAnimalBehaviorSequenceClassifier, YOLOFrameEncoder
+from .model_x import MultiAnimalBehaviorSequenceClassifier, YOLOFrameEncoder
 
 __all__ = [
+    "APP_NAME",
+    "APP_SLUG",
+    "APP_VERSION",
     "MultiAnimalSequenceDataset",
     "collate_multi_animal",
     "compute_class_weights",

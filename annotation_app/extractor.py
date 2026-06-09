@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import hashlib
 import json
@@ -196,7 +196,7 @@ def _run_extract_job(
 
 
 def write_clip_metadata_csv(output_root: Path, clip_rows: list[dict]) -> Path:
-    """Write metadata that BehaviorScope-Y/prepare_clips_y.py can consume.
+    """Write metadata that BehaviorScope-X/prepare_clips_x.py can consume.
 
     The class-folder clips remain the primary dataset. This CSV adds source
     provenance so users can choose stronger source-grouped validation splits
@@ -556,3 +556,4 @@ def _write_bento_annot(
             lines.append(f"{start_s:.6f} {stop_s:.6f} {max(0.0, stop_s - start_s):.6f}")
         lines.append("")
     path.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
+

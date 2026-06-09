@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import time
 from dataclasses import dataclass
@@ -74,7 +74,24 @@ def load_yolo_model(weights_path: Path | str, device: str = "cpu", task: str | N
     _check_ultralytics()
     device = normalize_device(device)
     w_str = str(weights_path)
-    model = YOLO(w_str, task=task)
+    try:
+        model = YOLO(w_str, task=task)
+    except AttributeError as exc:
+        if "float" in str(exc):
+            raise RuntimeError(
+                "The selected YOLO pose weights could not be loaded as an "
+                "Ultralytics YOLO checkpoint. This often happens when a plain "
+                "PyTorch state_dict or a MobileNetV3/DLC checkpoint is placed "
+                "in the YOLO pose weights field. Use an Ultralytics YOLO-pose "
+                ".pt file for YOLO-pose cache building."
+            ) from exc
+        raise
+    except KeyError as exc:
+        raise RuntimeError(
+            "The selected YOLO pose weights are not in the expected Ultralytics "
+            "checkpoint format. Use an Ultralytics YOLO-pose .pt file for "
+            "YOLO-pose cache building."
+        ) from exc
     # Only PyTorch models support .to() for device movement.
     # Exported models (ONNX, OpenVINO, TensorRT) handle device during inference.
     if w_str.endswith(".pt") or w_str.endswith(".yaml") or w_str.endswith(".pth"):
@@ -307,3 +324,4 @@ def iterate_yolo_crops(
             keypoints_xy=best_keypoints_xy,
             keypoints_conf=best_keypoints_conf,
         )
+

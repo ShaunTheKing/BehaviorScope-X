@@ -1,4 +1,4 @@
-# BehaviorScope-Y - Python dependencies
+﻿# BehaviorScope-X - Python dependencies
 # Install with: pip install -r requirements.txt
 #
 # System dependency:
@@ -24,9 +24,12 @@ Pillow>=10.0.0
 PyYAML>=6.0.0
 scipy>=1.10.0
 scikit-learn>=1.3.0
+xgboost>=2.0.0
 psutil>=5.9.0
 nvidia-ml-py>=12.535.0
 huggingface_hub>=0.23.0
 
 plotly>=5.18.0
 matplotlib>=3.7.0
+mkdocs>=1.6.0
+

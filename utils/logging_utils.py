@@ -1,4 +1,4 @@
-import logging
+﻿import logging
 import sys
 from pathlib import Path
 from typing import Optional
@@ -46,3 +46,5 @@ def setup_logger(
         logger.addHandler(fh)
 
     return logger
+
+

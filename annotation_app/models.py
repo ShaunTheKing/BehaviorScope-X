@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import Enum
@@ -100,3 +100,4 @@ class AnnotationRecord:
 class HotkeyBinding:
     action: str
     key_sequence: str
+

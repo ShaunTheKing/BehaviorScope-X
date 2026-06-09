@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import hashlib
 import json
@@ -90,7 +90,7 @@ PROJECT_METADATA_FIELDS = [
     ("institution", "Institution"),
     ("principal_investigator", "Principal investigator"),
     ("lead_annotator", "Lead annotator"),
-    ("reviewer", "Reviewer"),
+    ("reviewer", "Quality-control reviewer"),
     ("species", "Species"),
     ("strain", "Strain"),
     ("cohort", "Cohort"),
@@ -98,7 +98,7 @@ PROJECT_METADATA_FIELDS = [
     ("ethics_protocol", "Ethics protocol"),
     ("contact_email", "Contact email"),
     ("project_summary", "Project summary"),
-    ("peer_review_notes", "Peer review notes"),
+    ("peer_review_notes", "Shared review notes"),
 ]
 
 LEGACY_HOTKEY_DEFAULTS = {
@@ -1110,3 +1110,4 @@ def write_clip_manifest(dataset_root: Path, payload: dict) -> Path:
     path = dataset_root / "clips.json"
     path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
     return path
+

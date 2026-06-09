@@ -1,0 +1,69 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "behaviorscope-x"
+version = "3.0.0"
+description = "GUI and reproducible workflows for amortized pose vision in full-video computational ethology."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "AGPL-3.0-or-later" }
+authors = [
+  { name = "BehaviorScope-X contributors" }
+]
+dependencies = [
+  "PySide6>=6.5.0",
+  "PySide6-Addons>=6.5.0",
+  "torch>=2.1.0",
+  "torchvision>=0.16.0",
+  "ultralytics>=8.2.0",
+  "opencv-python>=4.8.0",
+  "numpy>=1.24.0",
+  "pandas>=2.0.0",
+  "Pillow>=10.0.0",
+  "PyYAML>=6.0.0",
+  "scipy>=1.10.0",
+  "scikit-learn>=1.3.0",
+  "xgboost>=2.0.0",
+  "psutil>=5.9.0",
+  "nvidia-ml-py>=12.535.0",
+  "huggingface_hub>=0.23.0",
+  "plotly>=5.18.0",
+  "matplotlib>=3.7.0",
+  "mkdocs>=1.6.0"
+]
+
+[project.scripts]
+behaviorscope-x = "behaviorscope_x_qt:main"
+behaviorscope-y = "behaviorscope_x_qt:main"
+
+[tool.setuptools]
+py-modules = [
+  "annotate_x",
+  "batch_infer_eval_behaviorscope_x",
+  "behaviorscope_x_qt",
+  "config",
+  "cropping",
+  "cropping_x",
+  "data_x",
+  "eval_manifest_classifier_x",
+  "infer_x",
+  "mobilenetv3_pose_x",
+  "model",
+  "model_x",
+  "package_single_model_x",
+  "precompute_mobilenetv3_features_x",
+  "precompute_visual_features_x",
+  "prepare_clips_x",
+  "prepare_full_video_npz",
+  "train_x",
+  "app_metadata"
+]
+packages = [
+  "annotation_app",
+  "utils"
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

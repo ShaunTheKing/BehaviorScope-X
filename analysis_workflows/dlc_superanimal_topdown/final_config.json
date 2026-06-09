@@ -1,0 +1,96 @@
+{
+    "analysis":  "DLC SuperAnimal top-down BehaviorScope-Y analysis",
+    "dataset":  "MARS resident-intruder",
+    "pose_framework":  "DeepLabCut 3.0.0rc10 SuperAnimal TopViewMouse",
+    "pose_backbone":  "HRNet-W32",
+    "feature_tap":  "HRNet-W32 pooled multi-resolution branch concatenation, 32+64+128+256=480 dimensions per crop",
+    "paths":  {
+                  "dlc_project_root":  ".",
+                  "behaviorscope_root":  ".",
+                  "behaviorscope_scripts":  ".",
+                  "dlc_config":  "config.yaml",
+                  "conversion_table":  "configs/mars_to_superanimal_conversion_table.csv",
+                  "pose_snapshot":  "dlc-models-pytorch/iteration-0/MARS_DLC_SuperAnimal-trainset95shuffle2/train/snapshot-best.pt",
+                  "detector_snapshot":  "dlc-models-pytorch/iteration-0/MARS_DLC_SuperAnimal-trainset95shuffle2/train/snapshot-detector-best.pt",
+                  "mars_root":  "MARS_data",
+                  "trainval_npz_root":  "outputs/npz_cache/mars_full_video_dlc_topdown",
+                  "trainval_hrnet_feature_cache":  "outputs/npz_cache/mars_dlc_topdown_hrnet_feature_cache_trainval",
+                  "classifier_training_root":  "outputs/dlc_topdown_attention256_training",
+                  "classifier_run_name":  "mars_dlc_topdown_hrnet_attention256_seed42",
+                  "heldout_mp4_manifest_root":  "MARS_data",
+                  "heldout_source_manifest":  "MARS_data/dlc_heldout_source_manifest.csv",
+                  "heldout_npz_root":  "outputs/npz_cache/mars_full_video_dlc_topdown_heldout",
+                  "heldout_hrnet_feature_cache":  "outputs/npz_cache/mars_dlc_topdown_hrnet_feature_cache_heldout",
+                  "heldout_eval_root":  "outputs/dlc_topdown_heldout_eval/mars_dlc_topdown_hrnet_attention256_seed42",
+                  "dlc_model_config":  "dlc-models-pytorch/iteration-0/MARS_DLC_SuperAnimal-trainset95shuffle2/train/pytorch_config.yaml"
+              },
+    "runtime":  {
+                    "device":  "cuda:0"
+                },
+    "dlc_training":  {
+                         "pose_epochs":  50,
+                         "pose_batch_size":  42,
+                         "detector_epochs":  10,
+                         "detector_batch_size":  2,
+                         "pose_eval_interval":  1,
+                         "detector_eval_interval":  1,
+                         "save_epochs":  1,
+                         "detector_save_epochs":  1,
+                         "early_stop_patience":  5,
+                         "early_stop_metric":  "metrics/test.mAP",
+                         "dataloader_workers":  8,
+                         "max_snapshots_to_keep":  5,
+                         "finetune_shuffle":  2
+                     },
+    "topdown_npz":  {
+                        "pose_batch_size":  64,
+                        "detector_batch_size":  16,
+                        "npz_writers":  4,
+                        "npz_compression":  "deflated",
+                        "npz_compresslevel":  1,
+                        "validation_sample_limit":  64
+                    },
+    "hrnet_feature_cache":  {
+                                "feature_tap":  "semantic_concat",
+                                "feature_dim":  480,
+                                "snapshot_index":  "best",
+                                "batch_size":  16,
+                                "cache_dtype":  "float16",
+                                "n_animals":  2,
+                                "num_keypoints":  7
+                            },
+    "behavior_classifier":  {
+                                "sequence_model":  "attention",
+                                "hidden_dim":  256,
+                                "positional_encoding":  "learned",
+                                "epochs":  10,
+                                "batch_size":  64,
+                                "num_workers":  8,
+                                "lr":  "5e-05",
+                                "weight_decay":  "0.0003",
+                                "patience":  15,
+                                "dropout":  0.5,
+                                "pose_fusion_dim":  128,
+                                "pose_fusion_strategy":  "gated_attention",
+                                "class_weighting":  "sqrt_inverse",
+                                "class_weight_clamp":  1.5,
+                                "train_sampler":  "weighted",
+                                "seed":  42,
+                                "dummy_yolo_weights":  "DLC_PRECOMPUTED_FEATURES_NO_YOLO.pt"
+                            },
+    "heldout":  {
+                    "videos":  28,
+                    "splits":  [
+                                   "test_1",
+                                   "test_2"
+                               ],
+                    "fps":  30,
+                    "conversion_retries":  3,
+                    "conversion_retry_delay_s":  2.0,
+                    "eval_batch_size":  256,
+                    "eval_num_workers":  3,
+                    "temporal_smoothing_window":  5,
+                    "bout_min_duration_frames":  15,
+                    "split_policy":  "The sequence manifest stores test_1 rows in the train container and test_2 rows in the val container to satisfy the existing two-container schema; each row retains mars_split=test_1/test_2 for held-out evaluation."
+                }
+}

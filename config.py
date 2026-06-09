@@ -1,4 +1,4 @@
-"""
+﻿"""
 Central configuration defaults.
 
 To avoid drift between code defaults and `default_config.yaml`, this module
@@ -122,3 +122,4 @@ if isinstance(_yaml_model, dict):
 ALLOWED_EXTENSIONS = (".mp4", ".avi", ".mov", ".mkv")
 IMAGENET_MEAN = [0.485, 0.456, 0.406]
 IMAGENET_STD = [0.229, 0.224, 0.225]
+

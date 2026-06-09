@@ -1,7 +1,7 @@
 """BehaviorScope-Y temporal bout splitter shared by training and inference.
 
 Single source of truth for the U-shape splitter algorithm. Both
-`train_y.py` (fitting) and `infer_y.py` (application) import from
+`train_x.py` (fitting) and `infer_x.py` (application) import from
 this module so the algorithm cannot drift between calibration and
 deployment.
 
@@ -84,7 +84,7 @@ MIN_VIDEOS_FOR_FIT        = 5     # below this, splitter fit is statistically th
 # Projection-based fitting is noisier (window-label projection over-states
 # bout continuity because every window is a block label). Require more
 # evidence to trust a projection-fit splitter.
-PROJECTION_GATE_MULTIPLIER = 1.5  # 30→45 bouts, 5→8 videos for projection
+PROJECTION_GATE_MULTIPLIER = 1.5  # 30â†’45 bouts, 5â†’8 videos for projection
 
 
 # ---------------------------------------------------------------------------
@@ -104,7 +104,7 @@ def apply_temporal_splitter(
     Args:
         pred: [T] int array of class IDs (post-decoder, post-smoothing,
             post-min-duration). Will not be modified in place.
-        prob_target: [T] float array — per-frame averaged-window
+        prob_target: [T] float array â€” per-frame averaged-window
             probability for the target class only.
         target_index: class index whose bouts are candidates for splitting.
         replacement_index: class index that replaces split-out frames
@@ -317,7 +317,7 @@ def make_disabled_config(
 # ---------------------------------------------------------------------------
 # Per-video fit input: ONE TemporalSplitterVideo per source video, holding
 # the full observed frame span PLUS a boolean valid_mask. The splitter and
-# bout metrics work on contiguous valid_mask == True segments — uncovered
+# bout metrics work on contiguous valid_mask == True segments â€” uncovered
 # frames are NEVER compressed away, so frame N and frame M cannot become
 # falsely adjacent just because the frames between them were not in val.
 # ---------------------------------------------------------------------------
@@ -327,17 +327,17 @@ class TemporalSplitterVideo:
 
     Fields:
         source_video: name of the source video (no segmentation suffix).
-        pred_decoded: [T_full] int — post-decoder per-frame predictions
+        pred_decoded: [T_full] int â€” post-decoder per-frame predictions
             over the full observed span. Frames where valid_mask == False
             were never covered by any val window and should be set to
             the decoder background_index by the caller.
-        prob_target: [T_full] float — averaged-window prob for the target
+        prob_target: [T_full] float â€” averaged-window prob for the target
             class. Frames where valid_mask == False are 0.0 (unused).
-        gt_frames: [T_full] int — GT class IDs over the full span. May
+        gt_frames: [T_full] int â€” GT class IDs over the full span. May
             be derived from .annot files (which are always full-video)
             or from window-label projection (only filled where val
             windows touched).
-        valid_mask: [T_full] bool — True iff at least one val window
+        valid_mask: [T_full] bool â€” True iff at least one val window
             covered this frame. ALL splitter / bout / metric operations
             must restrict to valid regions and refuse to compute across
             invalid gaps.
@@ -358,7 +358,7 @@ V25FitVideo = TemporalSplitterVideo
 
 
 def _valid_segments(valid_mask: np.ndarray) -> List[tuple]:
-    """Return [(s, e), …] inclusive-index pairs for contiguous True runs."""
+    """Return [(s, e), â€¦] inclusive-index pairs for contiguous True runs."""
     segments: List[tuple] = []
     in_seg, s = False, None
     for i in range(len(valid_mask)):
@@ -614,3 +614,5 @@ def fit_temporal_splitter(
 apply_v25_splitter = apply_temporal_splitter
 apply_v25_splitter_from_config = apply_temporal_splitter_from_config
 fit_v25_splitter = fit_temporal_splitter
+
+
