@@ -1,4 +1,4 @@
-# DLC Top-Down BehaviorScope-Y Next Step
+# DLC Top-Down BehaviorScope-X Next Step
 
 Date prepared: 2026-06-07
 
@@ -10,7 +10,7 @@ train the Attention-256 behavior classifier from those precomputed DLC features.
 ## Inputs
 
 - DLC top-down manifest:
-  `BehaviorScope_Y_minimal/outputs/npz_cache/mars_full_video_dlc_topdown/sequence_manifest.json`
+  `BehaviorScope_X_minimal/outputs/npz_cache/mars_full_video_dlc_topdown/sequence_manifest.json`
 - Train windows: 20,414
 - Validation windows: 10,079
 - Pose snapshot:
@@ -32,7 +32,7 @@ For HRNet-W32, the feature vector is:
 32 + 64 + 128 + 256 = 480 visual features per view per frame
 ```
 
-Each BehaviorScope-Y window has 32 frames and 3 visual streams:
+Each BehaviorScope-X window has 32 frames and 3 visual streams:
 
 ```text
 1 group crop + 2 animal crops = 3 views

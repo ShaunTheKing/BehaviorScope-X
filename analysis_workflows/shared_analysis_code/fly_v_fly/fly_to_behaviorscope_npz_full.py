@@ -690,7 +690,7 @@ def write_manifest(
 # ---------------------------------------------------------------------------
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(
-        description="BehaviorScope-Y NPZ builder for Fly-v-Fly full-video sliding windows.",
+        description="BehaviorScope-X NPZ builder for Fly-v-Fly full-video sliding windows.",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     p.add_argument("--aggression_root", type=Path, required=True,
@@ -926,7 +926,7 @@ def main() -> int:
     print(f"  Keypoints:     {num_keypoints}")
     print(f"  Manifest:      {manifest_path}")
     print(f"{'='*60}")
-    print(f"\nTrain BehaviorScope-Y on Fly-v-Fly:")
+    print(f"\nTrain BehaviorScope-X on Fly-v-Fly:")
     print(f"  cd {_SCRIPTS_DIR}")
     print(f"  python train_x.py \\")
     print(f"      --manifest_path {manifest_path} \\")

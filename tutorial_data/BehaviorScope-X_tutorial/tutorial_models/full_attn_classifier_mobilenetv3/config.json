@@ -1,9 +1,9 @@
 {
-    "pipeline_version":  "BehaviorScope-Y v3",
+    "pipeline_version":  "BehaviorScope-X v3",
     "behaviorscope_x_version":  "3.0",
-    "behaviorscope_y_version":  "3.0",
+    "behaviorscope_x_schema_version":  "3.0",
     "seed":  42,
-    "manifest_path":  "tutorial_data/BehaviorScope-Y_tutorial/outputs/prepared_npz/sequence_manifest.json",
+    "manifest_path":  "tutorial_data/BehaviorScope-X_tutorial/outputs/prepared_npz/sequence_manifest.json",
     "backbone":  "precomputed_visual_cache",
     "precomputed_visual_dim":  960,
     "yolo_weights":  "",
@@ -48,14 +48,14 @@
     "feature_cache":  {
                           "enabled":  true,
                           "auto":  false,
-                          "path":  "tutorial_data/BehaviorScope-Y_tutorial/outputs/mobilenetv3_feature_cache/train",
-                          "format":  "behaviorscope-y-visual-feature-cache-v1",
+                          "path":  "tutorial_data/BehaviorScope-X_tutorial/outputs/mobilenetv3_feature_cache/train",
+                          "format":  "behaviorscope-x-visual-feature-cache-v1",
                           "cache_dtype":  "float32",
                           "metadata":  {
-                                           "version":  "behaviorscope-y-visual-feature-cache-v1",
+                                           "version":  "behaviorscope-x-visual-feature-cache-v1",
                                            "visual_backend":  "mobilenetv3_large_native",
-                                           "manifest_path":  "tutorial_data/BehaviorScope-Y_tutorial/outputs/prepared_npz/sequence_manifest.json",
-                                           "checkpoint":  "tutorial_data/BehaviorScope-Y_tutorial/tutorial_models/full_pose_mobilenetv3/best_pose_map5095.pt",
+                                           "manifest_path":  "tutorial_data/BehaviorScope-X_tutorial/outputs/prepared_npz/sequence_manifest.json",
+                                           "checkpoint":  "tutorial_data/BehaviorScope-X_tutorial/tutorial_models/full_pose_mobilenetv3/best_pose_map5095.pt",
                                            "checkpoint_sha256":  "5d0fd2b5ec48e4d19efc94129085fb54e8cff8bba4f62ffd1842b08018772d50",
                                            "checkpoint_epoch":  42,
                                            "checkpoint_metrics":  {
@@ -110,9 +110,9 @@
                         "combined_sequence_dim":  2304
                     },
     "calibration":  {
-                        "version":  "behaviorscope-y-calibration-v1",
+                        "version":  "behaviorscope-x-calibration-v1",
                         "embedded":  false,
-                        "source_path":  "tutorial_data/BehaviorScope-Y_tutorial/outputs/prepared_npz/calibration.json",
+                        "source_path":  "tutorial_data/BehaviorScope-X_tutorial/outputs/prepared_npz/calibration.json",
                         "lookup":  {
 
                                    },
@@ -167,7 +167,7 @@
                                           ]
                           },
     "temporal_splitter":  {
-                              "version":  "behaviorscope-y-temporal-splitter-v1",
+                              "version":  "behaviorscope-x-temporal-splitter-v1",
                               "enabled":  true,
                               "target_class":  "investigation",
                               "target_index":  1,
@@ -454,7 +454,7 @@
                                             }
                           },
     "v25_splitter":  {
-                         "version":  "behaviorscope-y-temporal-splitter-v1",
+                         "version":  "behaviorscope-x-temporal-splitter-v1",
                          "enabled":  true,
                          "target_class":  "investigation",
                          "target_index":  1,

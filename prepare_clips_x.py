@@ -1,4 +1,4 @@
-"""Prepare BehaviorScope-Y training windows from class-folder behavior clips.
+"""Prepare BehaviorScope-X training windows from class-folder behavior clips.
 
 This is the release-facing upstream path for users who do not have dense
 full-video bout annotations. Users place short behavior clips into one folder
@@ -118,7 +118,7 @@ def _parse_bool(value: str | bool) -> bool:
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(
         description=(
-            "Build BehaviorScope-Y NPZ windows + sequence_manifest.json from "
+            "Build BehaviorScope-X NPZ windows + sequence_manifest.json from "
             "class-folder behavior clips."
         )
     )
@@ -962,7 +962,7 @@ def main() -> None:
         "yolo_weights": str(args.yolo_weights),
         "clips_total": int(len(clips)),
         "clips_with_windows": int(sum(1 for count in clip_window_counts.values() if count > 0)),
-        "generated_by": "BehaviorScope-Y/prepare_clips_x.py",
+        "generated_by": "BehaviorScope-X/prepare_clips_x.py",
     }
 
     write_manifest(manifest_path, splits, class_to_idx, metadata, extra_by_sample_id)

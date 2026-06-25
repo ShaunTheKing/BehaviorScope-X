@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """
-Batch-run BehaviorScope-Y on MARS test splits and evaluate against .annot bouts.
+Batch-run BehaviorScope-X on MARS test splits and evaluate against .annot bouts.
 
 This script is intentionally a single experiment driver:
 
 1. discover MARS test video folders under --mars-root/test_1 and/or test_2
 2. convert each *_Top*.seq to an intermediate MP4 when requested
-3. run BehaviorScope-Y/infer_x.py with calibrated crop scaling
+3. run BehaviorScope-X/infer_x.py with calibrated crop scaling
 4. evaluate raw window predictions and smoothed per-frame predictions
    against the human BENTO .annot file
 5. write per-video, per-class, bout, and manifest CSVs
@@ -714,7 +714,7 @@ def write_csv(path: Path, rows: Sequence[dict]) -> None:
 def resolve_cli_path(path_value: str | os.PathLike | None, *, base: Path = REPO_ROOT) -> Path | None:
     """Resolve user-supplied paths consistently from the repository root.
 
-    The batch script may be launched from BehaviorScope-Y, the repo root, or a
+    The batch script may be launched from BehaviorScope-X, the repo root, or a
     GUI process. Relative paths in the public examples are repo-root relative,
     so normalize them here before creating outputs or spawning infer_x.py.
     """
@@ -731,7 +731,7 @@ def resolve_cli_path(path_value: str | os.PathLike | None, *, base: Path = REPO_
 
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(
-        description="Batch BehaviorScope-Y inference + bout-level MARS evaluation.",
+        description="Batch BehaviorScope-X inference + bout-level MARS evaluation.",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     p.add_argument("--mars_root", default=str(REPO_ROOT / "MARS_data"))
@@ -789,7 +789,7 @@ def main() -> int:
     out_root = resolve_cli_path(args.output_root)
     infer_script = SCRIPTS_DIR / "infer_x.py"
     if not infer_script.is_file():
-        legacy_infer_script = REPO_ROOT / "BehaviorScope-Y" / "infer_x.py"
+        legacy_infer_script = REPO_ROOT / "BehaviorScope-X" / "infer_x.py"
         if legacy_infer_script.is_file():
             infer_script = legacy_infer_script
     model_path = resolve_cli_path(args.model_path)

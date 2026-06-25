@@ -33,7 +33,7 @@ The default adapter setting is:
 `--feature_tap semantic_concat`
 
 For HRNet-W32, the raw TIMM feature output contains four branches. On the
-BehaviorScope-Y 224x224 RGB crops, the installed DLC/TIMM implementation emits:
+BehaviorScope-X 224x224 RGB crops, the installed DLC/TIMM implementation emits:
 
 | Branch | Tensor Shape Per Crop | Pooled Width |
 | --- | ---: | ---: |
@@ -59,7 +59,7 @@ This is produced separately for each group crop and each individual-animal crop:
 - `group_feat`: `[T, 480]`
 - `animal_feat`: `[T, N, 480]`
 
-With the current MARS/BehaviorScope-Y windows:
+With the current MARS/BehaviorScope-X windows:
 
 - `T = 32` frames
 - `N = 2` animals
@@ -134,7 +134,7 @@ The orchestration script exposes the tap explicitly:
 The end-to-end pipeline has two main training phases:
 
 1. DLC SuperAnimal TopViewMouse HRNet-W32 pose fine-tuning.
-2. BehaviorScope-Y attention-256 behavior-classifier training from the cached DLC
+2. BehaviorScope-X attention-256 behavior-classifier training from the cached DLC
    visual features plus pose/relation inputs.
 
 Within the DLC portion, the script first builds the base and fine-tune datasets.
@@ -145,7 +145,7 @@ The current DLC command records:
 - DLC pose fine-tuning batch size used for the faster overnight run:
   `DlcBatch = 42`
 - feature extraction batch size: `FeatureBatch = 16`
-- BehaviorScope-Y classifier batch size: `BehaviorBatch = 64`
+- BehaviorScope-X classifier batch size: `BehaviorBatch = 64`
 - DLC pose fine-tuning images reported by DLC: `41,066` training images and
   `2,162` testing/validation images
 - Verbatim DLC terminal line: `Using 41066 images and 2162 for testing`
@@ -175,7 +175,7 @@ The current DLC command records:
 - The downstream DLC feature-cache stage defaults to `DlcSnapshotIndex = best`, so
   visual features are extracted from the validation-selected best pose checkpoint,
   not merely the last completed checkpoint.
-- BehaviorScope-Y classifier early stopping patience: `15` epochs, but the
+- BehaviorScope-X classifier early stopping patience: `15` epochs, but the
   classifier command currently requests `10` total epochs, so patience is unlikely
   to trigger in this run.
 
@@ -257,7 +257,7 @@ Detector validation metrics by epoch:
 | 3 | 0.14070 | 70.61 | 95.95 | 85.97 | 75.36 | 96.53 | 88.99 |
 | 4 | 0.12946 | 71.02 | 95.95 | 86.66 | 75.73 | 96.11 | 89.18 |
 
-For the current BehaviorScope-Y classifier pipeline, the DLC feature-cache stage
+For the current BehaviorScope-X classifier pipeline, the DLC feature-cache stage
 extracts visual features from the fine-tuned HRNet backbone on existing
 BehaviorScope sequence crops. The classifier still reads pose/relation inputs
 from the BehaviorScope NPZ samples. A trained detector is required for a full DLC
@@ -287,9 +287,9 @@ the fine-tuned DLC models.
 - Pose checkpoint: `snapshot-best-027.pt`
 - Detector checkpoint: `snapshot-detector-best-004.pt`
 - DLC output path:
-  `BehaviorScope_Y_minimal/outputs/npz_cache/mars_full_video_dlc_topdown`
+  `BehaviorScope_X_minimal/outputs/npz_cache/mars_full_video_dlc_topdown`
 - NPZ schema: same `behaviorscope-n-v1` window schema consumed by the existing
-  BehaviorScope-Y loader
+  BehaviorScope-X loader
 - Compression default: deflate level 1. This is preferred for the full RGB-heavy
   cache because the existing YOLO-derived full-video cache is about 70 GiB
   compressed, so uncompressed full NPZs would risk exhausting the available

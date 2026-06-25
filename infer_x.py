@@ -1,12 +1,12 @@
 """
-Inference for BehaviorScope-Y models (YOLO-backed visual encoder).
+Inference for BehaviorScope-X models (YOLO-backed visual encoder).
 
 The YOLO checkpoint passed via --yolo_weights serves DOUBLE DUTY:
   1. Pose detection (the existing role: keypoints + bboxes per animal)
   2. Visual feature extraction (NEW: layers 0-9 are tapped as the
      visual backbone for the four-stream classifier)
 
-This is the central hypothesis of BehaviorScope-Y: a single
+This is the central hypothesis of BehaviorScope-X: a single
 MARS-domain-trained YOLO model can replace the generic ImageNet
 backbones (MobileNet/SlowFast) and produce better behaviour
 classification by sharing representations between detection and
@@ -101,8 +101,8 @@ try:
 except Exception:
     pass
 
-BEHAVIORSCOPE_Y_VERSION = "3.0"
-BEHAVIORSCOPE_Y_PIPELINE = "BehaviorScope-Y v3"
+BEHAVIORSCOPE_X_VERSION = "3.0"
+BEHAVIORSCOPE_X_PIPELINE = "BehaviorScope-X v3"
 TEMPORAL_SPLITTER_CONFIG_KEY = "temporal_splitter"
 LEGACY_V25_SPLITTER_CONFIG_KEY = "v25_splitter"
 
@@ -394,10 +394,10 @@ def _write_smoothed_frames_csv(
     if min_duration > 1:
         pred = _apply_min_duration(pred, min_duration)
 
-    # BehaviorScope-Y v3 temporal splitter (per-target-class only).
+    # BehaviorScope-X v3 temporal splitter (per-target-class only).
     # Applied to CSV output only. MP4 overlay path uses pre-splitter labels
     # because the streaming pipeline cannot buffer arbitrary frame ranges.
-    # See `BehaviorScope-Y/utils/temporal_splitter.py` for full algorithm.
+    # See `utils/temporal_splitter.py` for full algorithm.
     if v25_splitter_config and v25_splitter_config.get("enabled"):
         try:
             from utils.temporal_splitter import apply_temporal_splitter_from_config as apply_v25_splitter_from_config
@@ -618,7 +618,7 @@ def load_model_from_checkpoint(
     device: str = "cuda" if torch.cuda.is_available() else "cpu",
     yolo_weights_fallback: str | None = None,
 ):
-    """Reconstruct the trained BehaviorScope-Y model from a checkpoint.
+    """Reconstruct the trained BehaviorScope-X model from a checkpoint.
 
     yolo_weights_fallback: used only if the embedded config does not record
     `yolo_weights`. Older configs (or third-party checkpoints) may lack this
@@ -683,7 +683,7 @@ def load_model_from_checkpoint(
         raise ValueError(
             "No yolo_weights found in checkpoint config and no "
             "embedded YOLO payload was found. Pass --yolo_weights on the CLI, "
-            "or use a bundled BehaviorScope-Y .pt created with "
+            "or use a bundled BehaviorScope-X .pt created with "
             "package_single_model_x.py or train_x.py --export_single_model."
         )
     if yolo_weights_path:
@@ -1517,7 +1517,7 @@ def resolve_sources(source: str) -> List[Tuple]:
 # ----------------------------------------------------------------------------
 
 def parse_args():
-    p = argparse.ArgumentParser(description="BehaviorScope-Y inference (single video / batch / real-time).")
+    p = argparse.ArgumentParser(description="BehaviorScope-X inference (single video / batch / real-time).")
     p.add_argument("--model_path", required=True, help="Trained model .pt (from train_x.py).")
     p.add_argument("--model_config", default=None, help="config.json from the same train_x.py run.")
     p.add_argument(
@@ -1525,7 +1525,7 @@ def parse_args():
         default=None,
         help=(
             "YOLO-pose checkpoint. Optional when --model_path is a bundled "
-            "BehaviorScope-Y .pt containing embedded_yolo_weights."
+            "BehaviorScope-X .pt containing embedded_yolo_weights."
         ),
     )
     p.add_argument("--yolo_task", default="pose")
@@ -1626,7 +1626,7 @@ def parse_args():
     p.add_argument("--disable_threshold_decoder", action="store_true",
                    help="Ignore any saved validation-fitted threshold decoder and use raw "
                         "softmax argmax predictions.")
-    # ---- BehaviorScope-Y v3 temporal bout splitter ----
+    # ---- BehaviorScope-X v3 temporal bout splitter ----
     # Auto-loaded from the model config/checkpoint, same pattern as the
     # threshold decoder. Behaviorist users do NOT need to set these flags.
     p.add_argument("--temporal_splitter_config", dest="v25_splitter_config",
@@ -1828,7 +1828,7 @@ def main():
     elif int(yolo_num_keypoints) != int(num_keypoints):
         raise SystemExit(
             f"YOLO checkpoint emits {yolo_num_keypoints} keypoints, but the "
-            f"trained BehaviorScope-Y model expects num_keypoints={num_keypoints}. "
+            f"trained BehaviorScope-X model expects num_keypoints={num_keypoints}. "
             "Use the same keypoint YOLO model/schema that was used to build "
             "the training NPZs and checkpoint."
         )
@@ -1996,9 +1996,8 @@ def main():
                 "yolo_keypoints": yolo_num_keypoints,
                 "body_length_px": per_source_body_len,
                 "calibration_json": str(args.calibration_json) if args.calibration_json else None,
-                "pipeline_version": BEHAVIORSCOPE_Y_PIPELINE,
-                "behaviorscope_x_version": BEHAVIORSCOPE_Y_VERSION,
-                "behaviorscope_y_version": BEHAVIORSCOPE_Y_VERSION,
+                "pipeline_version": BEHAVIORSCOPE_X_PIPELINE,
+                "behaviorscope_x_version": BEHAVIORSCOPE_X_VERSION,
                 "calibration_source": calib_source,
                 "embedded_calibration_available": bool(embedded_calib_lookup),
                 "embedded_calibration_num_videos": int(embedded_calib_meta.get("num_videos", 0) or 0),

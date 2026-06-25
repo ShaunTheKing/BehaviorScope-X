@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Classifier-only held-out evaluation from cached BehaviorScope-Y windows.
+"""Classifier-only held-out evaluation from cached BehaviorScope-X windows.
 
 This is the normal final-run evaluator for MARS held-out videos after the
 held-out NPZ window cache and frozen YOLO visual-feature cache have been built
@@ -51,7 +51,7 @@ from utils.pose_features_x import REL_FEATURE_DIM  # noqa: E402
 
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(
-        description="Evaluate a trained BehaviorScope-Y head from held-out NPZ/feature caches.",
+        description="Evaluate a trained BehaviorScope-X head from held-out NPZ/feature caches.",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     p.add_argument("--manifest_path", required=True)

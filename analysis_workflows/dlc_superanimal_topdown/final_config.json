@@ -1,5 +1,5 @@
 {
-    "analysis":  "DLC SuperAnimal top-down BehaviorScope-Y analysis",
+    "analysis":  "DLC SuperAnimal top-down BehaviorScope-X analysis",
     "dataset":  "MARS resident-intruder",
     "pose_framework":  "DeepLabCut 3.0.0rc10 SuperAnimal TopViewMouse",
     "pose_backbone":  "HRNet-W32",

@@ -116,7 +116,7 @@ The tutorial loader downloads or locates the tutorial data, imports the videos, 
 
 If the automatic download fails, manual download instructions are available in [`tutorial_data/README.md`](tutorial_data/README.md).
 
-Some tutorial folders and saved-model schema fields retain the earlier `BehaviorScope-Y` working name for compatibility with existing tutorial manifests and checkpoints. The GUI, documentation, package metadata, and manuscript-facing public name are `BehaviorScope-X`.
+Tutorial folders, saved-model schema fields, GUI labels, documentation, package metadata, and manuscript-facing materials use the `BehaviorScope-X` name.
 
 ## Annotation And Splits
 

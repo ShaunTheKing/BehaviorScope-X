@@ -151,7 +151,7 @@ def load_mobilenetv3_pose_model(checkpoint: str | Path, device: str = "cpu") -> 
     path = Path(checkpoint)
     ckpt = torch.load(path, map_location="cpu")
     if not isinstance(ckpt, dict) or "model" not in ckpt:
-        raise ValueError(f"{path} is not a BehaviorScope-Y MobileNetV3 pose checkpoint.")
+        raise ValueError(f"{path} is not a BehaviorScope-X MobileNetV3 pose checkpoint.")
     cfg = ckpt.get("config") if isinstance(ckpt.get("config"), dict) else {}
     model_cfg = cfg.get("model", {}) if isinstance(cfg.get("model", {}), dict) else {}
     backbone_cfg = model_cfg.get("backbone", {}) if isinstance(model_cfg.get("backbone", {}), dict) else {}

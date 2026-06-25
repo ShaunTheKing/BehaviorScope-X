@@ -1,7 +1,7 @@
-# DLC SuperAnimal Top-Down BehaviorScope-Y Analysis
+# DLC SuperAnimal Top-Down BehaviorScope-X Analysis
 
 This folder contains the analysis scripts for the DLC SuperAnimal top-down
-BehaviorScope-Y analysis. It is organized as a clean, Python-first command path
+BehaviorScope-X analysis. It is organized as a clean, Python-first command path
 for reproducing the DLC portability/stress-test of amortized pose vision.
 
 The intended entry point is:
@@ -22,7 +22,7 @@ python run_dlc_superanimal_topdown.py run --stage build_heldout_npz
 1. `train_dlc_pose_detector`: fine-tune the DLC SuperAnimal pose model and detector. Best checkpoints are selected inside the training script from declared validation metrics. No manual detector-completion marker is part of this analysis path.
 2. `build_trainval_npz`: build the DLC top-down train/validation full-video NPZ cache.
 3. `build_trainval_hrnet_cache`: extract pooled multi-resolution HRNet-W32 visual descriptors from the DLC top-down crops.
-4. `train_classifier`: train the Attention-256 BehaviorScope-Y classifier from DLC pose-derived and HRNet visual features.
+4. `train_classifier`: train the Attention-256 BehaviorScope-X classifier from DLC pose-derived and HRNet visual features.
 5. `prepare_heldout_manifest`: prepare a held-out MP4/.annot manifest if converted held-out MP4s are not already available.
 6. `build_heldout_npz`: build the DLC top-down held-out NPZ cache for the 28 manuscript MARS test videos.
 7. `build_heldout_hrnet_cache`: extract held-out HRNet-W32 visual descriptors.

@@ -1,6 +1,6 @@
-"""Build BehaviorScope-Y visual feature caches from a fine-tuned DLC model.
+"""Build BehaviorScope-X visual feature caches from a fine-tuned DLC model.
 
-This adapter feeds the BehaviorScope-Y RGB crops through the trained DLC pose
+This adapter feeds the BehaviorScope-X RGB crops through the trained DLC pose
 model and writes the feature-cache schema consumed by ``train_x.py``:
 
   group_feat   [T, D] float32/float16
@@ -92,7 +92,7 @@ def find_behaviorscope_scripts(manifest_path: Path) -> Path:
         if candidate.is_file():
             return candidate.parent
     raise FileNotFoundError(
-        "Could not locate BehaviorScope-Y data_x.py "
+        "Could not locate BehaviorScope-X data_x.py "
         f"from manifest path {manifest_path}"
     )
 
@@ -407,7 +407,7 @@ def mirror_existing_cache(args: argparse.Namespace, samples: list[Any], meta: di
             feature_dim = int(data["group_feat"].shape[-1])
 
     manifest = {
-        "version": "behaviorscope-y-visual-feature-cache-v1",
+        "version": "behaviorscope-x-visual-feature-cache-v1",
         "status": "ok",
         "mode": "existing_cache",
         "manifest_path": str(Path(args.manifest_path).resolve()),
@@ -551,7 +551,7 @@ def compute_dlc_cache(args: argparse.Namespace, samples: list[Any], meta: dict[s
             )
 
     manifest = {
-        "version": "behaviorscope-y-visual-feature-cache-v1",
+        "version": "behaviorscope-x-visual-feature-cache-v1",
         "status": "ok",
         "mode": "dlc_backbone",
         "manifest_path": str(Path(args.manifest_path).resolve()),

@@ -1,5 +1,5 @@
 """
-Precompute frozen YOLO visual features for BehaviorScope-Y training.
+Precompute frozen YOLO visual features for BehaviorScope-X training.
 
 This writes one small NPZ per sequence window containing:
   group_feat   float32/float16 [T, D]
@@ -56,7 +56,7 @@ except Exception:  # pragma: no cover
 
 
 def parse_args():
-    p = argparse.ArgumentParser(description="Precompute BehaviorScope-Y YOLO visual feature cache.")
+    p = argparse.ArgumentParser(description="Precompute BehaviorScope-X YOLO visual feature cache.")
     p.add_argument("--manifest_path", required=True)
     p.add_argument("--yolo_weights", required=True)
     p.add_argument("--output_dir", required=True)
@@ -269,7 +269,7 @@ def main():
                 )
 
     manifest = {
-        "version": "behaviorscope-y-visual-feature-cache-v1",
+        "version": "behaviorscope-x-visual-feature-cache-v1",
         "manifest_path": str(args.manifest_path),
         "yolo_weights": str(args.yolo_weights),
         "yolo_backbone_end_layer": int(args.yolo_backbone_end_layer),

@@ -1,8 +1,8 @@
-﻿# BehaviorScope-Y final canonical run configuration
+﻿# BehaviorScope-X final canonical run configuration
 # This is the single hand-edited configuration file for the final run folder.
 
 project:
-  name: BehaviorScope-Y final canonical run
+  name: BehaviorScope-X final canonical run
   version: 2026-05-16
   root_policy: config_relative
   output_root: outputs

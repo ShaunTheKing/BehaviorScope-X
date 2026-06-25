@@ -1,5 +1,5 @@
 {
-  "version": "behaviorscope-y-tutorial-models-v1",
+  "version": "behaviorscope-x-tutorial-models-v1",
   "purpose": "Small tutorial model bundle for checking the GUI workflow on the included MARS tutorial videos.",
   "models": {
     "mobilenetv3_pose": {

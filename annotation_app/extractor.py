@@ -357,7 +357,7 @@ def export_full_video_annotations(
 
     batch_json = output_root / "full_video_annotations.batch.json"
     batch_payload = {
-        "version": "behaviorscope-y-full-video-batch-v1",
+        "version": "behaviorscope-x-full-video-batch-v1",
         "output_root": str(output_root),
         "source_manifest_csv": str(manifest_csv),
         "class_names_file": str(output_root / "class_names.txt"),
@@ -385,7 +385,7 @@ def export_full_video_annotations(
     preflight_json.write_text(json.dumps(preflight, indent=2), encoding="utf-8")
 
     summary = {
-        "version": "behaviorscope-y-full-video-annotation-export-v1",
+        "version": "behaviorscope-x-full-video-annotation-export-v1",
         "output_root": str(output_root),
         "source_manifest_csv": str(manifest_csv),
         "class_names_file": str(output_root / "class_names.txt"),

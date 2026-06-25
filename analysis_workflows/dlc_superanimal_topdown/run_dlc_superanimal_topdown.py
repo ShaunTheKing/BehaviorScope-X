@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Analysis runner for the DLC SuperAnimal top-down BehaviorScope-Y workflow."""
+"""Analysis runner for the DLC SuperAnimal top-down BehaviorScope-X workflow."""
 from __future__ import annotations
 
 import argparse
@@ -17,7 +17,7 @@ DEFAULT_CONFIG = THIS_DIR / "final_config.json"
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Plan or run the DLC SuperAnimal top-down BehaviorScope-Y analysis.",
+        description="Plan or run the DLC SuperAnimal top-down BehaviorScope-X analysis.",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     parser.add_argument("action", choices=["plan", "run", "run-all"])

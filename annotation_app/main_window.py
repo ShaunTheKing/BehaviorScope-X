@@ -1064,7 +1064,7 @@ class AnnotationMainWindow(QMainWindow):
 
     def _tutorial_hf_repo_id(self) -> str:
         stored = self.store.get_setting(self.project.id, "tutorial_hf_repo_id", "").strip()
-        env_value = os.environ.get("BEHAVIORSCOPE_Y_TUTORIAL_HF_REPO", "").strip()
+        env_value = os.environ.get("BEHAVIORSCOPE_X_TUTORIAL_HF_REPO", "").strip()
         return stored or env_value or DEFAULT_TUTORIAL_HF_REPO
 
     def _download_mars_gui_tutorial(self) -> Path | None:
@@ -1074,7 +1074,7 @@ class AnnotationMainWindow(QMainWindow):
             QMessageBox.warning(
                 self,
                 "Tutorial download is not configured",
-                "Set DEFAULT_TUTORIAL_HF_REPO or BEHAVIORSCOPE_Y_TUTORIAL_HF_REPO first.",
+                "Set DEFAULT_TUTORIAL_HF_REPO or BEHAVIORSCOPE_X_TUTORIAL_HF_REPO first.",
             )
             return None
         self.store.set_setting(self.project.id, "tutorial_hf_repo_id", repo_id)

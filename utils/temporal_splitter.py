@@ -1,4 +1,4 @@
-"""BehaviorScope-Y temporal bout splitter shared by training and inference.
+"""BehaviorScope-X temporal bout splitter shared by training and inference.
 
 Single source of truth for the U-shape splitter algorithm. Both
 `train_x.py` (fitting) and `infer_x.py` (application) import from
@@ -28,7 +28,7 @@ The legacy "v25_splitter" key is also written for backward compat with
 old checkpoints.
 
     {
-      "version": "behaviorscope-y-temporal-splitter-v1",
+      "version": "behaviorscope-x-temporal-splitter-v1",
       "enabled": true | false,
       "target_class": "investigation",
       "target_index": 1,
@@ -59,7 +59,7 @@ from typing import Dict, Iterable, List, Optional, Sequence
 import numpy as np
 
 # Config / version constants
-SPLITTER_VERSION = "behaviorscope-y-temporal-splitter-v1"
+SPLITTER_VERSION = "behaviorscope-x-temporal-splitter-v1"
 DEFAULT_TARGET_CLASS = "investigation"
 DEFAULT_REPLACEMENT_CLASS = "other"
 

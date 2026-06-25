@@ -1,5 +1,5 @@
 """
-BehaviorScope-Y v3 training entry point.
+BehaviorScope-X v3 training entry point.
 
 This is the canonical public training surface for the YOLO-backed
 BehaviorScope pipeline. Older v1/v2/v2.5 names are treated as historical
@@ -92,8 +92,8 @@ except Exception:  # pragma: no cover
     )
 
 
-BEHAVIORSCOPE_Y_VERSION = "3.0"
-BEHAVIORSCOPE_Y_PIPELINE = "BehaviorScope-Y v3"
+BEHAVIORSCOPE_X_VERSION = "3.0"
+BEHAVIORSCOPE_X_PIPELINE = "BehaviorScope-X v3"
 TEMPORAL_SPLITTER_CONFIG_KEY = "temporal_splitter"
 LEGACY_V25_SPLITTER_CONFIG_KEY = "v25_splitter"
 
@@ -138,7 +138,7 @@ def package_single_model_checkpoint(
         "bytes": raw_yolo,
     }
     checkpoint["bundle_metadata"] = {
-        "version": "behaviorscope-y-single-model-v1",
+        "version": "behaviorscope-x-single-model-v1",
         "classifier_checkpoint": classifier_checkpoint.name,
         "yolo_filename": yolo_weights.name,
         "yolo_sha256": digest,
@@ -149,7 +149,7 @@ def package_single_model_checkpoint(
 
 
 def parse_args():
-    p = argparse.ArgumentParser(description="Train BehaviorScope-Y (YOLO-backed multi-animal hybrid).")
+    p = argparse.ArgumentParser(description="Train BehaviorScope-X (YOLO-backed multi-animal hybrid).")
     p.add_argument("--manifest_path", required=True)
     p.add_argument("--yolo_weights", default="",
                    help="Path to a YOLOv8/v11-pose .pt checkpoint. Required for "
@@ -257,7 +257,7 @@ def parse_args():
                    help="Also write decoder_config.json as a standalone sidecar. "
                         "By default the decoder is embedded in config.json and all "
                         "training checkpoints to reduce run-folder clutter.")
-    # BehaviorScope-Y v3 temporal bout splitter (auto-fit on val data).
+    # BehaviorScope-X v3 temporal bout splitter (auto-fit on val data).
     # The old --v25_* flags remain as hidden aliases for old scripts.
     p.add_argument("--disable_temporal_splitter", dest="disable_v25_splitter", action="store_true",
                    help="Disable train-time fitting of the validation-calibrated temporal bout splitter. "
@@ -575,9 +575,8 @@ def attach_temporal_splitter_to_checkpoints(run_dir: Path, config_dump: dict, sp
             ckpt[LEGACY_V25_SPLITTER_CONFIG_KEY] = splitter_config
             cfg = ckpt.get("config")
             if isinstance(cfg, dict):
-                cfg["pipeline_version"] = BEHAVIORSCOPE_Y_PIPELINE
-                cfg["behaviorscope_x_version"] = BEHAVIORSCOPE_Y_VERSION
-                cfg["behaviorscope_y_version"] = BEHAVIORSCOPE_Y_VERSION
+                cfg["pipeline_version"] = BEHAVIORSCOPE_X_PIPELINE
+                cfg["behaviorscope_x_version"] = BEHAVIORSCOPE_X_VERSION
                 cfg[TEMPORAL_SPLITTER_CONFIG_KEY] = splitter_config
                 cfg[LEGACY_V25_SPLITTER_CONFIG_KEY] = splitter_config
             else:
@@ -845,7 +844,7 @@ def load_training_calibration_metadata(manifest_path: Path | str) -> dict:
     """Embed compact body-length calibration metadata for portable inference."""
     path = Path(manifest_path).parent / "calibration.json"
     base = {
-        "version": "behaviorscope-y-calibration-v1",
+        "version": "behaviorscope-x-calibration-v1",
         "embedded": False,
         "source_path": str(path),
         "lookup": {},
@@ -1149,7 +1148,7 @@ def evaluate(model, loader, criterion, device, num_classes,
 
 def _feature_cache_expected_meta(args, num_frames: int, n_animals: int, num_keypoints: int) -> dict:
     expected = {
-        "version": "behaviorscope-y-visual-feature-cache-v1",
+        "version": "behaviorscope-x-visual-feature-cache-v1",
         "manifest_path": str(args.manifest_path),
         "num_frames": int(num_frames),
         "n_animals": int(n_animals),
@@ -1625,9 +1624,8 @@ def main():
             pass
 
     config_dump = {
-        "pipeline_version": BEHAVIORSCOPE_Y_PIPELINE,
-        "behaviorscope_x_version": BEHAVIORSCOPE_Y_VERSION,
-        "behaviorscope_y_version": BEHAVIORSCOPE_Y_VERSION,
+        "pipeline_version": BEHAVIORSCOPE_X_PIPELINE,
+        "behaviorscope_x_version": BEHAVIORSCOPE_X_VERSION,
         "manifest_path": str(args.manifest_path),
         "backbone": str(feature_cache_meta.get("visual_backend", "yolo")) if feature_cache_meta else "yolo",
         "precomputed_visual_dim": int(feature_cache_meta.get("feature_dim", 0)) if feature_cache_meta else 0,
@@ -1670,7 +1668,7 @@ def main():
             "enabled": bool(args.use_feature_cache),
             "auto": bool(args.auto_feature_cache),
             "path": str(args.use_feature_cache) if args.use_feature_cache else None,
-            "format": "behaviorscope-y-visual-feature-cache-v1" if args.use_feature_cache else None,
+            "format": "behaviorscope-x-visual-feature-cache-v1" if args.use_feature_cache else None,
             "cache_dtype": str(args.feature_cache_dtype) if args.use_feature_cache else None,
             "metadata": feature_cache_meta if feature_cache_meta is not None else None,
         },
@@ -2107,7 +2105,7 @@ def main():
         except Exception as exc:
             print(f"[warn] could not save threshold decoder metadata: {exc}")
 
-    # ---- BehaviorScope-Y v3 temporal splitter (auto-fit on val) ----
+    # ---- BehaviorScope-X v3 temporal splitter (auto-fit on val) ----
     splitter_config = None
     target_class = str(args.v25_splitter_target_class)
     replacement_class = str(args.v25_splitter_replacement_class)

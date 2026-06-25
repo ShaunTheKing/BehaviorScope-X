@@ -1,5 +1,5 @@
 """
-Keypoint-agnostic relational pose features for BehaviorScope-Y.
+Keypoint-agnostic relational pose features for BehaviorScope-X.
 
 The relational stream is fully keypoint-agnostic by default. No body-part
 index is hard-coded; all direction-derived features come from weighted PCA

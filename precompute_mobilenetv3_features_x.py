@@ -5,7 +5,7 @@ YOLO/SPPF analogue:
 
     backbone.features.16 -> adaptive average pooling -> 960-d vector
 
-The output schema matches the existing BehaviorScope-Y visual cache so the
+The output schema matches the existing BehaviorScope-X visual cache so the
 downstream behavior heads can swap only the frozen visual descriptor backend:
 
     group_feat   [T, 960]
@@ -47,7 +47,7 @@ IMAGENET_STD = torch.tensor([0.229, 0.224, 0.225], dtype=torch.float32).view(1, 
 
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(
-        description="Precompute MobileNetV3-large native late-backbone features for BehaviorScope-Y.",
+        description="Precompute MobileNetV3-large native late-backbone features for BehaviorScope-X.",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     p.add_argument("--manifest_path", required=True)
@@ -250,7 +250,7 @@ def main() -> int:
 
     param_count = sum(p.numel() for p in encoder.parameters())
     cache_manifest = {
-        "version": "behaviorscope-y-visual-feature-cache-v1",
+        "version": "behaviorscope-x-visual-feature-cache-v1",
         "visual_backend": "mobilenetv3_large_native",
         "manifest_path": str(manifest_path),
         "checkpoint": str(checkpoint),

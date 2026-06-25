@@ -394,7 +394,7 @@ class PretrainedSlowFast(nn.Module):
 
 class MultiAnimalBehaviorSequenceClassifier(nn.Module):
     """
-    BehaviorScope-Y v1 classifier for fixed-taxonomy N-animal behavior.
+    BehaviorScope-X v1 classifier for fixed-taxonomy N-animal behavior.
 
     Expected input is a dict from SequenceDataset with:
       group_frames [B,T,C,H,W], animal_frames [B,T,N,C,H,W],
@@ -426,7 +426,7 @@ class MultiAnimalBehaviorSequenceClassifier(nn.Module):
     ):
         super().__init__()
         if str(backbone).lower().startswith("slowfast"):
-            raise ValueError("BehaviorScope-Y v1 supports frame backbones; use MobileNet/EfficientNet/ViT.")
+            raise ValueError("BehaviorScope-X v1 supports frame backbones; use MobileNet/EfficientNet/ViT.")
         self.pose_input_dim = int(pose_input_dim)
         self.disable_visual_streams = bool(disable_visual_streams)
         self.frame_encoder, visual_dim = build_frame_encoder(

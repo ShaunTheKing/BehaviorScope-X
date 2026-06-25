@@ -36,7 +36,6 @@ dependencies = [
 
 [project.scripts]
 behaviorscope-x = "behaviorscope_x_qt:main"
-behaviorscope-y = "behaviorscope_x_qt:main"
 
 [tool.setuptools]
 py-modules = [

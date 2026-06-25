@@ -1,4 +1,4 @@
-"""Prepare BehaviorScope-Y full-video training NPZ from source videos using a
+"""Prepare BehaviorScope-X full-video training NPZ from source videos using a
 sliding window over the entire timeline.
 
 Unlike `prepare_clips_x.py`, which samples windows from inside pre-extracted
@@ -678,7 +678,7 @@ def _write_done_marker(
     marker_path = _done_marker_path(output_root, safe_stem)
     marker_path.parent.mkdir(parents=True, exist_ok=True)
     payload = {
-        "version": "behaviorscope-y-full-video-build-v1",
+        "version": "behaviorscope-x-full-video-build-v1",
         "completed_at_unix": time.time(),
         "signature": _video_build_signature(src, args, class_names),
         "n_samples": len(samples),
@@ -1003,7 +1003,7 @@ def write_manifest(
 # ---------------------------------------------------------------------------
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(
-        description="BehaviorScope-Y NPZ builder for full-video sliding windows.",
+        description="BehaviorScope-X NPZ builder for full-video sliding windows.",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     p.add_argument("--mars_root", type=Path, default=Path.cwd())

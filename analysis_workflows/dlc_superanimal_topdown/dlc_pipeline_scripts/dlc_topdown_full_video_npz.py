@@ -52,7 +52,7 @@ from deeplabcut.pose_estimation_pytorch.apis.utils import get_inference_runners 
 
 
 BUILD_KIND = "full_video_sliding_dlc_topdown"
-MARKER_VERSION = "behaviorscope-y-dlc-topdown-build-v1"
+MARKER_VERSION = "behaviorscope-x-dlc-topdown-build-v1"
 
 
 def _xywh_to_xyxy(boxes: np.ndarray) -> np.ndarray:

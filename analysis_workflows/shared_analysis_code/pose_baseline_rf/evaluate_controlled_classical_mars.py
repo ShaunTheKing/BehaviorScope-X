@@ -23,7 +23,7 @@ from controlled_common import (
 
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(
-        description="Evaluate controlled classical models with the same bout code as BehaviorScope-Y.",
+        description="Evaluate controlled classical models with the same bout code as BehaviorScope-X.",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     p.add_argument("--config", default=str(Path(__file__).with_name("config.yaml")))

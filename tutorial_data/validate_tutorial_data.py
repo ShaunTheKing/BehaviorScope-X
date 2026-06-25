@@ -88,7 +88,7 @@ def _validate_models(tutorial_root: Path) -> int:
 
 
 def main() -> int:
-    tutorial_root = Path(__file__).resolve().parent / "BehaviorScope-Y_tutorial"
+    tutorial_root = Path(__file__).resolve().parent / "BehaviorScope-X_tutorial"
     manifest_path = tutorial_root / "source_manifest.csv"
     class_names_path = tutorial_root / "class_names.txt"
     annotations_root = tutorial_root / "annotations"

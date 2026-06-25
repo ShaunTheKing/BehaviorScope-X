@@ -1,5 +1,5 @@
 """
-BehaviorScope-Y data loader.
+BehaviorScope-X data loader.
 
 Standalone module so the existing single-animal `data.py` is untouched.
 
@@ -101,7 +101,7 @@ def validate_n_npz_payload(
     require_schema_version: bool = False,
     require_visual: bool = True,
 ) -> None:
-    """Fail-fast validator for BehaviorScope-Y NPZ windows.
+    """Fail-fast validator for BehaviorScope-X NPZ windows.
 
     This checks the tensor schema that training and inference assume. It is
     intentionally strict by default because silent padding/trimming can change
@@ -225,7 +225,7 @@ def load_n_manifest(manifest_path: Path | str):
 def _normalize_rgb(frames_uint8: np.ndarray) -> torch.Tensor:
     """[T, H, W, 3] uint8 -> [T, 3, H, W] float32 in [0, 1].
 
-    BehaviorScope-Y uses Ultralytics YOLO normalization (x/255 only — no
+    BehaviorScope-X uses Ultralytics YOLO normalization (x/255 only — no
     mean/std subtraction) so the YOLO trunk sees inputs in the same
     distribution it was trained on. Applying ImageNet mean/std on top would
     break the domain-pretrained feature hypothesis.
@@ -243,7 +243,7 @@ def _normalize_rgb(frames_uint8: np.ndarray) -> torch.Tensor:
 # ----------------------------------------------------------------------------
 
 class MultiAnimalSequenceDataset(Dataset):
-    """Loads BehaviorScope-Y NPZs and returns multi-stream tensors with masks.
+    """Loads BehaviorScope-X NPZs and returns multi-stream tensors with masks.
 
     No augmentation in v1 (resize+normalize only). Per the proposal,
     augmentation should apply identical params across all streams within a

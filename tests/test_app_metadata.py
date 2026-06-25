@@ -22,7 +22,8 @@ class AppMetadataTests(unittest.TestCase):
         self.assertEqual(pyproject["project"]["name"], "behaviorscope-x")
         self.assertEqual(pyproject["project"]["version"], app_metadata.APP_VERSION)
         self.assertEqual(pyproject["project"]["scripts"]["behaviorscope-x"], "behaviorscope_x_qt:main")
-        self.assertEqual(pyproject["project"]["scripts"]["behaviorscope-y"], "behaviorscope_x_qt:main")
+        deprecated_alias = "behaviorscope-" + "y"
+        self.assertNotIn(deprecated_alias, pyproject["project"]["scripts"])
 
     def test_docs_use_public_name(self) -> None:
         for relative in [

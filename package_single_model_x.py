@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Bundle a BehaviorScope-Y classifier checkpoint and YOLO-pose weights.
+"""Bundle a BehaviorScope-X classifier checkpoint and YOLO-pose weights.
 
 The output is a single .pt file that can be passed to infer_x.py without a
 separate --yolo_weights argument.
@@ -23,7 +23,7 @@ def safe_torch_load(path: Path | str, *, map_location=None):
 
 
 def parse_args() -> argparse.Namespace:
-    p = argparse.ArgumentParser(description="Create a single-file BehaviorScope-Y .pt bundle.")
+    p = argparse.ArgumentParser(description="Create a single-file BehaviorScope-X .pt bundle.")
     p.add_argument("--classifier_checkpoint", required=True, help="best_model_macro_f1.pt or best_model.pt")
     p.add_argument("--yolo_weights", required=True, help="YOLO-pose .pt used during training")
     p.add_argument("--model_config", default=None, help="Optional config.json; otherwise uses embedded checkpoint config")
@@ -67,7 +67,7 @@ def main() -> None:
         "bytes": raw_yolo,
     }
     checkpoint["bundle_metadata"] = {
-        "version": "behaviorscope-y-single-model-v1",
+        "version": "behaviorscope-x-single-model-v1",
         "classifier_checkpoint": classifier_checkpoint.name,
         "yolo_filename": yolo_weights.name,
         "yolo_sha256": digest,

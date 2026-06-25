@@ -21,8 +21,8 @@ state JSON files.
 ## Train/Validation Caches
 
 ```text
-BehaviorScope_Y_minimal/outputs/npz_cache/mars_full_video_dlc_topdown
-BehaviorScope_Y_minimal/outputs/npz_cache/mars_dlc_topdown_hrnet_feature_cache_trainval
+BehaviorScope_X_minimal/outputs/npz_cache/mars_full_video_dlc_topdown
+BehaviorScope_X_minimal/outputs/npz_cache/mars_dlc_topdown_hrnet_feature_cache_trainval
 ```
 
 ## Held-Out Caches

@@ -1,7 +1,7 @@
 """
-BehaviorScope-Y model: MultiAnimalBehaviorSequenceClassifier with YOLO visual backbone.
+BehaviorScope-X model: MultiAnimalBehaviorSequenceClassifier with YOLO visual backbone.
 
-Differences from BehaviorScope-Y (model_n.py):
+Differences from the earlier multi-animal model:
   * Visual backbone is a YOLO-pose model's CSP-Darknet trunk (layers 0-9
     through SPPF), NOT MobileNet/EfficientNet/ViT/SlowFast.
   * The YOLO backbone is MARS-domain-pretrained (trained on MARS keypoint
@@ -69,7 +69,7 @@ class YOLOFrameEncoder(nn.Module):
             from ultralytics import YOLO
         except ImportError as exc:
             raise ImportError(
-                "BehaviorScope-Y requires ultralytics. Install with `pip install ultralytics`."
+                "BehaviorScope-X requires ultralytics. Install with `pip install ultralytics`."
             ) from exc
 
         yolo = YOLO(weights_path)
@@ -160,7 +160,7 @@ def build_yolo_encoder(
 def inspect_yolo_keypoint_count(weights_path: str) -> Optional[int]:
     """Return the number of keypoints the given YOLO-pose checkpoint emits, or
     None if the checkpoint is not a pose model. Used to validate that the
-    BehaviorScope-Y `num_keypoints` setting matches the YOLO model that will
+    BehaviorScope-X `num_keypoints` setting matches the YOLO model that will
     serve as both the visual backbone and the inference-time pose detector.
     """
     try:

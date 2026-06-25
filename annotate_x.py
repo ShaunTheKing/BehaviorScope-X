@@ -1,5 +1,5 @@
 """
-Per-frame annotation helper for BehaviorScope-Y's annotated-video exporter.
+Per-frame annotation helper for BehaviorScope-X's annotated-video exporter.
 
 Given an `NCropDetection` (with `orig_frame_bgr` populated) and a behavior
 prediction for the window the frame belongs to, this module draws:

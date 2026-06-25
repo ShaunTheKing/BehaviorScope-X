@@ -1,5 +1,5 @@
 """
-Runtime-metrics logger for BehaviorScope-Y inference.
+Runtime-metrics logger for BehaviorScope-X inference.
 
 Writes a sidecar CSV alongside the predictions CSV with per-interval
 samples of throughput, per-stage timing, CPU memory, and (when NVIDIA
