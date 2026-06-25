@@ -1,0 +1,14 @@
+﻿quantity,value
+pose_model_family,YOLO-pose
+pose_model_size,nano
+feature_layer,layers[0:10] through SPPF
+pooling,adaptive_avg_pool2d
+feature_dim_per_crop,256
+raw_visual_dim_per_frame,768
+pose_relation_dim_per_frame,132
+pose_visual_pca_dim_per_frame,196
+train_feature_cache,<RUN_ROOT>\outputs\npz_cache\mars_full_video\yolo_feature_cache
+heldout_feature_cache,<RUN_ROOT>\outputs\eval_feature_cache\mars_stride16
+train_windows,20414
+validation_windows,10079
+heldout_windows,22527

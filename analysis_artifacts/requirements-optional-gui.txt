@@ -1,0 +1,2 @@
+# Optional dependencies for GUI-assisted review paths.
+PySide6>=6.11

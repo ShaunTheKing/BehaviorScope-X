@@ -1,0 +1,26 @@
+{
+  "analysis": "Fly-v-Fly short-bout adaptation",
+  "dataset": "Fly-v-Fly aggression",
+  "pose_backbone": "Fly YOLO26n-pose checkpoint",
+  "feature_tap": "YOLO/SPPF layer-9 output, 256 dimensions per crop after global average pooling",
+  "temporal_sequence_classifiers": {
+    "head": "attention",
+    "hidden_dim": 256,
+    "windows": ["w16s8", "w8s4"],
+    "seed": 42,
+    "npz_seed": 42,
+    "batch": 64,
+    "epochs": 40,
+    "patience": 20,
+    "class_weighting": "sqrt_inverse",
+    "class_weight_clamp": 1.2,
+    "train_sampler": "random",
+    "tcn": "excluded by construction"
+  },
+  "npz_policy": {
+    "default": "reuse existing train and held-out NPZ/feature caches from fly_run_20260602",
+    "optional": "pass --rebuild_npz to regenerate NPZ/cache under the requested suite root"
+  },
+  "heldout_units": "Fly-v-Fly movies 6--10",
+  "annotation_modes": ["primary", "secondary", "union", "intersection", "padded_primary"]
+}

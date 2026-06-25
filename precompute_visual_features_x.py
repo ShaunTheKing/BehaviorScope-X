@@ -41,6 +41,7 @@ try:
         MultiAnimalSequenceDataset,
         collate_multi_animal,
         feature_cache_path,
+        feature_cache_candidate_paths,
     )
     from model_x import MultiAnimalBehaviorSequenceClassifier, inspect_yolo_keypoint_count
     from utils.pose_features_x import REL_FEATURE_DIM
@@ -50,6 +51,7 @@ except Exception:  # pragma: no cover
         MultiAnimalSequenceDataset,
         collate_multi_animal,
         feature_cache_path,
+        feature_cache_candidate_paths,
     )
     from .model_x import MultiAnimalBehaviorSequenceClassifier, inspect_yolo_keypoint_count
     from .utils.pose_features_x import REL_FEATURE_DIM
@@ -158,7 +160,7 @@ def main():
         cached_names = {p.name for p in out_dir.glob("*.npz")}
         selected_samples = [
             s for s in selected_samples
-            if feature_cache_path(out_dir, s).name not in cached_names
+            if not any(path.name in cached_names for path in feature_cache_candidate_paths(out_dir, s))
         ]
         n_skip = n_total - len(selected_samples)
         if n_skip:

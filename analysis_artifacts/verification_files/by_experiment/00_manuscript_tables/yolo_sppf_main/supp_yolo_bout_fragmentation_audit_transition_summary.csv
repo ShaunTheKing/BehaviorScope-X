@@ -1,0 +1,10 @@
+track,from_behavior,n_transitions,same_class_transitions,same_class_transition_fraction,median_gap_frames,median_same_class_gap_frames
+Full LSTM-256,attack,305,105,0.3442622950819672,32.0,
+Full LSTM-256,investigation,837,469,0.5603345280764636,48.0,
+Full LSTM-256,mount,205,7,0.03414634146341464,0.0,
+Full attention-256,attack,272,92,0.3382352941176471,32.0,
+Full attention-256,investigation,862,511,0.5928074245939675,64.0,
+Full attention-256,mount,200,6,0.03,0.0,
+Ground truth,attack,356,24,0.06741573033707865,14.0,
+Ground truth,investigation,1444,910,0.6301939058171745,31.0,
+Ground truth,mount,203,0,0.0,1.0,

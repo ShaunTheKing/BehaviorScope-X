@@ -1,0 +1,211 @@
+﻿{
+    "created_unix_s":  1780602317.4437754,
+    "root":  "G:\\BehaviorScope_Y_final_runs",
+    "main_config":  "G:\\BehaviorScope_Y_final_runs\\config.yaml",
+    "classical_config":  "G:\\BehaviorScope_Y_final_runs\\pose_baseline_rf\\config.yaml",
+    "frozen_classical_config":  "G:\\BehaviorScope_Y_final_runs\\outputs\\controlled_comparison_runs\\release_mobilenetv3_backbone\\provenance\\pose_baseline_rf_config.yolo_sppf.frozen.yaml",
+    "frozen_mobilenet_classical_config":  "G:\\BehaviorScope_Y_final_runs\\outputs\\controlled_comparison_runs\\release_mobilenetv3_backbone\\provenance\\pose_baseline_rf_config.mobilenetv3_native.frozen.yaml",
+    "path_profile":  "self_contained_project",
+    "python":  "python",
+    "device":  "cuda:0",
+    "suite_output_root":  "G:\\BehaviorScope_Y_final_runs\\outputs\\controlled_comparison_runs\\release_mobilenetv3_backbone",
+    "suite":  "mars_controlled",
+    "frozen_suite_config":  "G:\\BehaviorScope_Y_final_runs\\outputs\\controlled_comparison_runs\\release_mobilenetv3_backbone\\controlled_suite_config.frozen.json",
+    "classical_output_root":  "G:\\BehaviorScope_Y_final_runs\\outputs\\controlled_comparison_runs\\release_mobilenetv3_backbone\\classical",
+    "seeds":  [
+                  42,
+                  43,
+                  44
+              ],
+    "neural_heads":  [
+
+                     ],
+    "lstm_scope":  "full",
+    "all_heads_on_previous_lstm_models":  false,
+    "full_model_id":  "full_lstm256",
+    "neural_run_count":  6,
+    "neural_names":  [
+                         "mobilenetv3_native_full_lstm256_seed42",
+                         "mobilenetv3_native_full_lstm256_seed43",
+                         "mobilenetv3_native_full_lstm256_seed44",
+                         "mobilenetv3_native_full_attention256_seed42",
+                         "mobilenetv3_native_full_attention256_seed43",
+                         "mobilenetv3_native_full_attention256_seed44"
+                     ],
+    "fly_enabled":  false,
+    "fly_run_count":  0,
+    "fly_names":  [
+
+                  ],
+    "fly_eval_cache_root":  "G:\\BehaviorScope_Y_final_runs\\outputs\\controlled_comparison_runs\\release_mobilenetv3_backbone\\fly\\heldout_npz_cache",
+    "human_gt_only":  true,
+    "allow_pred_named_annots":  false,
+    "prespecified_decoding":  {
+                                  "window_prediction_rule":  "argmax_over_class_probabilities",
+                                  "threshold_decoder":  "disabled for controlled model-family comparisons",
+                                  "temporal_smoothing_window":  5,
+                                  "bout_min_duration_frames":  15,
+                                  "raw_window_eval":  "overlapping-window probability average then argmax",
+                                  "smoothed_frame_eval":  "overlapping-window probability average, argmax, median smoothing, minimum-duration filtering"
+                              },
+    "prespecified_model_matrix":  {
+                                      "visual_backends":  [
+                                                              "yolo_sppf",
+                                                              "mobilenetv3_native"
+                                                          ],
+                                      "classical_feature_sets":  [
+                                                                     "pose_frame",
+                                                                     "pose_window",
+                                                                     "pose_visual_frame_pca",
+                                                                     "pose_visual_window_pca"
+                                                                 ],
+                                      "classical_models":  [
+                                                               "rf",
+                                                               "xgb"
+                                                           ],
+                                      "neural_heads":  [
+
+                                                       ],
+                                      "mobilenet_neural_heads":  [
+                                                                     "lstm",
+                                                                     "attention"
+                                                                 ],
+                                      "mobilenet_model_ids":  [
+                                                                  "full_lstm256"
+                                                              ],
+                                      "mobilenet_neural_deferred":  false,
+                                      "neural_templates":  [
+                                                               "full_lstm256"
+                                                           ],
+                                      "fly_heads":  [
+
+                                                    ],
+                                      "fly_hidden_dims":  [
+
+                                                          ],
+                                      "fly_window_recipes":  [
+
+                                                             ],
+                                      "fly_gt_modes":  [
+                                                           "primary",
+                                                           "secondary",
+                                                           "union",
+                                                           "intersection",
+                                                           "padded_primary"
+                                                       ],
+                                      "fly_cached_heldout_eval":  false,
+                                      "fly_eval_window_stride":  4,
+                                      "seeds":  [
+                                                    42,
+                                                    43,
+                                                    44
+                                                ]
+                                  },
+    "visual_backend_contracts":  {
+                                     "yolo_sppf":  {
+                                                       "role":  "primary controlled decoder-comparison backend",
+                                                       "pose_model_family":  "YOLO-pose",
+                                                       "pose_model_size":  "nano",
+                                                       "feature_layer":  "layers[0:10] through SPPF",
+                                                       "pooling":  "adaptive_avg_pool2d",
+                                                       "feature_dim_per_crop":  256,
+                                                       "raw_visual_dim_per_frame":  768,
+                                                       "train_cache":  "G:\\BehaviorScope_Y_final_runs\\outputs\\npz_cache\\mars_full_video\\yolo_feature_cache",
+                                                       "heldout_cache":  "G:\\BehaviorScope_Y_final_runs\\outputs\\eval_feature_cache\\mars_stride16"
+                                                   },
+                                     "mobilenetv3_native":  {
+                                                                "role":  "architecture-portability/sensitivity arm, not size-matched to YOLO nano",
+                                                                "pose_model_family":  "BehaviorScopeZ",
+                                                                "pose_model_backbone":  "mobilenet_v3_large",
+                                                                "pose_model_size":  "large",
+                                                                "feature_layer":  "backbone.features.16",
+                                                                "pooling":  "adaptive_avg_pool2d",
+                                                                "normalization":  "imagenet",
+                                                                "resize_size":  640,
+                                                                "feature_dim_per_crop":  960,
+                                                                "raw_visual_dim_per_frame":  2880,
+                                                                "checkpoint":  "G:\\BehaviorScope_Y_final_runs\\OtherPoseModels\\mars_mobilenetv3_pose_v6_plus_fullval\\best_pose_map5095.pt",
+                                                                "train_cache":  "G:\\BehaviorScope_Y_final_runs\\outputs\\controlled_comparison_runs\\release_mobilenetv3_backbone\\feature_caches\\mobilenetv3_native\\train",
+                                                                "heldout_cache":  "G:\\BehaviorScope_Y_final_runs\\outputs\\controlled_comparison_runs\\release_mobilenetv3_backbone\\feature_caches\\mobilenetv3_native\\heldout"
+                                                            }
+                                 },
+    "resource_telemetry":  {
+                               "enabled":  true,
+                               "sample_interval_s_default":  30.0,
+                               "per_stage_csv":  "logs/resources/\u003cstep\u003e.resources.csv",
+                               "summary_location":  "logs/run_summary.json"
+                           },
+    "environment_snapshot":  {
+                                 "platform":  "Windows-10-10.0.26200-SP0",
+                                 "processor":  "Intel64 Family 6 Model 158 Stepping 12, GenuineIntel",
+                                 "machine":  "AMD64",
+                                 "python":  "3.11.15 | packaged by conda-forge | (main, Mar  5 2026, 16:36:00) [MSC v.1944 64 bit (AMD64)]",
+                                 "cpu_count_logical":  16,
+                                 "nvidia_smi_L":  "GPU 0: NVIDIA GeForce RTX 2080 (UUID: GPU-e2cbb0fb-963f-34cd-3979-e8509dcfaa70)",
+                                 "nvidia_smi_query_gpu":  "0, NVIDIA GeForce RTX 2080, 596.36, 8192",
+                                 "cpu_count_physical":  8,
+                                 "ram_total_bytes":  34303148032,
+                                 "ram_total_gb":  31.947
+                             },
+    "math_contract":  {
+                          "n_animals":  2,
+                          "n_keypoints":  7,
+                          "pose_self_per_animal":  49,
+                          "pose_relation_dim_per_frame":  132,
+                          "pose_visual_pca_dim_per_frame":  196,
+                          "mars_window":  32,
+                          "mars_pose_window_dim":  4224,
+                          "mars_pose_visual_pca_window_dim":  6272,
+                          "tcn_layers":  5,
+                          "tcn_kernel_size":  3,
+                          "tcn_convs_per_block":  2,
+                          "tcn_single_conv_shorthand_receptive_field":  63,
+                          "tcn_nominal_receptive_field":  125,
+                          "tcn_effective_mars_context_frames":  32
+                      },
+    "paths":  {
+                  "mars_yolo_weights":  "G:\\BehaviorScope_Y_final_runs\\MARS_YOLO_Pose_Model\\weights\\best.pt",
+                  "mars_root":  "G:\\BehaviorScope_Y_final_runs\\MARS-data",
+                  "train_manifest":  "G:\\BehaviorScope_Y_final_runs\\outputs\\npz_cache\\mars_full_video\\sequence_manifest.json",
+                  "train_feature_cache":  "G:\\BehaviorScope_Y_final_runs\\outputs\\npz_cache\\mars_full_video\\yolo_feature_cache",
+                  "heldout_manifest":  "G:\\BehaviorScope_Y_final_runs\\outputs\\npz_cache\\mars_heldout_eval\\sequence_manifest.json",
+                  "heldout_feature_cache":  "G:\\BehaviorScope_Y_final_runs\\outputs\\eval_feature_cache\\mars_stride16",
+                  "mobilenet_checkpoint":  "G:\\BehaviorScope_Y_final_runs\\OtherPoseModels\\mars_mobilenetv3_pose_v6_plus_fullval\\best_pose_map5095.pt",
+                  "mobilenet_train_feature_cache":  "G:\\BehaviorScope_Y_final_runs\\outputs\\controlled_comparison_runs\\release_mobilenetv3_backbone\\feature_caches\\mobilenetv3_native\\train",
+                  "mobilenet_heldout_feature_cache":  "G:\\BehaviorScope_Y_final_runs\\outputs\\controlled_comparison_runs\\release_mobilenetv3_backbone\\feature_caches\\mobilenetv3_native\\heldout",
+                  "fly_yolo_weights":  "G:\\BehaviorScope_Y_final_runs\\Fly_YOLO_Pose_Model\\weights\\best.pt",
+                  "fly_aggression_root":  "G:\\BehaviorScope_Y_final_runs\\Fly-v-Fly\\Aggression",
+                  "fly_npz_root":  "G:\\BehaviorScope_Y_final_runs\\outputs\\controlled_comparison_runs\\release_mobilenetv3_backbone\\fly\\npz_cache",
+                  "fly_heldout_npz_root":  "G:\\BehaviorScope_Y_final_runs\\outputs\\controlled_comparison_runs\\release_mobilenetv3_backbone\\fly\\heldout_npz_cache",
+                  "fly_training_root":  "G:\\BehaviorScope_Y_final_runs\\outputs\\controlled_comparison_runs\\release_mobilenetv3_backbone\\fly\\training",
+                  "fly_eval_root":  "G:\\BehaviorScope_Y_final_runs\\outputs\\controlled_comparison_runs\\release_mobilenetv3_backbone\\fly\\eval",
+                  "profile":  {
+                                  "mars_data_root":  "MARS-data",
+                                  "mars_train_root":  "MARS-data/train",
+                                  "mars_validation_root":  "MARS-data/validation",
+                                  "mars_test_roots":  {
+                                                          "test_1":  "MARS-data/test_1",
+                                                          "test_2":  "MARS-data/test_2"
+                                                      },
+                                  "fly_data_root":  "Fly-v-Fly",
+                                  "mars_yolo_model_root":  "MARS_YOLO_Pose_Model",
+                                  "mars_yolo_weights":  "MARS_YOLO_Pose_Model/weights/best.pt",
+                                  "fly_yolo_model_root":  "Fly_YOLO_Pose_Model",
+                                  "fly_yolo_weights":  "Fly_YOLO_Pose_Model/weights/best.pt",
+                                  "source_mp4_cache_root":  "outputs/source_mp4_cache/mars",
+                                  "npz_full_video_root":  "outputs/npz_cache/mars_full_video",
+                                  "heldout_eval_npz_root":  "outputs/npz_cache/mars_heldout_eval",
+                                  "npz_clip_control_root":  "outputs/npz_cache/clip_control",
+                                  "clip_training_runs_root":  "outputs/training_runs_clip_control",
+                                  "clip_test_eval_root":  "outputs/test_eval_clip_control",
+                                  "npz_fly_root":  "outputs/npz_cache/fly",
+                                  "fly_training_runs_root":  "outputs/fly_training_runs",
+                                  "fly_test_eval_root":  "outputs/fly_test_eval",
+                                  "train_feature_cache_root":  "outputs/train_feature_cache",
+                                  "eval_feature_cache_root":  "outputs/eval_feature_cache",
+                                  "calibration_json":  "outputs/npz_cache/mars_full_video/calibration.json",
+                                  "manuscript_tex":  "shared_scripts/manuscript_scripts/manuscript_rerun_v4.tex",
+                                  "supplemental_tex":  "shared_scripts/manuscript_scripts/manuscript_rerun_v4_supplemental.tex"
+                              }
+              }
+}

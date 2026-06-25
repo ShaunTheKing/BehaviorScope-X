@@ -142,6 +142,16 @@ def _extract_embedded_yolo_weights(checkpoint: object, checkpoint_path: Path | s
     return str(out_path)
 
 
+def _path_is_readable_file(path_value: str | os.PathLike | None) -> bool:
+    if not path_value:
+        return False
+    try:
+        path = Path(path_value).expanduser()
+        return path.is_file()
+    except OSError:
+        return False
+
+
 try:
     from torch.amp import autocast as _autocast
 except ImportError:  # torch < 2.0
@@ -673,12 +683,18 @@ def load_model_from_checkpoint(
         or "yolo"
     )
 
-    # YOLO weights path: prefer an embedded bundle payload, then config
-    # (recorded by train_x.py), then the CLI fallback. Cached MobileNetV3
-    # and DLC/HRNet classifiers can be reconstructed without YOLO as long
-    # as their config records the precomputed visual feature dimension.
+    # YOLO weights path: prefer an embedded bundle payload. Otherwise use the
+    # checkpoint config only when that path is readable on this machine; an
+    # explicit CLI/GUI fallback must be allowed to replace stale absolute
+    # training-machine paths in portable checkpoint bundles.
     embedded_yolo_path = _extract_embedded_yolo_weights(checkpoint, checkpoint_path)
-    yolo_weights_path = embedded_yolo_path or cfg.get("yolo_weights") or yolo_weights_fallback
+    cfg_yolo_weights = cfg.get("yolo_weights")
+    if embedded_yolo_path:
+        yolo_weights_path = embedded_yolo_path
+    elif _path_is_readable_file(cfg_yolo_weights):
+        yolo_weights_path = cfg_yolo_weights
+    else:
+        yolo_weights_path = yolo_weights_fallback
     if not yolo_weights_path and precomputed_visual_dim <= 0:
         raise ValueError(
             "No yolo_weights found in checkpoint config and no "
@@ -1808,7 +1824,7 @@ def main():
         manifest_path = cfg.get("manifest_path")
         if manifest_path:
             candidate = Path(manifest_path).parent / "calibration.json"
-            if candidate.is_file():
+            if _path_is_readable_file(candidate):
                 args.calibration_json = str(candidate)
                 print(
                     f"[infer] auto-detected calibration_json={args.calibration_json} "

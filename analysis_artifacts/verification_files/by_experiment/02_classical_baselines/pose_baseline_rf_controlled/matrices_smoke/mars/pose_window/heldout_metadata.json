@@ -1,0 +1,26 @@
+[
+  {
+    "sample_id": "investigation_Mouse060_20160526_18-16-27_f000000",
+    "label": 1,
+    "class_name": "investigation",
+    "source_video": "Mouse060_20160526_18-16-27",
+    "start_frame": 0,
+    "end_frame": 31,
+    "fps": 30.0,
+    "dataset_split": "train",
+    "mars_split": "test_1",
+    "sequence_npz": "G:\\BehaviorScope_Y_final_runs\\outputs\\npz_cache\\mars_heldout_eval\\sequence_npz\\investigation\\Mouse060_20160526_18-16-27_f000000.npz"
+  },
+  {
+    "sample_id": "other_Mouse060_20160526_18-16-27_f000016",
+    "label": 3,
+    "class_name": "other",
+    "source_video": "Mouse060_20160526_18-16-27",
+    "start_frame": 16,
+    "end_frame": 47,
+    "fps": 30.0,
+    "dataset_split": "train",
+    "mars_split": "test_1",
+    "sequence_npz": "G:\\BehaviorScope_Y_final_runs\\outputs\\npz_cache\\mars_heldout_eval\\sequence_npz\\other\\Mouse060_20160526_18-16-27_f000016.npz"
+  }
+]

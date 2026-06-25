@@ -1,0 +1,8 @@
+quantity,value
+backend,YOLO/SPPF
+classical_models,Random Forest; XGBoost
+feature_sets,pose_frame; pose_visual_frame_pca; pose_window; pose_visual_window_pca
+visual_pca_fit_scope,training split only
+pose_relation_dim_per_frame,132
+pose_visual_pca_dim_per_frame,196
+window_size_frames,32

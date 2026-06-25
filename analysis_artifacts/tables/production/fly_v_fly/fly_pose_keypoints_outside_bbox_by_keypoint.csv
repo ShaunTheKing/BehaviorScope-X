@@ -1,0 +1,13 @@
+source,keypoint,n_keypoints,outside_n,outside_pct,median_outside_px,p90_outside_px,max_outside_px
+movie2_prediction_labels,all_keypoints,535088,205505,38.405832311694525,2.4339473688179707,3.4875360000000146,15.243782400000008
+movie2_prediction_labels,axis_endpoint_1,107945,0,0.0,0.0,0.0,0.0
+movie2_prediction_labels,axis_endpoint_2,107945,0,0.0,0.0,0.0,0.0
+movie2_prediction_labels,centroid,107945,0,0.0,0.0,0.0,0.0
+movie2_prediction_labels,left_wing,105578,103074,97.62829377332399,2.475000000000003,3.543695999999999,15.243624000000011
+movie2_prediction_labels,right_wing,105675,102431,96.93021055121835,2.418695999999991,3.4874639999999966,15.243782400000008
+original_yolo_validation_labels,all_keypoints,44818,16740,37.351064304520506,3.0438000000000005,6.220152,18.9936
+original_yolo_validation_labels,axis_endpoint_1,9218,0,0.0,0.0,0.0,0.0
+original_yolo_validation_labels,axis_endpoint_2,9218,0,0.0,0.0,0.0,0.0
+original_yolo_validation_labels,centroid,9218,0,0.0,0.0,0.0,0.0
+original_yolo_validation_labels,left_wing,8577,8353,97.38836422991722,3.0476879999999884,6.387407999999997,17.825039999999998
+original_yolo_validation_labels,right_wing,8587,8387,97.67089786887155,3.041101703580474,6.0921360000000035,18.9936

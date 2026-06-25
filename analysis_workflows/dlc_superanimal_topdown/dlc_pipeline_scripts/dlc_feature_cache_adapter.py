@@ -100,9 +100,9 @@ def find_behaviorscope_scripts(manifest_path: Path) -> Path:
 def import_behaviorscope_helpers(manifest_path: Path):
     scripts_dir = find_behaviorscope_scripts(manifest_path)
     sys.path.insert(0, str(scripts_dir))
-    from data_x import feature_cache_path, load_n_manifest  # type: ignore
+    from data_x import feature_cache_candidate_paths, feature_cache_path, load_n_manifest  # type: ignore
 
-    return feature_cache_path, load_n_manifest, scripts_dir
+    return feature_cache_path, feature_cache_candidate_paths, load_n_manifest, scripts_dir
 
 
 def selected_manifest_samples(splits: dict[str, list[Any]], split_names: list[str]) -> list[Any]:
@@ -355,11 +355,14 @@ def write_cache_manifest(path: Path, manifest: dict[str, Any]) -> None:
     path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
 
 
-def prefilter_missing_samples(out_dir: Path, samples: list[Any], feature_cache_path, overwrite: bool):
+def prefilter_missing_samples(out_dir: Path, samples: list[Any], feature_cache_candidate_paths, overwrite: bool):
     if overwrite:
         return samples, 0
     cached_names = {p.name for p in out_dir.glob("*.npz")}
-    missing = [s for s in samples if feature_cache_path(out_dir, s).name not in cached_names]
+    missing = [
+        s for s in samples
+        if not any(path.name in cached_names for path in feature_cache_candidate_paths(out_dir, s))
+    ]
     return missing, len(samples) - len(missing)
 
 
@@ -374,7 +377,13 @@ def hardlink_or_copy(src: Path, dst: Path) -> str:
         return "copy"
 
 
-def mirror_existing_cache(args: argparse.Namespace, samples: list[Any], meta: dict[str, Any], feature_cache_path) -> int:
+def mirror_existing_cache(
+    args: argparse.Namespace,
+    samples: list[Any],
+    meta: dict[str, Any],
+    feature_cache_path,
+    feature_cache_candidate_paths,
+) -> int:
     source = Path(args.source_cache_dir).resolve()
     if not source.is_dir():
         raise FileNotFoundError(f"Missing --source_cache_dir: {source}")
@@ -388,9 +397,13 @@ def mirror_existing_cache(args: argparse.Namespace, samples: list[Any], meta: di
     copied = 0
     existing = 0
     for sample in samples:
-        src = feature_cache_path(source, sample)
+        src_candidates = feature_cache_candidate_paths(source, sample)
+        src = next((p for p in src_candidates if p.is_file()), src_candidates[0])
         if not src.is_file():
-            raise FileNotFoundError(f"Source cache missing for {sample.id}: {src}")
+            raise FileNotFoundError(
+                f"Source cache missing for {sample.id}: "
+                f"{'; '.join(str(p) for p in src_candidates)}"
+            )
         dst = feature_cache_path(out_dir, sample)
         if dst.exists() and args.overwrite:
             dst.unlink()
@@ -434,11 +447,17 @@ def mirror_existing_cache(args: argparse.Namespace, samples: list[Any], meta: di
     return 0
 
 
-def compute_dlc_cache(args: argparse.Namespace, samples: list[Any], meta: dict[str, Any], feature_cache_path) -> int:
+def compute_dlc_cache(
+    args: argparse.Namespace,
+    samples: list[Any],
+    meta: dict[str, Any],
+    feature_cache_path,
+    feature_cache_candidate_paths,
+) -> int:
     out_dir = Path(args.output_dir).resolve()
     out_dir.mkdir(parents=True, exist_ok=True)
     samples_to_encode, skipped_existing = prefilter_missing_samples(
-        out_dir, samples, feature_cache_path, bool(args.overwrite)
+        out_dir, samples, feature_cache_candidate_paths, bool(args.overwrite)
     )
     if int(args.max_samples) > 0:
         samples_to_encode = samples_to_encode[: int(args.max_samples)]
@@ -619,7 +638,7 @@ def compute_dlc_cache(args: argparse.Namespace, samples: list[Any], meta: dict[s
 def main() -> int:
     args = parse_args()
     manifest_path = Path(args.manifest_path).resolve()
-    feature_cache_path, load_n_manifest, scripts_dir = import_behaviorscope_helpers(manifest_path)
+    feature_cache_path, feature_cache_candidate_paths, load_n_manifest, scripts_dir = import_behaviorscope_helpers(manifest_path)
     splits, _class_to_idx, _idx_to_class, meta = load_n_manifest(manifest_path)
     samples = selected_manifest_samples(splits, list(args.splits))
     if int(args.max_samples) > 0 and args.mode == "existing_cache":
@@ -627,8 +646,8 @@ def main() -> int:
     print(f"[cache] BehaviorScope helpers: {scripts_dir}", flush=True)
 
     if args.mode == "existing_cache":
-        return mirror_existing_cache(args, samples, meta, feature_cache_path)
-    return compute_dlc_cache(args, samples, meta, feature_cache_path)
+        return mirror_existing_cache(args, samples, meta, feature_cache_path, feature_cache_candidate_paths)
+    return compute_dlc_cache(args, samples, meta, feature_cache_path, feature_cache_candidate_paths)
 
 
 if __name__ == "__main__":

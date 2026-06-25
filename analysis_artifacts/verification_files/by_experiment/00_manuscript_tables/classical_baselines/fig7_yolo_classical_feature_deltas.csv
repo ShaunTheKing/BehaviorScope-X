@@ -1,0 +1,9 @@
+model,contrast,delta
+rf,"Window − frame
+(pose)",0.020349998923877788
+rf,"Visual PCA − pose
+(window)",-0.0008727974259280513
+xgb,"Window − frame
+(pose)",0.042626822084019245
+xgb,"Visual PCA − pose
+(window)",-0.0062560530143063176

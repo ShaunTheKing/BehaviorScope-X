@@ -1,0 +1,2 @@
+source,source_url,dataset_subset,second_layer_coverage,reported_recall,reported_precision,metric_context,manuscript_use
+"Eyjolfsdottir MS thesis, Section 6.1 Human vs. human",https://thesis.caltech.edu/8195/,Fly-vs-Fly Aggression,1/10 of Aggression test movies,generally above 80%,60-80%,trained novice annotators compared with expert annotations,human-reference benchmark for Fly-v-Fly precision/recall in addition to frame and bout macro-F1

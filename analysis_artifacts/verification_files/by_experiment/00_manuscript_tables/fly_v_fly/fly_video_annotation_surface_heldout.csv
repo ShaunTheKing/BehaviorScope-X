@@ -1,0 +1,6 @@
+﻿movie_id,split,n_frames,frame_count_source,fps,primary_actions_path,secondary_annotation_available,secondary_annotation_count,secondary_actions_paths,primary_priority_bouts_total,primary_priority_median_bout_frames,primary_priority_median_bout_seconds,lunge_bouts,lunge_median_frames,wing_threat_bouts,wing_threat_median_frames,charge_bouts,charge_median_frames,hold_bouts,hold_median_frames,tussle_bouts,tussle_median_frames
+6,heldout,54000,mp4_frame_count,30.0,<RUN_ROOT>\Fly-v-Fly\Aggression\movie6\movie6_actions.mat,True,1,<RUN_ROOT>\Fly-v-Fly\Aggression\movie6\movie6_second_actions.mat,699,4,0.133333,580,4.0,29,9,12,2.0,21,11,57,10
+7,heldout,54000,mp4_frame_count,30.0,<RUN_ROOT>\Fly-v-Fly\Aggression\movie7\movie7_actions.mat,False,0,,424,4.0,0.133333,335,4,4,34.5,1,1,9,24,75,6
+8,heldout,54000,mp4_frame_count,30.0,<RUN_ROOT>\Fly-v-Fly\Aggression\movie8\movie8_actions.mat,False,0,,626,4.0,0.133333,478,4.0,99,13,37,1,9,11,3,9
+9,heldout,54000,mp4_frame_count,30.0,<RUN_ROOT>\Fly-v-Fly\Aggression\movie9\movie9_actions.mat,False,0,,64,4.0,0.133333,57,4,0,,0,,6,12.5,1,14
+10,heldout,54000,mp4_frame_count,30.0,<RUN_ROOT>\Fly-v-Fly\Aggression\movie10\movie10_actions.mat,False,0,,193,4,0.133333,140,4.0,22,17.5,7,1,5,29,19,8

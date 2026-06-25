@@ -1,0 +1,36 @@
+﻿# Localized command template
+#
+# This is a path-localized template derived from the historical v3 release plan.
+# Replace placeholders before running:
+#   <RUN_ROOT>                  root containing raw datasets, caches, outputs, and checkpoints
+#   <DLC_WORK_ROOT>             DLC SuperAnimal working directory, where applicable
+#   <DATA_ROOT>                 root containing external raw data trees, where applicable
+#   <MANUSCRIPT_PACKAGE_ROOT>   local checkout/package root, where applicable
+#   <BEHAVIORSCOPE_X_GUI_ROOT>  local GUI repository root, where applicable
+#   <PYTHON>                    Python executable or environment launcher
+#
+# The original hard-coded command plan is retained beside each experiment as
+# provenance. This template is the reproducibility-facing starting point.
+
+[01] train:fly_yolo_sppf_full_attention256_w16s8_seed42
+reason: Train Fly-v-Fly attention-256 w16s8 seed 42 with class_weighting=sqrt_inverse, class_weight_clamp=1.2, train_sampler=random.
+<PYTHON> <RUN_ROOT>\shared_scripts\scripts\train_y.py --manifest_path <RUN_ROOT>\outputs\controlled_comparison_runs\fly_run_20260602\fly\npz_cache\w16s8\sequence_manifest.json --yolo_weights <RUN_ROOT>\Fly_YOLO_Pose_Model\weights\best.pt --yolo_backbone_end_layer 10 --auto_feature_cache --feature_cache_batch 16 --feature_cache_num_workers 0 --sequence_model attention --hidden_dim 256 --positional_encoding learned --epochs 40 --batch 64 --num_workers 0 --lr 5e-05 --weight_decay 0.0003 --patience 20 --dropout 0.5 --num_lstm_layers 1 --pose_fusion_dim 128 --pose_fusion_strategy gated_attention --class_weighting sqrt_inverse --class_weight_clamp 1.2 --train_sampler random --disable_threshold_decoder --resume --seed 42 --device cuda:0 --per_class_metrics --confusion_matrix --project <RUN_ROOT>\outputs\controlled_comparison_runs\release_fly_v_fly_attention256_cw12_seed42\fly\training --name fly_yolo_sppf_full_attention256_w16s8_seed42 --amp --amp_dtype auto
+
+[02] train:fly_yolo_sppf_full_attention256_w8s4_seed42
+reason: Train Fly-v-Fly attention-256 w8s4 seed 42 with class_weighting=sqrt_inverse, class_weight_clamp=1.2, train_sampler=random.
+<PYTHON> <RUN_ROOT>\shared_scripts\scripts\train_y.py --manifest_path <RUN_ROOT>\outputs\controlled_comparison_runs\fly_run_20260602\fly\npz_cache\w8s4\sequence_manifest.json --yolo_weights <RUN_ROOT>\Fly_YOLO_Pose_Model\weights\best.pt --yolo_backbone_end_layer 10 --auto_feature_cache --feature_cache_batch 16 --feature_cache_num_workers 0 --sequence_model attention --hidden_dim 256 --positional_encoding learned --epochs 40 --batch 64 --num_workers 0 --lr 5e-05 --weight_decay 0.0003 --patience 20 --dropout 0.5 --num_lstm_layers 1 --pose_fusion_dim 128 --pose_fusion_strategy gated_attention --class_weighting sqrt_inverse --class_weight_clamp 1.2 --train_sampler random --disable_threshold_decoder --resume --seed 42 --device cuda:0 --per_class_metrics --confusion_matrix --project <RUN_ROOT>\outputs\controlled_comparison_runs\release_fly_v_fly_attention256_cw12_seed42\fly\training --name fly_yolo_sppf_full_attention256_w8s4_seed42 --amp --amp_dtype auto
+
+[03] eval:eval_fly_adaptation_attention256
+reason: Evaluate the focused attention-only Fly adaptation models with annotation-aware GT modes.
+<PYTHON> <RUN_ROOT>\shared_scripts\fly_run_cached_eval.py --training_dir <RUN_ROOT>\outputs\controlled_comparison_runs\release_fly_v_fly_attention256_cw12_seed42\fly\training --heldout_npz_root <RUN_ROOT>\outputs\controlled_comparison_runs\fly_run_20260602\fly\heldout_npz_cache --output_dir <RUN_ROOT>\outputs\controlled_comparison_runs\release_fly_v_fly_attention256_cw12_seed42\fly\eval --aggression_root <RUN_ROOT>\Fly-v-Fly\Aggression --yolo_weights <RUN_ROOT>\Fly_YOLO_Pose_Model\weights\best.pt --device cuda:0 --fps 30.0 --window_stride 4 --temporal_smoothing_window 3 --bout_min_duration_frames 3 --gt_modes primary secondary union intersection padded_primary --runs fly_yolo_sppf_full_attention256_w16s8_seed42 fly_yolo_sppf_full_attention256_w8s4_seed42 --amp
+
+[04] render:render_fly_v_fly_focused_results
+reason: Render manuscript-facing Fly-v-Fly focused adaptation figures and tables from the just-generated evaluation outputs.
+<PYTHON> <MANUSCRIPT_PACKAGE_ROOT>\scripts_by_experiment\00_figure_table_rendering\production_analysis\plot_fly_v_fly_focused_results.py --eval_dir <RUN_ROOT>\outputs\controlled_comparison_runs\release_fly_v_fly_attention256_cw12_seed42\fly\eval --table_dir <MANUSCRIPT_PACKAGE_ROOT>\tables_reproduced\production\fly_v_fly --fig_dir <MANUSCRIPT_PACKAGE_ROOT>\figures_reproduced\production\fly_v_fly --supp_fig_dir <MANUSCRIPT_PACKAGE_ROOT>\figures_reproduced\production\supplement --pose_val_txt <RUN_ROOT>\Fly_YOLO_Pose_Model\weights\Fly_model_val.txt
+
+[05] render:render_fly_v_fly_ethogram_examples
+reason: Render Fly-v-Fly ethogram examples from the reproduced evaluation outputs.
+<PYTHON> <MANUSCRIPT_PACKAGE_ROOT>\scripts_by_experiment\00_figure_table_rendering\production_analysis\plot_fly_v_fly_ethogram_examples.py --eval_dir <RUN_ROOT>\outputs\controlled_comparison_runs\release_fly_v_fly_attention256_cw12_seed42\fly\eval --table_dir <MANUSCRIPT_PACKAGE_ROOT>\tables_reproduced\production\fly_v_fly --figure_dir <MANUSCRIPT_PACKAGE_ROOT>\figures_reproduced\production\fly_v_fly
+
+
+

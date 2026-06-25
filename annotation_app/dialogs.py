@@ -336,8 +336,8 @@ class WorkflowGuideDialog(QDialog):
         layout.addWidget(header)
 
         intro = QLabel(
-            "For a first run, choose Tutorial > Download/Load BehaviorScope-X tutorial, then follow the prefilled tabs. "
-            "For your own project, start with annotation and split assignment, then move to the model-family tab that matches the pose model you want to use. "
+            "For a first run, import licensed videos, define behavior labels, assign splits, and export full-video annotations. "
+            "Then move to the model-family tab that matches the pose model you want to use. "
             f"{APP_NAME} follows a pose-model-flexible amortized-pose-vision design: YOLO-pose, MobileNetV3, and DeepLabCut-HRNet are independent validated workflows that produce compatible caches, classifiers, evaluations, and output summaries."
         )
         intro.setWordWrap(True)

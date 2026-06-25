@@ -1,0 +1,1101 @@
+{
+  "mars_root": "G:\\BehaviorScope_Y_final_runs\\MARS-data",
+  "output_root": "F:\\BehaviorScope-N\\MARS_DLC_SuperAnimal",
+  "sampling_mode": "yolo_compatible",
+  "n_video_split_groups": 156,
+  "n_frames": 21614,
+  "summary": [
+    {
+      "split": "train",
+      "dataset_split": "train",
+      "video_id": "Mouse-Esr1-cre#6_20180808_15-47-18_00536-18624",
+      "labeled_folder": "train_Mouse-Esr1-cre_6_20180808_15-47-18_00536-18624",
+      "frames_written": 575
+    },
+    {
+      "split": "train",
+      "dataset_split": "train",
+      "video_id": "Mouse-Esr1-cre#6_20180810_14-41-50_00694-27215",
+      "labeled_folder": "train_Mouse-Esr1-cre_6_20180810_14-41-50_00694-27215",
+      "frames_written": 865
+    },
+    {
+      "split": "train",
+      "dataset_split": "train",
+      "video_id": "Mouse-Inter#2_20180629_11-29-14_00903-36725",
+      "labeled_folder": "train_Mouse-Inter_2_20180629_11-29-14_00903-36725",
+      "frames_written": 370
+    },
+    {
+      "split": "train",
+      "dataset_split": "train",
+      "video_id": "Mouse-Inter#3_20180629_11-58-11_01202-18127",
+      "labeled_folder": "train_Mouse-Inter_3_20180629_11-58-11_01202-18127",
+      "frames_written": 785
+    },
+    {
+      "split": "train",
+      "dataset_split": "train",
+      "video_id": "Mouse-Inter#5_20180628_11-59-11_00292-36345",
+      "labeled_folder": "train_Mouse-Inter_5_20180628_11-59-11_00292-36345",
+      "frames_written": 706
+    },
+    {
+      "split": "train",
+      "dataset_split": "train",
+      "video_id": "Mouse-Inter#8_20180628_13-14-30_00743-18190",
+      "labeled_folder": "train_Mouse-Inter_8_20180628_13-14-30_00743-18190",
+      "frames_written": 770
+    },
+    {
+      "split": "train",
+      "dataset_split": "train",
+      "video_id": "Mouse-Inter#9_20180627_17-36-18_01128-36446",
+      "labeled_folder": "train_Mouse-Inter_9_20180627_17-36-18_01128-36446",
+      "frames_written": 1212
+    },
+    {
+      "split": "train",
+      "dataset_split": "train",
+      "video_id": "Mouse1210_20181105_20-43-27_004405-018154",
+      "labeled_folder": "train_Mouse1210_20181105_20-43-27_004405-018154",
+      "frames_written": 230
+    },
+    {
+      "split": "train",
+      "dataset_split": "train",
+      "video_id": "Mouse1210_20181105_20-43-27_019196-027274",
+      "labeled_folder": "train_Mouse1210_20181105_20-43-27_019196-027274",
+      "frames_written": 111
+    },
+    {
+      "split": "train",
+      "dataset_split": "train",
+      "video_id": "Mouse1210_20181105_21-16-19_008114-011655",
+      "labeled_folder": "train_Mouse1210_20181105_21-16-19_008114-011655",
+      "frames_written": 206
+    },
+    {
+      "split": "train",
+      "dataset_split": "train",
+      "video_id": "Mouse1210_20181105_21-16-19_012514-023004",
+      "labeled_folder": "train_Mouse1210_20181105_21-16-19_012514-023004",
+      "frames_written": 231
+    },
+    {
+      "split": "train",
+      "dataset_split": "train",
+      "video_id": "Mouse1210_20181105_21-16-19_024198-036120",
+      "labeled_folder": "train_Mouse1210_20181105_21-16-19_024198-036120",
+      "frames_written": 287
+    },
+    {
+      "split": "train",
+      "dataset_split": "train",
+      "video_id": "Mouse1213_20181105_19-32-25_014350-023687",
+      "labeled_folder": "train_Mouse1213_20181105_19-32-25_014350-023687",
+      "frames_written": 139
+    },
+    {
+      "split": "train",
+      "dataset_split": "train",
+      "video_id": "Mouse1213_20181105_19-32-25_023783-028728",
+      "labeled_folder": "train_Mouse1213_20181105_19-32-25_023783-028728",
+      "frames_written": 96
+    },
+    {
+      "split": "train",
+      "dataset_split": "train",
+      "video_id": "Mouse1213_20181105_19-32-25_028814-036561",
+      "labeled_folder": "train_Mouse1213_20181105_19-32-25_028814-036561",
+      "frames_written": 80
+    },
+    {
+      "split": "train",
+      "dataset_split": "train",
+      "video_id": "Mouse1213_20181105_19-32-25_039831-042569",
+      "labeled_folder": "train_Mouse1213_20181105_19-32-25_039831-042569",
+      "frames_written": 45
+    },
+    {
+      "split": "train",
+      "dataset_split": "train",
+      "video_id": "Mouse1213_20181105_19-32-25_052371-060352",
+      "labeled_folder": "train_Mouse1213_20181105_19-32-25_052371-060352",
+      "frames_written": 99
+    },
+    {
+      "split": "train",
+      "dataset_split": "train",
+      "video_id": "Mouse1213_20181105_19-32-25_060513-064760",
+      "labeled_folder": "train_Mouse1213_20181105_19-32-25_060513-064760",
+      "frames_written": 55
+    },
+    {
+      "split": "train",
+      "dataset_split": "train",
+      "video_id": "Mouse1213_20181105_20-12-56_000640-007367",
+      "labeled_folder": "train_Mouse1213_20181105_20-12-56_000640-007367",
+      "frames_written": 159
+    },
+    {
+      "split": "train",
+      "dataset_split": "train",
+      "video_id": "Mouse1213_20181105_20-12-56_007452-012449",
+      "labeled_folder": "train_Mouse1213_20181105_20-12-56_007452-012449",
+      "frames_written": 35
+    },
+    {
+      "split": "train",
+      "dataset_split": "train",
+      "video_id": "Mouse1213_20181105_20-12-56_012550-016760",
+      "labeled_folder": "train_Mouse1213_20181105_20-12-56_012550-016760",
+      "frames_written": 9
+    },
+    {
+      "split": "train",
+      "dataset_split": "train",
+      "video_id": "Mouse1213_20181105_20-12-56_016823-028759",
+      "labeled_folder": "train_Mouse1213_20181105_20-12-56_016823-028759",
+      "frames_written": 167
+    },
+    {
+      "split": "train",
+      "dataset_split": "train",
+      "video_id": "Mouse1213_20181105_20-12-56_028845-039252",
+      "labeled_folder": "train_Mouse1213_20181105_20-12-56_028845-039252",
+      "frames_written": 157
+    },
+    {
+      "split": "train",
+      "dataset_split": "train",
+      "video_id": "Mouse1213_20181105_20-12-56_039362-041753",
+      "labeled_folder": "train_Mouse1213_20181105_20-12-56_039362-041753",
+      "frames_written": 36
+    },
+    {
+      "split": "train",
+      "dataset_split": "train",
+      "video_id": "Mouse1213_20181105_20-12-56_041843-051307",
+      "labeled_folder": "train_Mouse1213_20181105_20-12-56_041843-051307",
+      "frames_written": 108
+    },
+    {
+      "split": "train",
+      "dataset_split": "train",
+      "video_id": "Mouse1242_20190105_21-03-23_012212-016346",
+      "labeled_folder": "train_Mouse1242_20190105_21-03-23_012212-016346",
+      "frames_written": 191
+    },
+    {
+      "split": "train",
+      "dataset_split": "train",
+      "video_id": "Mouse1242_20190105_21-03-23_017630-020077",
+      "labeled_folder": "train_Mouse1242_20190105_21-03-23_017630-020077",
+      "frames_written": 55
+    },
+    {
+      "split": "train",
+      "dataset_split": "train",
+      "video_id": "Mouse1242_20190105_21-03-23_021428-022924",
+      "labeled_folder": "train_Mouse1242_20190105_21-03-23_021428-022924",
+      "frames_written": 91
+    },
+    {
+      "split": "train",
+      "dataset_split": "train",
+      "video_id": "Mouse1242_20190105_21-03-23_023686-027242",
+      "labeled_folder": "train_Mouse1242_20190105_21-03-23_023686-027242",
+      "frames_written": 94
+    },
+    {
+      "split": "train",
+      "dataset_split": "train",
+      "video_id": "Mouse1242_20190105_21-03-23_028160-030235",
+      "labeled_folder": "train_Mouse1242_20190105_21-03-23_028160-030235",
+      "frames_written": 176
+    },
+    {
+      "split": "train",
+      "dataset_split": "train",
+      "video_id": "Mouse1243_20190102_16-35-49_006212-012541",
+      "labeled_folder": "train_Mouse1243_20190102_16-35-49_006212-012541",
+      "frames_written": 135
+    },
+    {
+      "split": "train",
+      "dataset_split": "train",
+      "video_id": "Mouse1243_20190102_16-35-49_013317-016369",
+      "labeled_folder": "train_Mouse1243_20190102_16-35-49_013317-016369",
+      "frames_written": 165
+    },
+    {
+      "split": "train",
+      "dataset_split": "train",
+      "video_id": "Mouse1243_20190102_16-35-49_022569-027993",
+      "labeled_folder": "train_Mouse1243_20190102_16-35-49_022569-027993",
+      "frames_written": 41
+    },
+    {
+      "split": "train",
+      "dataset_split": "train",
+      "video_id": "Mouse1243_20190102_16-35-49_029183-029758",
+      "labeled_folder": "train_Mouse1243_20190102_16-35-49_029183-029758",
+      "frames_written": 55
+    },
+    {
+      "split": "train",
+      "dataset_split": "train",
+      "video_id": "Mouse1243_20190102_16-35-49_033096-038787",
+      "labeled_folder": "train_Mouse1243_20190102_16-35-49_033096-038787",
+      "frames_written": 28
+    },
+    {
+      "split": "train",
+      "dataset_split": "train",
+      "video_id": "Mouse204_20170224_18-07-32_006250-012196",
+      "labeled_folder": "train_Mouse204_20170224_18-07-32_006250-012196",
+      "frames_written": 88
+    },
+    {
+      "split": "train",
+      "dataset_split": "train",
+      "video_id": "Mouse204_20170224_18-07-32_013375-018581",
+      "labeled_folder": "train_Mouse204_20170224_18-07-32_013375-018581",
+      "frames_written": 74
+    },
+    {
+      "split": "train",
+      "dataset_split": "train",
+      "video_id": "Mouse204_20170224_18-07-32_019350-023797",
+      "labeled_folder": "train_Mouse204_20170224_18-07-32_019350-023797",
+      "frames_written": 74
+    },
+    {
+      "split": "train",
+      "dataset_split": "train",
+      "video_id": "Mouse204_20170224_18-07-32_033675-047296",
+      "labeled_folder": "train_Mouse204_20170224_18-07-32_033675-047296",
+      "frames_written": 99
+    },
+    {
+      "split": "train",
+      "dataset_split": "train",
+      "video_id": "Mouse204_20170224_18-07-32_048064-055665",
+      "labeled_folder": "train_Mouse204_20170224_18-07-32_048064-055665",
+      "frames_written": 338
+    },
+    {
+      "split": "train",
+      "dataset_split": "train",
+      "video_id": "Mouse204_20170224_18-07-32_065425-073288",
+      "labeled_folder": "train_Mouse204_20170224_18-07-32_065425-073288",
+      "frames_written": 169
+    },
+    {
+      "split": "train",
+      "dataset_split": "train",
+      "video_id": "Mouse519_20180415_22-57-26_11985-17769",
+      "labeled_folder": "train_Mouse519_20180415_22-57-26_11985-17769",
+      "frames_written": 178
+    },
+    {
+      "split": "train",
+      "dataset_split": "train",
+      "video_id": "Mouse519_20180415_22-57-26_18324-23261",
+      "labeled_folder": "train_Mouse519_20180415_22-57-26_18324-23261",
+      "frames_written": 112
+    },
+    {
+      "split": "train",
+      "dataset_split": "train",
+      "video_id": "Mouse519_20180415_22-57-26_25523-29905",
+      "labeled_folder": "train_Mouse519_20180415_22-57-26_25523-29905",
+      "frames_written": 154
+    },
+    {
+      "split": "train",
+      "dataset_split": "train",
+      "video_id": "Mouse626_20181018_18-54-39_01991-10997",
+      "labeled_folder": "train_Mouse626_20181018_18-54-39_01991-10997",
+      "frames_written": 148
+    },
+    {
+      "split": "train",
+      "dataset_split": "train",
+      "video_id": "Mouse626_20181018_18-54-39_11701-17993",
+      "labeled_folder": "train_Mouse626_20181018_18-54-39_11701-17993",
+      "frames_written": 91
+    },
+    {
+      "split": "train",
+      "dataset_split": "train",
+      "video_id": "Mouse626_20181018_19-20-28_01546-26157",
+      "labeled_folder": "train_Mouse626_20181018_19-20-28_01546-26157",
+      "frames_written": 1317
+    },
+    {
+      "split": "train",
+      "dataset_split": "train",
+      "video_id": "Mouse629_20181025_17-20-00_02297-30084",
+      "labeled_folder": "train_Mouse629_20181025_17-20-00_02297-30084",
+      "frames_written": 730
+    },
+    {
+      "split": "train",
+      "dataset_split": "train",
+      "video_id": "Mouse631_20181002_18-18-01_01656-09795",
+      "labeled_folder": "train_Mouse631_20181002_18-18-01_01656-09795",
+      "frames_written": 173
+    },
+    {
+      "split": "train",
+      "dataset_split": "train",
+      "video_id": "Mouse631_20181002_18-18-01_10583-14955",
+      "labeled_folder": "train_Mouse631_20181002_18-18-01_10583-14955",
+      "frames_written": 296
+    },
+    {
+      "split": "train",
+      "dataset_split": "train",
+      "video_id": "Mouse631_20181025_20-40-42_02227-08176",
+      "labeled_folder": "train_Mouse631_20181025_20-40-42_02227-08176",
+      "frames_written": 320
+    },
+    {
+      "split": "train",
+      "dataset_split": "train",
+      "video_id": "Mouse631_20181025_20-40-42_08889-13029",
+      "labeled_folder": "train_Mouse631_20181025_20-40-42_08889-13029",
+      "frames_written": 213
+    },
+    {
+      "split": "train",
+      "dataset_split": "train",
+      "video_id": "Mouse634_20181028_20-55-52_09018-30959",
+      "labeled_folder": "train_Mouse634_20181028_20-55-52_09018-30959",
+      "frames_written": 678
+    },
+    {
+      "split": "train",
+      "dataset_split": "train",
+      "video_id": "Mouse634_20181028_22-16-56_27907-44055",
+      "labeled_folder": "train_Mouse634_20181028_22-16-56_27907-44055",
+      "frames_written": 163
+    },
+    {
+      "split": "validation",
+      "dataset_split": "train",
+      "video_id": "Mouse1210_20181105_21-16-19_001378-007475",
+      "labeled_folder": "train_Mouse1210_20181105_21-16-19_001378-007475",
+      "frames_written": 105
+    },
+    {
+      "split": "validation",
+      "dataset_split": "train",
+      "video_id": "Mouse1213_20181105_19-32-25_005196-014263",
+      "labeled_folder": "train_Mouse1213_20181105_19-32-25_005196-014263",
+      "frames_written": 136
+    },
+    {
+      "split": "validation",
+      "dataset_split": "train",
+      "video_id": "Mouse1213_20181105_19-32-25_042676-052204",
+      "labeled_folder": "train_Mouse1213_20181105_19-32-25_042676-052204",
+      "frames_written": 104
+    },
+    {
+      "split": "validation",
+      "dataset_split": "train",
+      "video_id": "Mouse1213_20181105_19-32-25_064981-071731",
+      "labeled_folder": "train_Mouse1213_20181105_19-32-25_064981-071731",
+      "frames_written": 61
+    },
+    {
+      "split": "validation",
+      "dataset_split": "train",
+      "video_id": "Mouse1242_20190105_21-03-23_005405-009943",
+      "labeled_folder": "train_Mouse1242_20190105_21-03-23_005405-009943",
+      "frames_written": 281
+    },
+    {
+      "split": "validation",
+      "dataset_split": "train",
+      "video_id": "Mouse1242_20190105_21-03-23_031352-036978",
+      "labeled_folder": "train_Mouse1242_20190105_21-03-23_031352-036978",
+      "frames_written": 203
+    },
+    {
+      "split": "validation",
+      "dataset_split": "train",
+      "video_id": "Mouse1243_20190102_16-35-49_018434-020102",
+      "labeled_folder": "train_Mouse1243_20190102_16-35-49_018434-020102",
+      "frames_written": 198
+    },
+    {
+      "split": "validation",
+      "dataset_split": "train",
+      "video_id": "Mouse1243_20190102_16-35-49_039329-042646",
+      "labeled_folder": "train_Mouse1243_20190102_16-35-49_039329-042646",
+      "frames_written": 72
+    },
+    {
+      "split": "validation",
+      "dataset_split": "train",
+      "video_id": "Mouse1254_20190203_19-38-41_005732-009406",
+      "labeled_folder": "train_Mouse1254_20190203_19-38-41_005732-009406",
+      "frames_written": 130
+    },
+    {
+      "split": "validation",
+      "dataset_split": "train",
+      "video_id": "Mouse1254_20190203_19-38-41_010888-014159",
+      "labeled_folder": "train_Mouse1254_20190203_19-38-41_010888-014159",
+      "frames_written": 96
+    },
+    {
+      "split": "validation",
+      "dataset_split": "train",
+      "video_id": "Mouse1254_20190203_19-38-41_014330-016290",
+      "labeled_folder": "train_Mouse1254_20190203_19-38-41_014330-016290",
+      "frames_written": 142
+    },
+    {
+      "split": "validation",
+      "dataset_split": "train",
+      "video_id": "Mouse1254_20190203_19-38-41_017650-021478",
+      "labeled_folder": "train_Mouse1254_20190203_19-38-41_017650-021478",
+      "frames_written": 60
+    },
+    {
+      "split": "validation",
+      "dataset_split": "train",
+      "video_id": "Mouse1254_20190203_19-38-41_022438-023908",
+      "labeled_folder": "train_Mouse1254_20190203_19-38-41_022438-023908",
+      "frames_written": 55
+    },
+    {
+      "split": "validation",
+      "dataset_split": "train",
+      "video_id": "Mouse1254_20190203_19-38-41_024787-028705",
+      "labeled_folder": "train_Mouse1254_20190203_19-38-41_024787-028705",
+      "frames_written": 110
+    },
+    {
+      "split": "validation",
+      "dataset_split": "train",
+      "video_id": "Mouse1254_20190203_19-38-41_029787-032990",
+      "labeled_folder": "train_Mouse1254_20190203_19-38-41_029787-032990",
+      "frames_written": 244
+    },
+    {
+      "split": "validation",
+      "dataset_split": "train",
+      "video_id": "Mouse1254_20190205_14-58-15_005858-011659",
+      "labeled_folder": "train_Mouse1254_20190205_14-58-15_005858-011659",
+      "frames_written": 312
+    },
+    {
+      "split": "validation",
+      "dataset_split": "train",
+      "video_id": "Mouse1254_20190205_14-58-15_012691-015996",
+      "labeled_folder": "train_Mouse1254_20190205_14-58-15_012691-015996",
+      "frames_written": 181
+    },
+    {
+      "split": "validation",
+      "dataset_split": "train",
+      "video_id": "Mouse1254_20190205_14-58-15_016923-018587",
+      "labeled_folder": "train_Mouse1254_20190205_14-58-15_016923-018587",
+      "frames_written": 124
+    },
+    {
+      "split": "validation",
+      "dataset_split": "train",
+      "video_id": "Mouse1254_20190205_14-58-15_020117-023619",
+      "labeled_folder": "train_Mouse1254_20190205_14-58-15_020117-023619",
+      "frames_written": 100
+    },
+    {
+      "split": "validation",
+      "dataset_split": "train",
+      "video_id": "Mouse1254_20190205_14-58-15_024894-026692",
+      "labeled_folder": "train_Mouse1254_20190205_14-58-15_024894-026692",
+      "frames_written": 195
+    },
+    {
+      "split": "validation",
+      "dataset_split": "train",
+      "video_id": "Mouse204_20170224_18-07-32_024650-032855",
+      "labeled_folder": "train_Mouse204_20170224_18-07-32_024650-032855",
+      "frames_written": 131
+    },
+    {
+      "split": "validation",
+      "dataset_split": "train",
+      "video_id": "Mouse204_20170224_18-07-32_056260-064814",
+      "labeled_folder": "train_Mouse204_20170224_18-07-32_056260-064814",
+      "frames_written": 61
+    },
+    {
+      "split": "validation",
+      "dataset_split": "train",
+      "video_id": "Mouse206_20170216_22-29-43_001005_008075",
+      "labeled_folder": "train_Mouse206_20170216_22-29-43_001005_008075",
+      "frames_written": 41
+    },
+    {
+      "split": "validation",
+      "dataset_split": "train",
+      "video_id": "Mouse206_20170224_19-58-42_027309_037147",
+      "labeled_folder": "train_Mouse206_20170224_19-58-42_027309_037147",
+      "frames_written": 145
+    },
+    {
+      "split": "train",
+      "dataset_split": "val",
+      "video_id": "Mouse-Esr1-cre#6_20180808_15-47-18_00536-18624",
+      "labeled_folder": "val_Mouse-Esr1-cre_6_20180808_15-47-18_00536-18624",
+      "frames_written": 142
+    },
+    {
+      "split": "train",
+      "dataset_split": "val",
+      "video_id": "Mouse-Esr1-cre#6_20180810_14-41-50_00694-27215",
+      "labeled_folder": "val_Mouse-Esr1-cre_6_20180810_14-41-50_00694-27215",
+      "frames_written": 221
+    },
+    {
+      "split": "train",
+      "dataset_split": "val",
+      "video_id": "Mouse-Inter#2_20180629_11-29-14_00903-36725",
+      "labeled_folder": "val_Mouse-Inter_2_20180629_11-29-14_00903-36725",
+      "frames_written": 73
+    },
+    {
+      "split": "train",
+      "dataset_split": "val",
+      "video_id": "Mouse-Inter#3_20180629_11-58-11_01202-18127",
+      "labeled_folder": "val_Mouse-Inter_3_20180629_11-58-11_01202-18127",
+      "frames_written": 194
+    },
+    {
+      "split": "train",
+      "dataset_split": "val",
+      "video_id": "Mouse-Inter#5_20180628_11-59-11_00292-36345",
+      "labeled_folder": "val_Mouse-Inter_5_20180628_11-59-11_00292-36345",
+      "frames_written": 171
+    },
+    {
+      "split": "train",
+      "dataset_split": "val",
+      "video_id": "Mouse-Inter#8_20180628_13-14-30_00743-18190",
+      "labeled_folder": "val_Mouse-Inter_8_20180628_13-14-30_00743-18190",
+      "frames_written": 218
+    },
+    {
+      "split": "train",
+      "dataset_split": "val",
+      "video_id": "Mouse-Inter#9_20180627_17-36-18_01128-36446",
+      "labeled_folder": "val_Mouse-Inter_9_20180627_17-36-18_01128-36446",
+      "frames_written": 324
+    },
+    {
+      "split": "train",
+      "dataset_split": "val",
+      "video_id": "Mouse1210_20181105_20-43-27_004405-018154",
+      "labeled_folder": "val_Mouse1210_20181105_20-43-27_004405-018154",
+      "frames_written": 89
+    },
+    {
+      "split": "train",
+      "dataset_split": "val",
+      "video_id": "Mouse1210_20181105_20-43-27_019196-027274",
+      "labeled_folder": "val_Mouse1210_20181105_20-43-27_019196-027274",
+      "frames_written": 33
+    },
+    {
+      "split": "train",
+      "dataset_split": "val",
+      "video_id": "Mouse1210_20181105_21-16-19_008114-011655",
+      "labeled_folder": "val_Mouse1210_20181105_21-16-19_008114-011655",
+      "frames_written": 58
+    },
+    {
+      "split": "train",
+      "dataset_split": "val",
+      "video_id": "Mouse1210_20181105_21-16-19_012514-023004",
+      "labeled_folder": "val_Mouse1210_20181105_21-16-19_012514-023004",
+      "frames_written": 59
+    },
+    {
+      "split": "train",
+      "dataset_split": "val",
+      "video_id": "Mouse1210_20181105_21-16-19_024198-036120",
+      "labeled_folder": "val_Mouse1210_20181105_21-16-19_024198-036120",
+      "frames_written": 84
+    },
+    {
+      "split": "train",
+      "dataset_split": "val",
+      "video_id": "Mouse1213_20181105_19-32-25_014350-023687",
+      "labeled_folder": "val_Mouse1213_20181105_19-32-25_014350-023687",
+      "frames_written": 43
+    },
+    {
+      "split": "train",
+      "dataset_split": "val",
+      "video_id": "Mouse1213_20181105_19-32-25_023783-028728",
+      "labeled_folder": "val_Mouse1213_20181105_19-32-25_023783-028728",
+      "frames_written": 22
+    },
+    {
+      "split": "train",
+      "dataset_split": "val",
+      "video_id": "Mouse1213_20181105_19-32-25_028814-036561",
+      "labeled_folder": "val_Mouse1213_20181105_19-32-25_028814-036561",
+      "frames_written": 28
+    },
+    {
+      "split": "train",
+      "dataset_split": "val",
+      "video_id": "Mouse1213_20181105_19-32-25_039831-042569",
+      "labeled_folder": "val_Mouse1213_20181105_19-32-25_039831-042569",
+      "frames_written": 8
+    },
+    {
+      "split": "train",
+      "dataset_split": "val",
+      "video_id": "Mouse1213_20181105_19-32-25_052371-060352",
+      "labeled_folder": "val_Mouse1213_20181105_19-32-25_052371-060352",
+      "frames_written": 20
+    },
+    {
+      "split": "train",
+      "dataset_split": "val",
+      "video_id": "Mouse1213_20181105_19-32-25_060513-064760",
+      "labeled_folder": "val_Mouse1213_20181105_19-32-25_060513-064760",
+      "frames_written": 16
+    },
+    {
+      "split": "train",
+      "dataset_split": "val",
+      "video_id": "Mouse1213_20181105_20-12-56_000640-007367",
+      "labeled_folder": "val_Mouse1213_20181105_20-12-56_000640-007367",
+      "frames_written": 36
+    },
+    {
+      "split": "train",
+      "dataset_split": "val",
+      "video_id": "Mouse1213_20181105_20-12-56_007452-012449",
+      "labeled_folder": "val_Mouse1213_20181105_20-12-56_007452-012449",
+      "frames_written": 6
+    },
+    {
+      "split": "train",
+      "dataset_split": "val",
+      "video_id": "Mouse1213_20181105_20-12-56_012550-016760",
+      "labeled_folder": "val_Mouse1213_20181105_20-12-56_012550-016760",
+      "frames_written": 2
+    },
+    {
+      "split": "train",
+      "dataset_split": "val",
+      "video_id": "Mouse1213_20181105_20-12-56_016823-028759",
+      "labeled_folder": "val_Mouse1213_20181105_20-12-56_016823-028759",
+      "frames_written": 44
+    },
+    {
+      "split": "train",
+      "dataset_split": "val",
+      "video_id": "Mouse1213_20181105_20-12-56_028845-039252",
+      "labeled_folder": "val_Mouse1213_20181105_20-12-56_028845-039252",
+      "frames_written": 30
+    },
+    {
+      "split": "train",
+      "dataset_split": "val",
+      "video_id": "Mouse1213_20181105_20-12-56_039362-041753",
+      "labeled_folder": "val_Mouse1213_20181105_20-12-56_039362-041753",
+      "frames_written": 19
+    },
+    {
+      "split": "train",
+      "dataset_split": "val",
+      "video_id": "Mouse1213_20181105_20-12-56_041843-051307",
+      "labeled_folder": "val_Mouse1213_20181105_20-12-56_041843-051307",
+      "frames_written": 43
+    },
+    {
+      "split": "train",
+      "dataset_split": "val",
+      "video_id": "Mouse1242_20190105_21-03-23_012212-016346",
+      "labeled_folder": "val_Mouse1242_20190105_21-03-23_012212-016346",
+      "frames_written": 38
+    },
+    {
+      "split": "train",
+      "dataset_split": "val",
+      "video_id": "Mouse1242_20190105_21-03-23_017630-020077",
+      "labeled_folder": "val_Mouse1242_20190105_21-03-23_017630-020077",
+      "frames_written": 10
+    },
+    {
+      "split": "train",
+      "dataset_split": "val",
+      "video_id": "Mouse1242_20190105_21-03-23_021428-022924",
+      "labeled_folder": "val_Mouse1242_20190105_21-03-23_021428-022924",
+      "frames_written": 20
+    },
+    {
+      "split": "train",
+      "dataset_split": "val",
+      "video_id": "Mouse1242_20190105_21-03-23_023686-027242",
+      "labeled_folder": "val_Mouse1242_20190105_21-03-23_023686-027242",
+      "frames_written": 28
+    },
+    {
+      "split": "train",
+      "dataset_split": "val",
+      "video_id": "Mouse1242_20190105_21-03-23_028160-030235",
+      "labeled_folder": "val_Mouse1242_20190105_21-03-23_028160-030235",
+      "frames_written": 50
+    },
+    {
+      "split": "train",
+      "dataset_split": "val",
+      "video_id": "Mouse1243_20190102_16-35-49_006212-012541",
+      "labeled_folder": "val_Mouse1243_20190102_16-35-49_006212-012541",
+      "frames_written": 38
+    },
+    {
+      "split": "train",
+      "dataset_split": "val",
+      "video_id": "Mouse1243_20190102_16-35-49_013317-016369",
+      "labeled_folder": "val_Mouse1243_20190102_16-35-49_013317-016369",
+      "frames_written": 40
+    },
+    {
+      "split": "train",
+      "dataset_split": "val",
+      "video_id": "Mouse1243_20190102_16-35-49_022569-027993",
+      "labeled_folder": "val_Mouse1243_20190102_16-35-49_022569-027993",
+      "frames_written": 9
+    },
+    {
+      "split": "train",
+      "dataset_split": "val",
+      "video_id": "Mouse1243_20190102_16-35-49_029183-029758",
+      "labeled_folder": "val_Mouse1243_20190102_16-35-49_029183-029758",
+      "frames_written": 13
+    },
+    {
+      "split": "train",
+      "dataset_split": "val",
+      "video_id": "Mouse1243_20190102_16-35-49_033096-038787",
+      "labeled_folder": "val_Mouse1243_20190102_16-35-49_033096-038787",
+      "frames_written": 6
+    },
+    {
+      "split": "train",
+      "dataset_split": "val",
+      "video_id": "Mouse204_20170224_18-07-32_006250-012196",
+      "labeled_folder": "val_Mouse204_20170224_18-07-32_006250-012196",
+      "frames_written": 26
+    },
+    {
+      "split": "train",
+      "dataset_split": "val",
+      "video_id": "Mouse204_20170224_18-07-32_013375-018581",
+      "labeled_folder": "val_Mouse204_20170224_18-07-32_013375-018581",
+      "frames_written": 21
+    },
+    {
+      "split": "train",
+      "dataset_split": "val",
+      "video_id": "Mouse204_20170224_18-07-32_019350-023797",
+      "labeled_folder": "val_Mouse204_20170224_18-07-32_019350-023797",
+      "frames_written": 15
+    },
+    {
+      "split": "train",
+      "dataset_split": "val",
+      "video_id": "Mouse204_20170224_18-07-32_033675-047296",
+      "labeled_folder": "val_Mouse204_20170224_18-07-32_033675-047296",
+      "frames_written": 22
+    },
+    {
+      "split": "train",
+      "dataset_split": "val",
+      "video_id": "Mouse204_20170224_18-07-32_048064-055665",
+      "labeled_folder": "val_Mouse204_20170224_18-07-32_048064-055665",
+      "frames_written": 97
+    },
+    {
+      "split": "train",
+      "dataset_split": "val",
+      "video_id": "Mouse204_20170224_18-07-32_065425-073288",
+      "labeled_folder": "val_Mouse204_20170224_18-07-32_065425-073288",
+      "frames_written": 27
+    },
+    {
+      "split": "train",
+      "dataset_split": "val",
+      "video_id": "Mouse519_20180415_22-57-26_11985-17769",
+      "labeled_folder": "val_Mouse519_20180415_22-57-26_11985-17769",
+      "frames_written": 40
+    },
+    {
+      "split": "train",
+      "dataset_split": "val",
+      "video_id": "Mouse519_20180415_22-57-26_18324-23261",
+      "labeled_folder": "val_Mouse519_20180415_22-57-26_18324-23261",
+      "frames_written": 30
+    },
+    {
+      "split": "train",
+      "dataset_split": "val",
+      "video_id": "Mouse519_20180415_22-57-26_25523-29905",
+      "labeled_folder": "val_Mouse519_20180415_22-57-26_25523-29905",
+      "frames_written": 40
+    },
+    {
+      "split": "train",
+      "dataset_split": "val",
+      "video_id": "Mouse626_20181018_18-54-39_01991-10997",
+      "labeled_folder": "val_Mouse626_20181018_18-54-39_01991-10997",
+      "frames_written": 30
+    },
+    {
+      "split": "train",
+      "dataset_split": "val",
+      "video_id": "Mouse626_20181018_18-54-39_11701-17993",
+      "labeled_folder": "val_Mouse626_20181018_18-54-39_11701-17993",
+      "frames_written": 23
+    },
+    {
+      "split": "train",
+      "dataset_split": "val",
+      "video_id": "Mouse626_20181018_19-20-28_01546-26157",
+      "labeled_folder": "val_Mouse626_20181018_19-20-28_01546-26157",
+      "frames_written": 342
+    },
+    {
+      "split": "train",
+      "dataset_split": "val",
+      "video_id": "Mouse629_20181025_17-20-00_02297-30084",
+      "labeled_folder": "val_Mouse629_20181025_17-20-00_02297-30084",
+      "frames_written": 179
+    },
+    {
+      "split": "train",
+      "dataset_split": "val",
+      "video_id": "Mouse631_20181002_18-18-01_01656-09795",
+      "labeled_folder": "val_Mouse631_20181002_18-18-01_01656-09795",
+      "frames_written": 40
+    },
+    {
+      "split": "train",
+      "dataset_split": "val",
+      "video_id": "Mouse631_20181002_18-18-01_10583-14955",
+      "labeled_folder": "val_Mouse631_20181002_18-18-01_10583-14955",
+      "frames_written": 68
+    },
+    {
+      "split": "train",
+      "dataset_split": "val",
+      "video_id": "Mouse631_20181025_20-40-42_02227-08176",
+      "labeled_folder": "val_Mouse631_20181025_20-40-42_02227-08176",
+      "frames_written": 93
+    },
+    {
+      "split": "train",
+      "dataset_split": "val",
+      "video_id": "Mouse631_20181025_20-40-42_08889-13029",
+      "labeled_folder": "val_Mouse631_20181025_20-40-42_08889-13029",
+      "frames_written": 52
+    },
+    {
+      "split": "train",
+      "dataset_split": "val",
+      "video_id": "Mouse634_20181028_20-55-52_09018-30959",
+      "labeled_folder": "val_Mouse634_20181028_20-55-52_09018-30959",
+      "frames_written": 158
+    },
+    {
+      "split": "train",
+      "dataset_split": "val",
+      "video_id": "Mouse634_20181028_22-16-56_27907-44055",
+      "labeled_folder": "val_Mouse634_20181028_22-16-56_27907-44055",
+      "frames_written": 55
+    },
+    {
+      "split": "validation",
+      "dataset_split": "val",
+      "video_id": "Mouse1210_20181105_21-16-19_001378-007475",
+      "labeled_folder": "val_Mouse1210_20181105_21-16-19_001378-007475",
+      "frames_written": 25
+    },
+    {
+      "split": "validation",
+      "dataset_split": "val",
+      "video_id": "Mouse1213_20181105_19-32-25_005196-014263",
+      "labeled_folder": "val_Mouse1213_20181105_19-32-25_005196-014263",
+      "frames_written": 29
+    },
+    {
+      "split": "validation",
+      "dataset_split": "val",
+      "video_id": "Mouse1213_20181105_19-32-25_042676-052204",
+      "labeled_folder": "val_Mouse1213_20181105_19-32-25_042676-052204",
+      "frames_written": 28
+    },
+    {
+      "split": "validation",
+      "dataset_split": "val",
+      "video_id": "Mouse1213_20181105_19-32-25_064981-071731",
+      "labeled_folder": "val_Mouse1213_20181105_19-32-25_064981-071731",
+      "frames_written": 23
+    },
+    {
+      "split": "validation",
+      "dataset_split": "val",
+      "video_id": "Mouse1242_20190105_21-03-23_005405-009943",
+      "labeled_folder": "val_Mouse1242_20190105_21-03-23_005405-009943",
+      "frames_written": 63
+    },
+    {
+      "split": "validation",
+      "dataset_split": "val",
+      "video_id": "Mouse1242_20190105_21-03-23_031352-036978",
+      "labeled_folder": "val_Mouse1242_20190105_21-03-23_031352-036978",
+      "frames_written": 51
+    },
+    {
+      "split": "validation",
+      "dataset_split": "val",
+      "video_id": "Mouse1243_20190102_16-35-49_018434-020102",
+      "labeled_folder": "val_Mouse1243_20190102_16-35-49_018434-020102",
+      "frames_written": 38
+    },
+    {
+      "split": "validation",
+      "dataset_split": "val",
+      "video_id": "Mouse1243_20190102_16-35-49_039329-042646",
+      "labeled_folder": "val_Mouse1243_20190102_16-35-49_039329-042646",
+      "frames_written": 18
+    },
+    {
+      "split": "validation",
+      "dataset_split": "val",
+      "video_id": "Mouse1254_20190203_19-38-41_005732-009406",
+      "labeled_folder": "val_Mouse1254_20190203_19-38-41_005732-009406",
+      "frames_written": 32
+    },
+    {
+      "split": "validation",
+      "dataset_split": "val",
+      "video_id": "Mouse1254_20190203_19-38-41_010888-014159",
+      "labeled_folder": "val_Mouse1254_20190203_19-38-41_010888-014159",
+      "frames_written": 21
+    },
+    {
+      "split": "validation",
+      "dataset_split": "val",
+      "video_id": "Mouse1254_20190203_19-38-41_014330-016290",
+      "labeled_folder": "val_Mouse1254_20190203_19-38-41_014330-016290",
+      "frames_written": 35
+    },
+    {
+      "split": "validation",
+      "dataset_split": "val",
+      "video_id": "Mouse1254_20190203_19-38-41_017650-021478",
+      "labeled_folder": "val_Mouse1254_20190203_19-38-41_017650-021478",
+      "frames_written": 16
+    },
+    {
+      "split": "validation",
+      "dataset_split": "val",
+      "video_id": "Mouse1254_20190203_19-38-41_022438-023908",
+      "labeled_folder": "val_Mouse1254_20190203_19-38-41_022438-023908",
+      "frames_written": 12
+    },
+    {
+      "split": "validation",
+      "dataset_split": "val",
+      "video_id": "Mouse1254_20190203_19-38-41_024787-028705",
+      "labeled_folder": "val_Mouse1254_20190203_19-38-41_024787-028705",
+      "frames_written": 26
+    },
+    {
+      "split": "validation",
+      "dataset_split": "val",
+      "video_id": "Mouse1254_20190203_19-38-41_029787-032990",
+      "labeled_folder": "val_Mouse1254_20190203_19-38-41_029787-032990",
+      "frames_written": 55
+    },
+    {
+      "split": "validation",
+      "dataset_split": "val",
+      "video_id": "Mouse1254_20190205_14-58-15_005858-011659",
+      "labeled_folder": "val_Mouse1254_20190205_14-58-15_005858-011659",
+      "frames_written": 66
+    },
+    {
+      "split": "validation",
+      "dataset_split": "val",
+      "video_id": "Mouse1254_20190205_14-58-15_012691-015996",
+      "labeled_folder": "val_Mouse1254_20190205_14-58-15_012691-015996",
+      "frames_written": 31
+    },
+    {
+      "split": "validation",
+      "dataset_split": "val",
+      "video_id": "Mouse1254_20190205_14-58-15_016923-018587",
+      "labeled_folder": "val_Mouse1254_20190205_14-58-15_016923-018587",
+      "frames_written": 25
+    },
+    {
+      "split": "validation",
+      "dataset_split": "val",
+      "video_id": "Mouse1254_20190205_14-58-15_020117-023619",
+      "labeled_folder": "val_Mouse1254_20190205_14-58-15_020117-023619",
+      "frames_written": 28
+    },
+    {
+      "split": "validation",
+      "dataset_split": "val",
+      "video_id": "Mouse1254_20190205_14-58-15_024894-026692",
+      "labeled_folder": "val_Mouse1254_20190205_14-58-15_024894-026692",
+      "frames_written": 38
+    },
+    {
+      "split": "validation",
+      "dataset_split": "val",
+      "video_id": "Mouse204_20170224_18-07-32_024650-032855",
+      "labeled_folder": "val_Mouse204_20170224_18-07-32_024650-032855",
+      "frames_written": 30
+    },
+    {
+      "split": "validation",
+      "dataset_split": "val",
+      "video_id": "Mouse204_20170224_18-07-32_056260-064814",
+      "labeled_folder": "val_Mouse204_20170224_18-07-32_056260-064814",
+      "frames_written": 9
+    },
+    {
+      "split": "validation",
+      "dataset_split": "val",
+      "video_id": "Mouse206_20170216_22-29-43_001005_008075",
+      "labeled_folder": "val_Mouse206_20170216_22-29-43_001005_008075",
+      "frames_written": 17
+    },
+    {
+      "split": "validation",
+      "dataset_split": "val",
+      "video_id": "Mouse206_20170224_19-58-42_027309_037147",
+      "labeled_folder": "val_Mouse206_20170224_19-58-42_027309_037147",
+      "frames_written": 39
+    }
+  ]
+}

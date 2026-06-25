@@ -1,0 +1,47 @@
+{
+  "analysis": "MARS YOLO/SPPF ablation and YOLO/SPPF classical baselines",
+  "dataset": "MARS resident-intruder",
+  "pose_backbone": "MARS YOLO26n-pose checkpoint",
+  "feature_tap": "YOLO/SPPF layer-9 output, 256 dimensions per crop after global average pooling",
+  "temporal_sequence_classifiers": {
+    "heads": ["lstm", "attention"],
+    "hidden_dims": [256, 512, 896],
+    "streams": [
+      "animal_visual_only",
+      "pose_relations_only",
+      "visual_only",
+      "no_group_visual",
+      "no_relations",
+      "full"
+    ],
+    "seeds": [42, 43, 44],
+    "window_size": 32,
+    "window_stride": 16,
+    "class_weighting": "sqrt_inverse",
+    "class_weight_clamp": 1.5,
+    "train_sampler": "weighted",
+    "tcn": "excluded from final manuscript comparison"
+  },
+  "classical_baselines": {
+    "included": true,
+    "visual_backend": "yolo_sppf",
+    "models": ["Random Forest", "XGBoost"],
+    "feature_sets": [
+      "pose_frame",
+      "pose_window",
+      "pose_visual_frame_pca",
+      "pose_visual_window_pca"
+    ],
+    "visual_pca_dim_per_frame": 64,
+    "seeds": [42, 43, 44]
+  },
+  "cache_rebuild": {
+    "flag": "--rebuild_npz",
+    "training_npz": "outputs/npz_cache/mars_full_video",
+    "training_yolo_sppf_cache": "outputs/npz_cache/mars_full_video/yolo_feature_cache",
+    "heldout_npz": "outputs/npz_cache/mars_heldout_eval",
+    "heldout_yolo_sppf_cache": "outputs/eval_feature_cache/mars_stride16",
+    "heldout_split_policy": "Build MARS test_1/test_2 through the NPZ builder train/val slots while retaining mars_split for evaluation."
+  },
+  "heldout_units": "30 full MARS videos from test_1 and test_2"
+}

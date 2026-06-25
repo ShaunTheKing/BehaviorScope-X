@@ -1,0 +1,26 @@
+[
+  {
+    "sample_id": "investigation_Mouse059_20160526_17-54-59_f000000",
+    "label": 1,
+    "class_name": "investigation",
+    "source_video": "Mouse059_20160526_17-54-59",
+    "start_frame": 0,
+    "end_frame": 31,
+    "fps": 30.0,
+    "dataset_split": "val",
+    "mars_split": "validation",
+    "sequence_npz": "G:\\BehaviorScope_Y_final_runs\\outputs\\npz_cache\\mars_full_video\\sequence_npz\\investigation\\Mouse059_20160526_17-54-59_f000000.npz"
+  },
+  {
+    "sample_id": "investigation_Mouse059_20160526_17-54-59_f000016",
+    "label": 1,
+    "class_name": "investigation",
+    "source_video": "Mouse059_20160526_17-54-59",
+    "start_frame": 16,
+    "end_frame": 47,
+    "fps": 30.0,
+    "dataset_split": "val",
+    "mars_split": "validation",
+    "sequence_npz": "G:\\BehaviorScope_Y_final_runs\\outputs\\npz_cache\\mars_full_video\\sequence_npz\\investigation\\Mouse059_20160526_17-54-59_f000016.npz"
+  }
+]

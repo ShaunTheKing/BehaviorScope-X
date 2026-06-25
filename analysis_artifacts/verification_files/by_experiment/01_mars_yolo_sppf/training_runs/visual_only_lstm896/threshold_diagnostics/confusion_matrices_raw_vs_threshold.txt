@@ -1,0 +1,29 @@
+=== raw argmax ===
+Confusion matrix (rows=true, cols=pred) — counts:
+                        attack  investigation          mount          other
+         attack            177            122              6             24
+  investigation            129           4159            176            645
+          mount             35            190           1173             20
+          other             22            525             30           2646
+
+Confusion matrix — row-normalized (recall):
+                        attack  investigation          mount          other
+         attack          0.538          0.371          0.018          0.073
+  investigation          0.025          0.814          0.034          0.126
+          mount          0.025          0.134          0.827          0.014
+          other          0.007          0.163          0.009          0.821
+
+=== threshold decoded ===
+Confusion matrix (rows=true, cols=pred) — counts:
+                        attack  investigation          mount          other
+         attack            158            143              6             22
+  investigation             67           4437            178            427
+          mount             11            209           1179             19
+          other             13            656             30           2524
+
+Confusion matrix — row-normalized (recall):
+                        attack  investigation          mount          other
+         attack          0.480          0.435          0.018          0.067
+  investigation          0.013          0.868          0.035          0.084
+          mount          0.008          0.147          0.831          0.013
+          other          0.004          0.204          0.009          0.783

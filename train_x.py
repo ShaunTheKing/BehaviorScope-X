@@ -52,6 +52,7 @@ try:
         compute_class_weights,
         make_weighted_sampler,
         feature_cache_path,
+        feature_cache_candidate_paths,
     )
     from model_x import MultiAnimalBehaviorSequenceClassifier, inspect_yolo_keypoint_count
     from utils.pose_features_x import REL_FEATURE_DIM
@@ -75,6 +76,7 @@ except Exception:  # pragma: no cover
         compute_class_weights,
         make_weighted_sampler,
         feature_cache_path,
+        feature_cache_candidate_paths,
     )
     from .model_x import MultiAnimalBehaviorSequenceClassifier, inspect_yolo_keypoint_count
     from .utils.pose_features_x import REL_FEATURE_DIM
@@ -1251,7 +1253,8 @@ def _missing_feature_cache_count(cache_dir: Path, samples, max_examples: int = 3
     count = 0
     for sample in samples:
         target = feature_cache_path(cache_dir, sample)
-        if target.name not in cached_names:
+        candidates = feature_cache_candidate_paths(cache_dir, sample)
+        if not any(path.name in cached_names for path in candidates):
             count += 1
             if len(missing) < max_examples:
                 missing.append(str(target))

@@ -1,0 +1,15 @@
+{
+  "mode": "classifier_only_cached_heldout",
+  "manifest_path": "E:\\BehaviorScope-N\\MARS_DLC_SuperAnimal\\BehaviorScope_Y_minimal\\outputs\\npz_cache\\mars_full_video_dlc_topdown_heldout\\sequence_manifest.json",
+  "feature_cache_dir": "E:\\BehaviorScope-N\\MARS_DLC_SuperAnimal\\BehaviorScope_Y_minimal\\outputs\\npz_cache\\mars_dlc_topdown_hrnet_feature_cache_heldout",
+  "model_path": "C:\\Users\\Aegis-MSI\\Documents\\MARS_Dataset_Behavior\\MARS_DLC_SuperAnimal\\behaviorscope_outputs\\dlc_topdown_attention256_training\\mars_dlc_topdown_hrnet_attention256_seed42\\best_model_macro_f1.pt",
+  "n_windows": 11960,
+  "n_manifest_videos": 28,
+  "n_evaluated_videos": 28,
+  "n_gt_missing_or_excluded_videos": 0,
+  "n_failures": 0,
+  "n_blocking_failures": 0,
+  "threshold_decoder_disabled": true,
+  "threshold_decoder_enabled": false,
+  "elapsed_s": 70.883
+}

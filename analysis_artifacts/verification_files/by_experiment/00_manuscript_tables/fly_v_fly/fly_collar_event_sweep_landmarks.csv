@@ -1,0 +1,9 @@
+run,window,max_mean_macro_f1_in_sweep,fraction_of_sweep_max,first_collar_frames
+fly_yolo_sppf_full_attention256_w16s8_seed42,w16s8,0.34845466598112573,0.5,8
+fly_yolo_sppf_full_attention256_w16s8_seed42,w16s8,0.34845466598112573,0.75,12
+fly_yolo_sppf_full_attention256_w16s8_seed42,w16s8,0.34845466598112573,0.9,20
+fly_yolo_sppf_full_attention256_w16s8_seed42,w16s8,0.34845466598112573,0.95,25
+fly_yolo_sppf_full_attention256_w8s4_seed42,w8s4,0.4856546654264635,0.5,5
+fly_yolo_sppf_full_attention256_w8s4_seed42,w8s4,0.4856546654264635,0.75,9
+fly_yolo_sppf_full_attention256_w8s4_seed42,w8s4,0.4856546654264635,0.9,19
+fly_yolo_sppf_full_attention256_w8s4_seed42,w8s4,0.4856546654264635,0.95,24

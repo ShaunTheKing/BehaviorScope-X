@@ -1,0 +1,3 @@
+source,label_dir,label_files,detections,detections_with_any_keypoint_outside,detections_with_any_keypoint_outside_pct
+movie2_prediction_labels,F:\BehaviorScope-N\Fly_v_Fly_2021\Aggression\Aggression\movie2\predict-4\labels,54000,107945,104762,97.05127611283524
+original_yolo_validation_labels,F:\BehaviorScope-N\Fly_v_Fly_2021\fly_yolo_pose_30k\labels\val,4614,9218,8694,94.31546973313083

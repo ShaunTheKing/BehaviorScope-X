@@ -1,0 +1,11 @@
+﻿movie_id,split,n_frames,frame_count_source,fps,primary_actions_path,secondary_annotation_available,secondary_annotation_count,secondary_actions_paths,primary_priority_bouts_total,primary_priority_median_bout_frames,primary_priority_median_bout_seconds,lunge_bouts,lunge_median_frames,wing_threat_bouts,wing_threat_median_frames,charge_bouts,charge_median_frames,hold_bouts,hold_median_frames,tussle_bouts,tussle_median_frames
+1,train_or_validation,54000,mp4_frame_count,30.0,<RUN_ROOT>\Fly-v-Fly\Aggression\movie1\movie1_actions.mat,False,0,,69,4,0.133333,66,4.0,3,42,0,,0,,0,
+2,train_or_validation,54000,mp4_frame_count,30.0,<RUN_ROOT>\Fly-v-Fly\Aggression\movie2\movie2_actions.mat,False,0,,704,4.0,0.133333,538,4.0,59,8,30,1.5,60,5.0,17,5
+3,train_or_validation,54000,mp4_frame_count,30.0,<RUN_ROOT>\Fly-v-Fly\Aggression\movie3\movie3_actions.mat,False,0,,480,4.0,0.133333,410,4.0,32,12.0,11,1,4,16.0,23,8
+4,train_or_validation,54000,mp4_frame_count,30.0,<RUN_ROOT>\Fly-v-Fly\Aggression\movie4\movie4_actions.mat,False,0,,236,4.0,0.133333,172,4.0,31,30,13,2,8,9.0,12,16.0
+5,train_or_validation,54000,mp4_frame_count,30.0,<RUN_ROOT>\Fly-v-Fly\Aggression\movie5\movie5_actions.mat,False,0,,363,4,0.133333,285,4,12,12.0,3,1,9,10,54,7.0
+6,heldout,54000,mp4_frame_count,30.0,<RUN_ROOT>\Fly-v-Fly\Aggression\movie6\movie6_actions.mat,True,1,<RUN_ROOT>\Fly-v-Fly\Aggression\movie6\movie6_second_actions.mat,699,4,0.133333,580,4.0,29,9,12,2.0,21,11,57,10
+7,heldout,54000,mp4_frame_count,30.0,<RUN_ROOT>\Fly-v-Fly\Aggression\movie7\movie7_actions.mat,False,0,,424,4.0,0.133333,335,4,4,34.5,1,1,9,24,75,6
+8,heldout,54000,mp4_frame_count,30.0,<RUN_ROOT>\Fly-v-Fly\Aggression\movie8\movie8_actions.mat,False,0,,626,4.0,0.133333,478,4.0,99,13,37,1,9,11,3,9
+9,heldout,54000,mp4_frame_count,30.0,<RUN_ROOT>\Fly-v-Fly\Aggression\movie9\movie9_actions.mat,False,0,,64,4.0,0.133333,57,4,0,,0,,6,12.5,1,14
+10,heldout,54000,mp4_frame_count,30.0,<RUN_ROOT>\Fly-v-Fly\Aggression\movie10\movie10_actions.mat,False,0,,193,4,0.133333,140,4.0,22,17.5,7,1,5,29,19,8

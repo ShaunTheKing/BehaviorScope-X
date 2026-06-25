@@ -1,0 +1,51 @@
+movie_id,split,behavior,secondary_annotation_available,primary_frames,same_label_frames,same_label_pct,secondary_other_frames,secondary_other_pct,secondary_different_behavior_frames,secondary_different_behavior_pct,note
+1,train_or_validation,lunge,False,,,,,,,,no secondary annotation file found
+1,train_or_validation,wing_threat,False,,,,,,,,no secondary annotation file found
+1,train_or_validation,charge,False,,,,,,,,no secondary annotation file found
+1,train_or_validation,hold,False,,,,,,,,no secondary annotation file found
+1,train_or_validation,tussle,False,,,,,,,,no secondary annotation file found
+2,train_or_validation,lunge,False,,,,,,,,no secondary annotation file found
+2,train_or_validation,wing_threat,False,,,,,,,,no secondary annotation file found
+2,train_or_validation,charge,False,,,,,,,,no secondary annotation file found
+2,train_or_validation,hold,False,,,,,,,,no secondary annotation file found
+2,train_or_validation,tussle,False,,,,,,,,no secondary annotation file found
+3,train_or_validation,lunge,False,,,,,,,,no secondary annotation file found
+3,train_or_validation,wing_threat,False,,,,,,,,no secondary annotation file found
+3,train_or_validation,charge,False,,,,,,,,no secondary annotation file found
+3,train_or_validation,hold,False,,,,,,,,no secondary annotation file found
+3,train_or_validation,tussle,False,,,,,,,,no secondary annotation file found
+4,train_or_validation,lunge,False,,,,,,,,no secondary annotation file found
+4,train_or_validation,wing_threat,False,,,,,,,,no secondary annotation file found
+4,train_or_validation,charge,False,,,,,,,,no secondary annotation file found
+4,train_or_validation,hold,False,,,,,,,,no secondary annotation file found
+4,train_or_validation,tussle,False,,,,,,,,no secondary annotation file found
+5,train_or_validation,lunge,False,,,,,,,,no secondary annotation file found
+5,train_or_validation,wing_threat,False,,,,,,,,no secondary annotation file found
+5,train_or_validation,charge,False,,,,,,,,no secondary annotation file found
+5,train_or_validation,hold,False,,,,,,,,no secondary annotation file found
+5,train_or_validation,tussle,False,,,,,,,,no secondary annotation file found
+6,heldout,lunge,True,2407,446,18.529,1663,69.09,298,12.381,
+6,heldout,wing_threat,True,1980,1890,95.455,88,4.444,2,0.101,
+6,heldout,charge,True,24,17,70.833,4,16.667,3,12.5,
+6,heldout,hold,True,329,55,16.717,2,0.608,272,82.675,
+6,heldout,tussle,True,895,694,77.542,93,10.391,108,12.067,
+7,heldout,lunge,False,,,,,,,,no secondary annotation file found
+7,heldout,wing_threat,False,,,,,,,,no secondary annotation file found
+7,heldout,charge,False,,,,,,,,no secondary annotation file found
+7,heldout,hold,False,,,,,,,,no secondary annotation file found
+7,heldout,tussle,False,,,,,,,,no secondary annotation file found
+8,heldout,lunge,False,,,,,,,,no secondary annotation file found
+8,heldout,wing_threat,False,,,,,,,,no secondary annotation file found
+8,heldout,charge,False,,,,,,,,no secondary annotation file found
+8,heldout,hold,False,,,,,,,,no secondary annotation file found
+8,heldout,tussle,False,,,,,,,,no secondary annotation file found
+9,heldout,lunge,False,,,,,,,,no secondary annotation file found
+9,heldout,wing_threat,False,,,,,,,,no secondary annotation file found
+9,heldout,charge,False,,,,,,,,no secondary annotation file found
+9,heldout,hold,False,,,,,,,,no secondary annotation file found
+9,heldout,tussle,False,,,,,,,,no secondary annotation file found
+10,heldout,lunge,False,,,,,,,,no secondary annotation file found
+10,heldout,wing_threat,False,,,,,,,,no secondary annotation file found
+10,heldout,charge,False,,,,,,,,no secondary annotation file found
+10,heldout,hold,False,,,,,,,,no secondary annotation file found
+10,heldout,tussle,False,,,,,,,,no secondary annotation file found

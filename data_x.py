@@ -86,6 +86,21 @@ def feature_cache_path(cache_dir: Path | str, sample: MultiAnimalSequenceSample)
     return cache_dir / f"{_safe_cache_stem(sample.id)}_{digest}.npz"
 
 
+def feature_cache_candidate_paths(cache_dir: Path | str, sample: MultiAnimalSequenceSample) -> List[Path]:
+    """Return current and legacy cache filenames for a manifest sample.
+
+    Older manuscript-era caches used only sample id and frame bounds in the
+    hash. Current caches include the resolved NPZ path to avoid collisions.
+    Keep the legacy lookup so copied/released caches remain readable.
+    """
+    cache_dir = Path(cache_dir)
+    current = feature_cache_path(cache_dir, sample)
+    legacy_key = f"{sample.id}|{sample.start_frame}|{sample.end_frame}"
+    legacy_digest = hashlib.sha1(legacy_key.encode("utf-8", errors="ignore")).hexdigest()[:12]
+    legacy = cache_dir / f"{_safe_cache_stem(sample.id)}_{legacy_digest}.npz"
+    return [current] if legacy == current else [current, legacy]
+
+
 def _shape_str(arr: np.ndarray) -> str:
     return "x".join(str(v) for v in arr.shape)
 
@@ -341,11 +356,13 @@ class MultiAnimalSequenceDataset(Dataset):
             group_feat = None
             animal_feat = None
             if use_cache:
-                cache_path = feature_cache_path(self.feature_cache_dir, sample)
+                cache_candidates = feature_cache_candidate_paths(self.feature_cache_dir, sample)
+                cache_path = next((p for p in cache_candidates if p.is_file()), cache_candidates[0])
                 if not cache_path.is_file():
                     if self.require_feature_cache:
                         raise FileNotFoundError(
-                            f"feature cache missing for {sample.id}: {cache_path}. "
+                            f"feature cache missing for {sample.id}: "
+                            f"{'; '.join(str(p) for p in cache_candidates)}. "
                             "Run precompute_visual_features_x.py first, or omit --use_feature_cache."
                         )
                 else:

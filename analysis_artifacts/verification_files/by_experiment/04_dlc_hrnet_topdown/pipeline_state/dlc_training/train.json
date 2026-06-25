@@ -1,0 +1,13 @@
+{
+  "status": "complete",
+  "stopped_early": true,
+  "epochs_requested": 50,
+  "epochs_completed": 32,
+  "early_stop_metric": "metrics/test.mAP",
+  "early_stop_patience": 5,
+  "best_metric": 91.76826675673418,
+  "best_epoch": 27,
+  "best_snapshot": "C:\\Users\\Aegis-MSI\\Documents\\MARS_Dataset_Behavior\\MARS_DLC_SuperAnimal\\dlc-models-pytorch\\iteration-0\\MARS_DLC_SuperAnimal2026-06-06-trainset95shuffle2\\train\\snapshot-best-027.pt",
+  "max_snapshots_to_keep": 5,
+  "shuffle": 2
+}

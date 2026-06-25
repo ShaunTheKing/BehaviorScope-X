@@ -1,0 +1,10 @@
+{
+  "status": "completed",
+  "completed_unix_s": 1780888137.8877945,
+  "best_val_loss": 0.397065582083939,
+  "best_val_macro_f1": 0.7882895488095909,
+  "epochs_recorded": 10,
+  "best_model_macro_f1": "C:\\Users\\Aegis-MSI\\Documents\\MARS_Dataset_Behavior\\MARS_DLC_SuperAnimal\\behaviorscope_outputs\\dlc_topdown_attention256_training\\mars_dlc_topdown_hrnet_attention256_seed42\\best_model_macro_f1.pt",
+  "config": "C:\\Users\\Aegis-MSI\\Documents\\MARS_Dataset_Behavior\\MARS_DLC_SuperAnimal\\behaviorscope_outputs\\dlc_topdown_attention256_training\\mars_dlc_topdown_hrnet_attention256_seed42\\config.json",
+  "training_log": "C:\\Users\\Aegis-MSI\\Documents\\MARS_Dataset_Behavior\\MARS_DLC_SuperAnimal\\behaviorscope_outputs\\dlc_topdown_attention256_training\\mars_dlc_topdown_hrnet_attention256_seed42\\training_log.csv"
+}

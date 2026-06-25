@@ -1,0 +1,55 @@
+scenario,label,hardware,stack,decode_backend,decode_backend_observed,host,platform,device,amp_requested,amp_used,model,repeat,split,video_id,frames,duration_s,wall_time_s,predecode_wall_time_s,end_to_end_fps,mean_instant_fps,median_instant_fps,mean_cpu_percent_normalized,mean_gpu_util_percent,max_cpu_rss_mb,max_gpu_mem_used_mb,mean_pose_crop_next_ms,mean_feature_encode_ms,mean_window_assembly_ms,mean_classify_ms,mean_pose_crop_next_share_pct,mean_feature_encode_share_pct,mean_window_assembly_share_pct,mean_classify_share_pct,source_summary
+mps_opencv_old_stack,"MPS
+OpenCV",Apple Silicon,old_stack,opencv,opencv_or_legacy_blank,Mac,macOS-26.5-arm64-arm-64bit,mps,off,False,full_lstm256,1,test_1,Mouse060_20160526_18-16-27,24292,809.733,401.771,,60.4623,61.7522,62.35,6.46471,,1568.9,,,,,,,,,,end-to-end_pipeline_benchmark\outputs\benchmarks_mps\benchmark_summary.csv
+mps_opencv_old_stack,"MPS
+OpenCV",Apple Silicon,old_stack,opencv,opencv_or_legacy_blank,Mac,macOS-26.5-arm64-arm-64bit,mps,off,False,full_lstm256,1,test_1,Mouse061_20160526_18-38-49,18646,621.533,310.538,,60.0441,60.6218,60.85,6.42051,,1462.2,,,,,,,,,,end-to-end_pipeline_benchmark\outputs\benchmarks_mps\benchmark_summary.csv
+mps_opencv_old_stack,"MPS
+OpenCV",Apple Silicon,old_stack,opencv,opencv_or_legacy_blank,Mac,macOS-26.5-arm64-arm-64bit,mps,off,False,full_lstm256,1,test_1,Mouse062_20160526_18-56-26,19638,654.6,327.368,,59.9875,60.3595,60.24,6.45122,,1668.6,,,,,,,,,,end-to-end_pipeline_benchmark\outputs\benchmarks_mps\benchmark_summary.csv
+mps_opencv_old_stack,"MPS
+OpenCV",Apple Silicon,old_stack,opencv,opencv_or_legacy_blank,Mac,macOS-26.5-arm64-arm-64bit,mps,off,False,full_attention256,1,test_1,Mouse060_20160526_18-16-27,24292,809.733,394.146,,61.6319,62.061,61.53,6.57255,,1730.9,,,,,,,,,,end-to-end_pipeline_benchmark\outputs\benchmarks_mps\benchmark_summary.csv
+mps_opencv_old_stack,"MPS
+OpenCV",Apple Silicon,old_stack,opencv,opencv_or_legacy_blank,Mac,macOS-26.5-arm64-arm-64bit,mps,off,False,full_attention256,1,test_1,Mouse061_20160526_18-38-49,18646,621.533,302.798,,61.579,62.2292,62.81,6.76923,,1498.6,,,,,,,,,,end-to-end_pipeline_benchmark\outputs\benchmarks_mps\benchmark_summary.csv
+mps_opencv_old_stack,"MPS
+OpenCV",Apple Silicon,old_stack,opencv,opencv_or_legacy_blank,Mac,macOS-26.5-arm64-arm-64bit,mps,off,False,full_attention256,1,test_1,Mouse062_20160526_18-56-26,19638,654.6,326.155,,60.2106,60.6127,60.47,6.46829,,1720.8,,,,,,,,,,end-to-end_pipeline_benchmark\outputs\benchmarks_mps\benchmark_summary.csv
+rtx2080_opencv_current_stack,"RTX2080
+OpenCV",RTX2080,current_stack,opencv,opencv,DESKTOP-O5A9U62,Windows-10-10.0.26200-SP0,cuda:0,auto,True,full_lstm256,1,test_1,Mouse060_20160526_18-16-27,24292,809.733,916.116,0,26.5163,26.7188,26.67,6.39608,24.0039,1281.8,2275.7,23.419,11.3767,36.7398,3.9302,62.4569,30.3882,6.13137,0.652941,end-to-end_pipeline_benchmark\outputs\benchmarks\benchmark_summary.csv
+rtx2080_opencv_current_stack,"RTX2080
+OpenCV",RTX2080,current_stack,opencv,opencv,DESKTOP-O5A9U62,Windows-10-10.0.26200-SP0,cuda:0,auto,True,full_lstm256,1,test_1,Mouse061_20160526_18-38-49,18646,621.533,842.947,0,22.12,23.1951,25.72,6.27436,22.559,1281.9,2112.3,28.2205,13.3046,48.2277,4.6659,62.7154,29.6872,6.58974,0.651282,end-to-end_pipeline_benchmark\outputs\benchmarks\benchmark_summary.csv
+rtx2080_opencv_current_stack,"RTX2080
+OpenCV",RTX2080,current_stack,opencv,opencv,DESKTOP-O5A9U62,Windows-10-10.0.26200-SP0,cuda:0,auto,True,full_lstm256,1,test_1,Mouse062_20160526_18-56-26,19638,654.6,802.553,0,24.4694,25.0327,25.68,6.33659,22.5585,1282.8,2112.3,25.3851,11.9278,44.3132,4.1761,62.6244,29.561,6.81707,0.631707,end-to-end_pipeline_benchmark\outputs\benchmarks\benchmark_summary.csv
+rtx2080_opencv_current_stack,"RTX2080
+OpenCV",RTX2080,current_stack,opencv,opencv,DESKTOP-O5A9U62,Windows-10-10.0.26200-SP0,cuda:0,auto,True,full_attention256,1,test_1,Mouse060_20160526_18-16-27,24292,809.733,926.549,0,26.2177,26.4357,26.39,6.35882,23.0373,1250.6,2070.3,23.512,11.5018,40.6037,3.56647,61.9882,30.3922,6.67451,0.6,end-to-end_pipeline_benchmark\outputs\benchmarks\benchmark_summary.csv
+rtx2080_opencv_current_stack,"RTX2080
+OpenCV",RTX2080,current_stack,opencv,opencv,DESKTOP-O5A9U62,Windows-10-10.0.26200-SP0,cuda:0,auto,True,full_attention256,1,test_1,Mouse061_20160526_18-38-49,18646,621.533,693.222,0,26.8976,27.1272,27.24,6.36923,23.3103,1248.8,2207.5,22.9151,11.3305,36.9392,3.49051,62.0718,30.7282,6.25128,0.597436,end-to-end_pipeline_benchmark\outputs\benchmarks\benchmark_summary.csv
+rtx2080_opencv_current_stack,"RTX2080
+OpenCV",RTX2080,current_stack,opencv,opencv,DESKTOP-O5A9U62,Windows-10-10.0.26200-SP0,cuda:0,auto,True,full_attention256,1,test_1,Mouse062_20160526_18-56-26,19638,654.6,743.433,0,26.4153,26.6505,26.81,6.38293,26.5195,1251.4,2141.3,23.6366,11.2968,36.809,3.50829,62.8537,30.0805,6.11463,0.6,end-to-end_pipeline_benchmark\outputs\benchmarks\benchmark_summary.csv
+rtx4080_opencv_old_stack,"RTX4080
+OpenCV",RTX4080,old_stack,opencv,opencv_or_legacy_blank,Aegis,Windows-10-10.0.26200-SP0,cuda:0,auto,True,full_lstm256,1,test_1,Mouse060_20160526_18-16-27,24292,809.733,730.899,,33.2358,35.9757,36.78,3.09412,32.2863,2512.6,2496.8,,,,,,,,,end-to-end_pipeline_benchmark\outputs\benchmarks_RTX4080\benchmark_summary.csv
+rtx4080_opencv_old_stack,"RTX4080
+OpenCV",RTX4080,old_stack,opencv,opencv_or_legacy_blank,Aegis,Windows-10-10.0.26200-SP0,cuda:0,auto,True,full_lstm256,1,test_1,Mouse061_20160526_18-38-49,18646,621.533,579.491,,32.1765,35.1285,35.98,3.09487,29.1564,2509.1,3096.9,,,,,,,,,end-to-end_pipeline_benchmark\outputs\benchmarks_RTX4080\benchmark_summary.csv
+rtx4080_opencv_old_stack,"RTX4080
+OpenCV",RTX4080,old_stack,opencv,opencv_or_legacy_blank,Aegis,Windows-10-10.0.26200-SP0,cuda:0,auto,True,full_lstm256,1,test_1,Mouse062_20160526_18-56-26,19638,654.6,613.376,,32.0163,34.8027,35.84,3.10244,32.6732,2510.2,2418.7,,,,,,,,,end-to-end_pipeline_benchmark\outputs\benchmarks_RTX4080\benchmark_summary.csv
+rtx4080_opencv_old_stack,"RTX4080
+OpenCV",RTX4080,old_stack,opencv,opencv_or_legacy_blank,Aegis,Windows-10-10.0.26200-SP0,cuda:0,auto,True,full_attention256,1,test_1,Mouse060_20160526_18-16-27,24292,809.733,732.563,,33.1603,35.4616,36.48,3.10392,32.4059,2236.9,2416.7,,,,,,,,,end-to-end_pipeline_benchmark\outputs\benchmarks_RTX4080\benchmark_summary.csv
+rtx4080_opencv_old_stack,"RTX4080
+OpenCV",RTX4080,old_stack,opencv,opencv_or_legacy_blank,Aegis,Windows-10-10.0.26200-SP0,cuda:0,auto,True,full_attention256,1,test_1,Mouse061_20160526_18-38-49,18646,621.533,576.424,,32.3477,35.4192,36.39,3.11026,31.0256,2236.6,2435,,,,,,,,,end-to-end_pipeline_benchmark\outputs\benchmarks_RTX4080\benchmark_summary.csv
+rtx4080_opencv_old_stack,"RTX4080
+OpenCV",RTX4080,old_stack,opencv,opencv_or_legacy_blank,Aegis,Windows-10-10.0.26200-SP0,cuda:0,auto,True,full_attention256,1,test_1,Mouse062_20160526_18-56-26,19638,654.6,609.186,,32.2365,35.0951,35.97,3.11463,30.9,2233.8,2444,,,,,,,,,end-to-end_pipeline_benchmark\outputs\benchmarks_RTX4080\benchmark_summary.csv
+rtx4080_ffmpeg_new_stack,"RTX4080
+FFmpeg
+cache",RTX4080,new_stack,ffmpeg-predecode,ffmpeg-predecode,Aegis,Windows-10-10.0.26200-SP0,cuda:0,auto,True,full_lstm256,1,test_1,Mouse060_20160526_18-16-27,24292,809.733,751.46,10.3996,32.3264,34.5971,35.57,3.28235,33.5784,2528.1,2442.2,23.4469,5.79902,28.1847,3.37529,73.5098,19.4157,6.0902,0.707843,end-to-end_pipeline_benchmark\outputs\benchmarks_RTX4080_new_stack\benchmark_summary.csv
+rtx4080_ffmpeg_new_stack,"RTX4080
+FFmpeg
+cache",RTX4080,new_stack,ffmpeg-predecode,ffmpeg-predecode,Aegis,Windows-10-10.0.26200-SP0,cuda:0,auto,True,full_lstm256,1,test_1,Mouse061_20160526_18-38-49,18646,621.533,590.924,8.05659,31.554,34.4454,35.61,3.29487,31.3359,2531.4,2460.2,23.8808,5.73641,28.2151,3.2441,74.0385,18.9462,6.07949,0.684615,end-to-end_pipeline_benchmark\outputs\benchmarks_RTX4080_new_stack\benchmark_summary.csv
+rtx4080_ffmpeg_new_stack,"RTX4080
+FFmpeg
+cache",RTX4080,new_stack,ffmpeg-predecode,ffmpeg-predecode,Aegis,Windows-10-10.0.26200-SP0,cuda:0,auto,True,full_lstm256,1,test_1,Mouse062_20160526_18-56-26,19638,654.6,631.552,8.44137,31.0948,33.7924,35.06,3.29512,31.0293,2532.3,2442.3,23.972,5.87854,29.1863,3.34293,73.5439,19.0927,6.15366,0.682927,end-to-end_pipeline_benchmark\outputs\benchmarks_RTX4080_new_stack\benchmark_summary.csv
+rtx4080_ffmpeg_new_stack,"RTX4080
+FFmpeg
+cache",RTX4080,new_stack,ffmpeg-predecode,ffmpeg-predecode,Aegis,Windows-10-10.0.26200-SP0,cuda:0,auto,True,full_attention256,1,test_1,Mouse060_20160526_18-16-27,24292,809.733,750.664,10.3996,32.3607,34.5518,35.52,3.30392,32.7784,2258.5,2444.1,23.5076,5.69902,28.9108,2.78098,73.8157,19.0902,6.23529,0.590196,end-to-end_pipeline_benchmark\outputs\benchmarks_RTX4080_new_stack\benchmark_summary.csv
+rtx4080_ffmpeg_new_stack,"RTX4080
+FFmpeg
+cache",RTX4080,new_stack,ffmpeg-predecode,ffmpeg-predecode,Aegis,Windows-10-10.0.26200-SP0,cuda:0,auto,True,full_attention256,1,test_1,Mouse061_20160526_18-38-49,18646,621.533,588.012,8.05659,31.7103,34.7687,35.68,3.30769,30.7333,2256.9,2852.6,23.6782,5.80308,28.5056,2.69744,73.6154,19.3359,6.18974,0.587179,end-to-end_pipeline_benchmark\outputs\benchmarks_RTX4080_new_stack\benchmark_summary.csv
+rtx4080_ffmpeg_new_stack,"RTX4080
+FFmpeg
+cache",RTX4080,new_stack,ffmpeg-predecode,ffmpeg-predecode,Aegis,Windows-10-10.0.26200-SP0,cuda:0,auto,True,full_attention256,1,test_1,Mouse062_20160526_18-56-26,19638,654.6,619.139,8.44137,31.7183,34.4056,35.53,3.30244,32.8463,2256.4,2184.6,23.6656,5.70366,28.631,2.7678,74.1366,18.8537,6.15854,0.595122,end-to-end_pipeline_benchmark\outputs\benchmarks_RTX4080_new_stack\benchmark_summary.csv

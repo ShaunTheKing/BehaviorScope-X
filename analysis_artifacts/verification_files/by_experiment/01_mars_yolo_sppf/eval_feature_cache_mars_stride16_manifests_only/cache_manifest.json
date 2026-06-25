@@ -1,0 +1,19 @@
+{
+  "version": "behaviorscope-y-visual-feature-cache-v1",
+  "manifest_path": "G:\\BehaviorScope_Y_final_runs\\outputs\\npz_cache\\mars_heldout_eval\\sequence_manifest.json",
+  "yolo_weights": "G:\\BehaviorScope_Y_final_runs\\MARS_YOLO_Pose_Model\\weights\\best.pt",
+  "yolo_backbone_end_layer": 10,
+  "num_frames": 32,
+  "n_animals": 2,
+  "num_keypoints": 7,
+  "feature_dim": 256,
+  "cache_dtype": "float32",
+  "splits": [
+    "train",
+    "val"
+  ],
+  "samples_total": 21775,
+  "samples_written": 21775,
+  "samples_skipped_existing": 0,
+  "elapsed_s": 6193.167125701904
+}

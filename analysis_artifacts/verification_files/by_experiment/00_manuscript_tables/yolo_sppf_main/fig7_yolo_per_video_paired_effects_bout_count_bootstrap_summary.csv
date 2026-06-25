@@ -1,0 +1,4 @@
+comparison,mean,ci_low,ci_high,color,n_videos,first_model,second_model
+Full attention − pose+relations,-1.9642857142857142,-4.392857142857143,0.35714285714285715,#10B981,28,yolo_sppf_full_attention256_seed42,yolo_sppf_pose_relations_only_attention256_seed42
+Full attention − visual only,-3.7142857142857144,-6.679464285714285,-1.0357142857142858,#059669,28,yolo_sppf_full_attention256_seed42,yolo_sppf_visual_only_attention256_seed42
+Full attention − full LSTM,-0.17857142857142858,-1.8214285714285714,1.2857142857142858,#2271B2,28,yolo_sppf_full_attention256_seed42,yolo_sppf_full_lstm256_seed42

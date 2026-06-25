@@ -1,0 +1,74 @@
+{
+  "pose_relation_dim_per_frame": 132,
+  "pose_visual_pca_dim_per_frame": 196,
+  "train_manifest_window_size": 32,
+  "heldout_manifest_window_size": 32,
+  "class_to_idx": {
+    "attack": 0,
+    "investigation": 1,
+    "mount": 2,
+    "other": 3
+  },
+  "idx_to_class": {
+    "0": "attack",
+    "1": "investigation",
+    "2": "mount",
+    "3": "other"
+  },
+  "summaries": [
+    {
+      "split": "train",
+      "n_windows": 2,
+      "feature_sets": {
+        "pose_frame": {
+          "shape": [
+            2,
+            132
+          ]
+        },
+        "pose_window": {
+          "shape": [
+            2,
+            4224
+          ]
+        }
+      }
+    },
+    {
+      "split": "val",
+      "n_windows": 2,
+      "feature_sets": {
+        "pose_frame": {
+          "shape": [
+            2,
+            132
+          ]
+        },
+        "pose_window": {
+          "shape": [
+            2,
+            4224
+          ]
+        }
+      }
+    },
+    {
+      "split": "heldout",
+      "n_windows": 2,
+      "feature_sets": {
+        "pose_frame": {
+          "shape": [
+            2,
+            132
+          ]
+        },
+        "pose_window": {
+          "shape": [
+            2,
+            4224
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -2,7 +2,7 @@
 
 The MobileNetV3 workflow tests whether visual descriptors from a different pose backbone can support the same pose-plus-vision behavior-classification principle. The GUI can build MobileNetV3 sequence windows directly from raw videos, extract MobileNetV3 visual descriptors, and train the temporal classifier from those cached features. Larger held-out suites and static negative-control baselines remain available through staged runners.
 
-The tutorial package can include a small MobileNetV3 pose checkpoint and a sample attention-256 classifier in `tutorial_data/BehaviorScope-X_tutorial/tutorial_models`. These files are for workflow checks on the tutorial videos; manuscript-scale evaluation should use the full recorded runs and provenance tables.
+Use this workflow when you have a licensed MobileNetV3 pose checkpoint and source videos that you are allowed to process. Manuscript-scale evaluation should use the full recorded runs and provenance tables from the reproducibility package.
 
 ## Inputs
 

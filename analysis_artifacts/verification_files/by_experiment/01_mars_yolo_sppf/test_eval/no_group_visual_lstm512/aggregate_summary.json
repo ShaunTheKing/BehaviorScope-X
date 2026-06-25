@@ -1,0 +1,10 @@
+{
+  "mode": "classifier_only_cached_heldout",
+  "manifest_path": "G:\\BehaviorScope_Y_final_runs\\outputs\\npz_cache\\mars_heldout_eval\\sequence_manifest.json",
+  "feature_cache_dir": "G:\\BehaviorScope_Y_final_runs\\outputs\\eval_feature_cache\\mars_stride16",
+  "model_path": "G:\\BehaviorScope_Y_final_runs\\outputs\\training_runs\\no_group_visual_lstm512\\best_model_macro_f1.pt",
+  "n_windows": 22527,
+  "n_videos": 30,
+  "n_failures": 0,
+  "elapsed_s": 142.609
+}

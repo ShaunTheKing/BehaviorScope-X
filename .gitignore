@@ -29,22 +29,8 @@ Thumbs.db
 *.bak
 *.swp
 
-# Local tutorial media and generated workflow outputs.
-# Keep tutorial manifests/annotations in Git; distribute MP4s separately
-# via Hugging Face or another data host to avoid GitHub's regular file limit.
-tutorial_data/**/videos/**/*.mp4
-tutorial_data/**/videos/**/*.avi
-tutorial_data/**/videos/**/*.mov
-tutorial_data/**/videos/**/*.mkv
-tutorial_data/**/videos/*.mp4
-tutorial_data/**/videos/*.avi
-tutorial_data/**/videos/*.mov
-tutorial_data/**/videos/*.mkv
-tutorial_data/**/outputs/
-
 # Local GUI/project outputs
 .behaviorscope_x/
-BehaviorScope-X_tutorial_outputs/
 *.sqlite
 *.sqlite-journal
 *.db

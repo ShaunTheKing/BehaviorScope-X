@@ -1,0 +1,47 @@
+{
+  "built_at": "2026-06-18T20:34:24",
+  "cleaned_for_manuscript_only": "2026-06-18",
+  "source_package": "v3_archive",
+  "destination_package": "analysis_artifacts",
+  "scope": "manuscript-facing scripts, configs, command templates, and verification artifacts needed to reproduce BehaviorScope-X v9 manuscript data",
+  "script_dirs": [
+    "00_shared_and_entrypoints",
+    "00_figure_table_rendering",
+    "01_mars_yolo_sppf",
+    "02_classical_baselines",
+    "03_mobilenetv3_backbone",
+    "04_dlc_hrnet_topdown",
+    "05_descriptor_provenance",
+    "06_fly_v_fly",
+    "07_deployment_and_gui"
+  ],
+  "verification_dirs": [
+    "00_manuscript_tables",
+    "01_mars_yolo_sppf",
+    "02_classical_baselines",
+    "03_mobilenetv3_backbone",
+    "04_dlc_hrnet_topdown",
+    "05_descriptor_provenance",
+    "06_fly_v_fly/release_fly_v_fly_attention256_cw12_seed42",
+    "07_deployment_and_gui"
+  ],
+  "validation": {
+    "artifact_path_scan": "passed after graph packaging and manifest refresh",
+    "manuscript_only_cleanup": "removed broad v3 manifests, non-manuscript planning notes, non-manuscript inventory files, and TCN rows from reproducibility-facing model-parameter tables",
+    "graph_reproduction": "added final production figures, production tables, graph reproduction guide, per-figure redraw status, and a table-backed render wrapper"
+  },
+  "github_packaging": {
+    "created_at": "2026-06-25T12:37:40",
+    "copy_destination_intent": "BehaviorScope-X/analysis_artifacts",
+    "compressed_csv_count": 6,
+    "compressed_csv_paths": [
+      "tables/production/yolo_sppf_main/yolo_lstm_attention_bout_matches_long.csv.gz",
+      "tables/production/yolo_sppf_main/yolo_lstm_attention_ground_truth_bouts_long.csv.gz",
+      "tables/production/yolo_sppf_main/yolo_lstm_attention_predicted_bouts_long.csv.gz",
+      "verification_files/by_experiment/00_manuscript_tables/yolo_sppf_main/yolo_lstm_attention_bout_matches_long.csv.gz",
+      "verification_files/by_experiment/00_manuscript_tables/yolo_sppf_main/yolo_lstm_attention_ground_truth_bouts_long.csv.gz",
+      "verification_files/by_experiment/00_manuscript_tables/yolo_sppf_main/yolo_lstm_attention_predicted_bouts_long.csv.gz"
+    ],
+    "manifest_refreshed": "metadata/v4_package_manifest.csv lists files in this GitHub copy and omits itself to avoid self-referential hashing."
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "manifest_path": "G:\\BehaviorScope_Y_final_runs\\outputs\\npz_cache\\mars_full_video\\sequence_manifest.json",
+  "output_root": "G:\\BehaviorScope_Y_final_runs\\outputs\\npz_cache\\mars_full_video",
+  "elapsed_s": 2.7,
+  "windows_total": 30493,
+  "windows_train": 20414,
+  "windows_val": 10079,
+  "class_counts": {
+    "other": 10195,
+    "investigation": 13914,
+    "mount": 3561,
+    "attack": 2823
+  },
+  "n_source_videos_train": 57,
+  "n_source_videos_val": 33,
+  "manifest_validation": {
+    "samples_total": 30493,
+    "samples_validated": 30493,
+    "ok": true
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "eval_dir": "C:\\Users\\Aegis-MSI\\Documents\\MARS_Dataset_Behavior\\MARS_DLC_SuperAnimal\\behaviorscope_outputs\\dlc_topdown_heldout_eval\\mars_dlc_topdown_hrnet_attention256_seed42",
+  "analysis_dir": "C:\\Users\\Aegis-MSI\\Documents\\MARS_Dataset_Behavior\\MARS_DLC_SuperAnimal\\behaviorscope_outputs\\dlc_topdown_heldout_eval\\mars_dlc_topdown_hrnet_attention256_seed42\\analysis_20260608",
+  "script": "C:\\Users\\Aegis-MSI\\Documents\\MARS_Dataset_Behavior\\MARS_DLC_SuperAnimal\\analyze_dlc_heldout_eval.py",
+  "script_sha256": "505651bbbdd527d9d2aff561fa033530cac787414dceb7ea5e7f39e01f98631d",
+  "n_generated_files": 17,
+  "generated_files": [
+    "C:\\Users\\Aegis-MSI\\Documents\\MARS_Dataset_Behavior\\MARS_DLC_SuperAnimal\\behaviorscope_outputs\\dlc_topdown_heldout_eval\\mars_dlc_topdown_hrnet_attention256_seed42\\analysis_20260608\\tables\\dlc_yolo_mobilenet_per_video_comparison_long.csv",
+    "C:\\Users\\Aegis-MSI\\Documents\\MARS_Dataset_Behavior\\MARS_DLC_SuperAnimal\\behaviorscope_outputs\\dlc_topdown_heldout_eval\\mars_dlc_topdown_hrnet_attention256_seed42\\analysis_20260608\\tables\\dlc_yolo_mobilenet_metric_comparison_summary.csv",
+    "C:\\Users\\Aegis-MSI\\Documents\\MARS_Dataset_Behavior\\MARS_DLC_SuperAnimal\\behaviorscope_outputs\\dlc_topdown_heldout_eval\\mars_dlc_topdown_hrnet_attention256_seed42\\analysis_20260608\\tables\\dlc_heldout_per_video_summary.csv",
+    "C:\\Users\\Aegis-MSI\\Documents\\MARS_Dataset_Behavior\\MARS_DLC_SuperAnimal\\behaviorscope_outputs\\dlc_topdown_heldout_eval\\mars_dlc_topdown_hrnet_attention256_seed42\\analysis_20260608\\tables\\dlc_heldout_per_class_summary.csv",
+    "C:\\Users\\Aegis-MSI\\Documents\\MARS_Dataset_Behavior\\MARS_DLC_SuperAnimal\\behaviorscope_outputs\\dlc_topdown_heldout_eval\\mars_dlc_topdown_hrnet_attention256_seed42\\analysis_20260608\\tables\\dlc_heldout_confusion_counts_raw.csv",
+    "C:\\Users\\Aegis-MSI\\Documents\\MARS_Dataset_Behavior\\MARS_DLC_SuperAnimal\\behaviorscope_outputs\\dlc_topdown_heldout_eval\\mars_dlc_topdown_hrnet_attention256_seed42\\analysis_20260608\\tables\\dlc_heldout_confusion_recall_raw.csv",
+    "C:\\Users\\Aegis-MSI\\Documents\\MARS_Dataset_Behavior\\MARS_DLC_SuperAnimal\\behaviorscope_outputs\\dlc_topdown_heldout_eval\\mars_dlc_topdown_hrnet_attention256_seed42\\analysis_20260608\\figures\\dlc_heldout_metric_summary.png",
+    "C:\\Users\\Aegis-MSI\\Documents\\MARS_Dataset_Behavior\\MARS_DLC_SuperAnimal\\behaviorscope_outputs\\dlc_topdown_heldout_eval\\mars_dlc_topdown_hrnet_attention256_seed42\\analysis_20260608\\figures\\dlc_heldout_metric_summary.pdf",
+    "C:\\Users\\Aegis-MSI\\Documents\\MARS_Dataset_Behavior\\MARS_DLC_SuperAnimal\\behaviorscope_outputs\\dlc_topdown_heldout_eval\\mars_dlc_topdown_hrnet_attention256_seed42\\analysis_20260608\\figures\\dlc_heldout_per_class_scores.png",
+    "C:\\Users\\Aegis-MSI\\Documents\\MARS_Dataset_Behavior\\MARS_DLC_SuperAnimal\\behaviorscope_outputs\\dlc_topdown_heldout_eval\\mars_dlc_topdown_hrnet_attention256_seed42\\analysis_20260608\\figures\\dlc_heldout_per_class_scores.pdf",
+    "C:\\Users\\Aegis-MSI\\Documents\\MARS_Dataset_Behavior\\MARS_DLC_SuperAnimal\\behaviorscope_outputs\\dlc_topdown_heldout_eval\\mars_dlc_topdown_hrnet_attention256_seed42\\analysis_20260608\\figures\\dlc_heldout_confusion_recall_raw.png",
+    "C:\\Users\\Aegis-MSI\\Documents\\MARS_Dataset_Behavior\\MARS_DLC_SuperAnimal\\behaviorscope_outputs\\dlc_topdown_heldout_eval\\mars_dlc_topdown_hrnet_attention256_seed42\\analysis_20260608\\figures\\dlc_heldout_confusion_recall_raw.pdf",
+    "C:\\Users\\Aegis-MSI\\Documents\\MARS_Dataset_Behavior\\MARS_DLC_SuperAnimal\\behaviorscope_outputs\\dlc_topdown_heldout_eval\\mars_dlc_topdown_hrnet_attention256_seed42\\analysis_20260608\\figures\\dlc_vs_yolo_mobilenet_metric_comparison.png",
+    "C:\\Users\\Aegis-MSI\\Documents\\MARS_Dataset_Behavior\\MARS_DLC_SuperAnimal\\behaviorscope_outputs\\dlc_topdown_heldout_eval\\mars_dlc_topdown_hrnet_attention256_seed42\\analysis_20260608\\figures\\dlc_vs_yolo_mobilenet_metric_comparison.pdf",
+    "C:\\Users\\Aegis-MSI\\Documents\\MARS_Dataset_Behavior\\MARS_DLC_SuperAnimal\\behaviorscope_outputs\\dlc_topdown_heldout_eval\\mars_dlc_topdown_hrnet_attention256_seed42\\analysis_20260608\\figures\\dlc_vs_yolo_raw_per_video_delta.png",
+    "C:\\Users\\Aegis-MSI\\Documents\\MARS_Dataset_Behavior\\MARS_DLC_SuperAnimal\\behaviorscope_outputs\\dlc_topdown_heldout_eval\\mars_dlc_topdown_hrnet_attention256_seed42\\analysis_20260608\\figures\\dlc_vs_yolo_raw_per_video_delta.pdf",
+    "C:\\Users\\Aegis-MSI\\Documents\\MARS_Dataset_Behavior\\MARS_DLC_SuperAnimal\\behaviorscope_outputs\\dlc_topdown_heldout_eval\\mars_dlc_topdown_hrnet_attention256_seed42\\analysis_20260608\\DLC_HELDOUT_ANALYSIS_SUMMARY.md"
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "created_at": "2026-06-25T12:37:40",
+  "source_package": "local manuscript analysis archive",
+  "packaged_copy": "analysis_artifacts",
+  "adjustments": [
+    {
+      "original_relative_path": "tables/production/yolo_sppf_main/yolo_lstm_attention_bout_matches_long.csv",
+      "packaged_relative_path": "tables/production/yolo_sppf_main/yolo_lstm_attention_bout_matches_long.csv.gz",
+      "original_size_bytes": 256868791,
+      "packaged_size_bytes": 7498877,
+      "original_sha256": "3008de083d4562620983c8080115563cf51e7fd5d5db545031c5fde897a38565",
+      "packaged_sha256": "d8cea2665b377a2cc8d43f814cbc3bd5af087bd503ef9d70eebe39f699403c6c",
+      "reason": "Compressed for ordinary GitHub storage; GitHub blocks regular Git files larger than 100 MiB."
+    },
+    {
+      "original_relative_path": "verification_files/by_experiment/00_manuscript_tables/yolo_sppf_main/yolo_lstm_attention_bout_matches_long.csv",
+      "packaged_relative_path": "verification_files/by_experiment/00_manuscript_tables/yolo_sppf_main/yolo_lstm_attention_bout_matches_long.csv.gz",
+      "original_size_bytes": 256868791,
+      "packaged_size_bytes": 7498877,
+      "original_sha256": "3008de083d4562620983c8080115563cf51e7fd5d5db545031c5fde897a38565",
+      "packaged_sha256": "11b53bc85e0d0aee598202aba05baeb6f19bbc0c3337353945038b3fb93616b8",
+      "reason": "Compressed for ordinary GitHub storage; GitHub blocks regular Git files larger than 100 MiB."
+    },
+    {
+      "original_relative_path": "tables/production/yolo_sppf_main/yolo_lstm_attention_predicted_bouts_long.csv",
+      "packaged_relative_path": "tables/production/yolo_sppf_main/yolo_lstm_attention_predicted_bouts_long.csv.gz",
+      "original_size_bytes": 129598677,
+      "packaged_size_bytes": 2781317,
+      "original_sha256": "0866415d1e150200d5f981e92eaeb8cb4750184ac7c2ba18a5ef76070f96e7af",
+      "packaged_sha256": "00c26ca0e534cbe01486ca191061bba7cd019b0dd03e23637d9437772e9a4fb4",
+      "reason": "Compressed for ordinary GitHub storage; GitHub blocks regular Git files larger than 100 MiB."
+    },
+    {
+      "original_relative_path": "verification_files/by_experiment/00_manuscript_tables/yolo_sppf_main/yolo_lstm_attention_predicted_bouts_long.csv",
+      "packaged_relative_path": "verification_files/by_experiment/00_manuscript_tables/yolo_sppf_main/yolo_lstm_attention_predicted_bouts_long.csv.gz",
+      "original_size_bytes": 129598677,
+      "packaged_size_bytes": 2781317,
+      "original_sha256": "0866415d1e150200d5f981e92eaeb8cb4750184ac7c2ba18a5ef76070f96e7af",
+      "packaged_sha256": "4f1fef91ea85b62c7296d424b1d7724ec49e7edf7df42e3369fb3fcaedcc0ac7",
+      "reason": "Compressed for ordinary GitHub storage; GitHub blocks regular Git files larger than 100 MiB."
+    },
+    {
+      "original_relative_path": "tables/production/yolo_sppf_main/yolo_lstm_attention_ground_truth_bouts_long.csv",
+      "packaged_relative_path": "tables/production/yolo_sppf_main/yolo_lstm_attention_ground_truth_bouts_long.csv.gz",
+      "original_size_bytes": 89505799,
+      "packaged_size_bytes": 2341515,
+      "original_sha256": "585318acae1c065d31f99f4129773b0f6f0843cb04751750ec48d379092cb2e7",
+      "packaged_sha256": "e316869d7ccdcd1c8845361f0b57caa1a19f5ca89e5b817663db8291b5417239",
+      "reason": "Compressed for ordinary GitHub storage; avoids GitHub's large-file warning threshold and hard file-size limit."
+    },
+    {
+      "original_relative_path": "verification_files/by_experiment/00_manuscript_tables/yolo_sppf_main/yolo_lstm_attention_ground_truth_bouts_long.csv",
+      "packaged_relative_path": "verification_files/by_experiment/00_manuscript_tables/yolo_sppf_main/yolo_lstm_attention_ground_truth_bouts_long.csv.gz",
+      "original_size_bytes": 89505799,
+      "packaged_size_bytes": 2341515,
+      "original_sha256": "585318acae1c065d31f99f4129773b0f6f0843cb04751750ec48d379092cb2e7",
+      "packaged_sha256": "c3f1a267a490618e198cc1de35b64c6663109166fb448234dccc4b86c04ad00d",
+      "reason": "Compressed for ordinary GitHub storage; avoids GitHub's large-file warning threshold and hard file-size limit."
+    }
+  ]
+}

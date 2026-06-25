@@ -1,0 +1,7 @@
+condition,stream_key,manuscript_label,pose_self,relations,group_visual,animal_visual,rationale
+Full multimodal reuse,full,Full multimodal reuse,included,included,included,included,"All cached coordinate, relational, and visual evidence."
+"Animal visual + pose geometry, no group",no_group_visual,"Animal visual + pose geometry, no group",included,included,excluded,included,Tests whether scene-level context is necessary.
+Pose geometry only,pose_relations_only,Pose geometry only,included,included,excluded,excluded,Tests keypoints plus pairwise social geometry without visual descriptors.
+"Visual + self-pose, no pairwise geometry",no_relations,"Visual + self-pose, no pairwise geometry",included,excluded,included,included,Tests whether pairwise geometry adds signal beyond visual and self-pose streams.
+Per-animal visual only,animal_visual_only,Per-animal visual only,excluded,excluded,excluded,included,Tests animal-centered visual descriptors without explicit geometry.
+Visual descriptors only,visual_only,Visual descriptors only,excluded,excluded,included,included,Tests reused visual descriptors without explicit pose geometry.

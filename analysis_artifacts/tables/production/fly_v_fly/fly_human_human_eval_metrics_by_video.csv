@@ -1,0 +1,12 @@
+movie_id,split,secondary_annotation_available,direction,reference,comparison,accuracy,frame_macro_precision,frame_macro_recall,frame_macro_f1,gt_bouts_total,pred_bouts_total,bout_macro_precision_iou010,bout_macro_recall_iou010,bout_macro_f1_iou010,bout_macro_precision_iou025,bout_macro_recall_iou025,bout_macro_f1_iou025,bout_macro_precision_iou050,bout_macro_recall_iou050,bout_macro_f1_iou050,note
+1,train_or_validation,False,,,,,,,,,,,,,,,,,,,no secondary annotation file found
+2,train_or_validation,False,,,,,,,,,,,,,,,,,,,no secondary annotation file found
+3,train_or_validation,False,,,,,,,,,,,,,,,,,,,no secondary annotation file found
+4,train_or_validation,False,,,,,,,,,,,,,,,,,,,no secondary annotation file found
+5,train_or_validation,False,,,,,,,,,,,,,,,,,,,no secondary annotation file found
+6,heldout,True,primary_as_reference,primary,secondary,0.940556,0.602307,0.558153,0.541373,699,316,0.495982,0.465225,0.436623,0.474621,0.435772,0.411879,0.402828,0.346879,0.336365,
+6,heldout,True,secondary_as_reference,secondary,primary,0.940556,0.558153,0.602307,0.541373,316,699,0.461716,0.493784,0.43392,0.435772,0.474621,0.411879,0.346879,0.402828,0.336365,
+7,heldout,False,,,,,,,,,,,,,,,,,,,no secondary annotation file found
+8,heldout,False,,,,,,,,,,,,,,,,,,,no secondary annotation file found
+9,heldout,False,,,,,,,,,,,,,,,,,,,no secondary annotation file found
+10,heldout,False,,,,,,,,,,,,,,,,,,,no secondary annotation file found

@@ -1,13 +1,11 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
-import csv
-import os
 import subprocess
 import sys
 from dataclasses import dataclass
 from pathlib import Path
 
-from PySide6.QtCore import QEvent, QSignalBlocker, QThread, QTimer, Qt, QUrl
+from PySide6.QtCore import QEvent, QSignalBlocker, QTimer, Qt, QUrl
 from PySide6.QtGui import QAction, QKeySequence, QShortcut, QTextOption
 from PySide6.QtMultimedia import QAudioOutput, QMediaPlayer
 from PySide6.QtMultimediaWidgets import QVideoWidget
@@ -32,7 +30,6 @@ from PySide6.QtWidgets import (
     QMessageBox,
     QPushButton,
     QPlainTextEdit,
-    QProgressDialog,
     QSlider,
     QScrollArea,
     QSplitter,
@@ -47,9 +44,6 @@ from PySide6.QtWidgets import (
 from app_metadata import (
     ANNOTATION_WORKSPACE_NAME,
     APP_NAME,
-    DEFAULT_TUTORIAL_HF_REPO,
-    TUTORIAL_FOLDER_NAME,
-    TUTORIAL_OUTPUTS_DIR,
 )
 from .dialogs import (
     BehaviorManagerDialog,
@@ -70,9 +64,8 @@ from .models import (
     VideoRecord,
 )
 from .state import AnnotationSessionState
-from .store import AnnotationStore, default_color, normalize_video_split
+from .store import AnnotationStore, normalize_video_split
 from .timeline import AnnotationTimeline, BehaviorLaneLabels
-from .tutorial import TutorialDownloadWorker
 from .widgets import BehaviorButton, VideoListItem, color_swatch_icon, format_ms
 from .workflow_panels import (
     ArtifactInspectorPanel,
@@ -245,11 +238,6 @@ class AnnotationMainWindow(QMainWindow):
         bundle_model_action.triggered.connect(self._bundle_existing_model)
         model_tools_menu.addAction(bundle_model_action)
 
-        tutorial_menu = menu.addMenu("&Tutorial")
-        load_mars_tutorial_action = QAction(f"Download/Load {APP_NAME} tutorial...", self)
-        load_mars_tutorial_action.triggered.connect(self._load_mars_gui_tutorial)
-        tutorial_menu.addAction(load_mars_tutorial_action)
-
         help_menu = menu.addMenu("&Help")
         workflow_guide_action = QAction("Workflow Guide...", self)
         workflow_guide_action.triggered.connect(self._show_workflow_guide)
@@ -401,23 +389,19 @@ class AnnotationMainWindow(QMainWindow):
         empty_layout.setContentsMargins(24, 24, 24, 24)
         empty_layout.setSpacing(12)
         empty_layout.addStretch(1)
-        empty_title = QLabel("Start with tutorial data or your own videos")
+        empty_title = QLabel("Start with your videos")
         empty_title.setObjectName("EmptyStateTitle")
         empty_title.setAlignment(Qt.AlignCenter)
         empty_layout.addWidget(empty_title)
-        empty_hint = QLabel("Load the tutorial for a guided amortized-pose-vision workflow, or import videos and define behavior labels.")
+        empty_hint = QLabel("Import videos, define behavior labels, assign splits, and export annotations for model training.")
         empty_hint.setObjectName("HintLabel")
         empty_hint.setAlignment(Qt.AlignCenter)
         empty_hint.setWordWrap(True)
         empty_layout.addWidget(empty_hint)
         empty_actions = QHBoxLayout()
         empty_actions.addStretch(1)
-        load_tutorial_btn = QPushButton("Load tutorial")
-        load_tutorial_btn.setObjectName("PrimaryButton")
-        load_tutorial_btn.setToolTip("Download or locate the curated tutorial project and fill the first workflow paths.")
-        load_tutorial_btn.clicked.connect(self._load_mars_gui_tutorial)
-        empty_actions.addWidget(load_tutorial_btn)
         import_videos_btn = QPushButton("Import videos")
+        import_videos_btn.setObjectName("PrimaryButton")
         import_videos_btn.setToolTip("Select one or more video files to add to this annotation project.")
         import_videos_btn.clicked.connect(self._import_video_files)
         empty_actions.addWidget(import_videos_btn)
@@ -1020,594 +1004,6 @@ class AnnotationMainWindow(QMainWindow):
             f"Auto-assigned train={len(train_ids)} and val={len(val_ids)} videos.",
             6000,
         )
-
-    def _mars_tutorial_root(self) -> Path:
-        stored = self.store.get_setting(self.project.id, "mars_tutorial_root", "").strip()
-        if stored:
-            stored_root = Path(stored).expanduser()
-            if self._is_valid_mars_tutorial_root(stored_root):
-                return stored_root
-        return Path(__file__).resolve().parents[1] / "tutorial_data" / TUTORIAL_FOLDER_NAME
-
-    def _is_valid_mars_tutorial_root(self, tutorial_root: Path) -> bool:
-        return all(
-            path.exists()
-            for path in (
-                tutorial_root / "source_manifest.csv",
-                tutorial_root / "class_names.txt",
-                tutorial_root / "videos",
-                tutorial_root / "annotations",
-            )
-        )
-
-    def _locate_mars_tutorial_root(self, initial_root: Path) -> Path | None:
-        folder = QFileDialog.getExistingDirectory(
-            self,
-            f"Locate {APP_NAME} tutorial data folder",
-            str(initial_root if initial_root.exists() else Path.cwd()),
-        )
-        if not folder:
-            return None
-        tutorial_root = Path(folder)
-        if not self._is_valid_mars_tutorial_root(tutorial_root):
-            QMessageBox.warning(
-                self,
-                "Invalid tutorial folder",
-                (
-                    "Choose the folder that contains source_manifest.csv, class_names.txt, "
-                    "videos/, and annotations/."
-                ),
-            )
-            return None
-        self.store.set_setting(self.project.id, "mars_tutorial_root", str(tutorial_root.resolve()))
-        return tutorial_root
-
-    def _tutorial_hf_repo_id(self) -> str:
-        stored = self.store.get_setting(self.project.id, "tutorial_hf_repo_id", "").strip()
-        env_value = os.environ.get("BEHAVIORSCOPE_X_TUTORIAL_HF_REPO", "").strip()
-        return stored or env_value or DEFAULT_TUTORIAL_HF_REPO
-
-    def _download_mars_gui_tutorial(self) -> Path | None:
-        repo_id = self._tutorial_hf_repo_id()
-        repo_id = repo_id.strip()
-        if not repo_id:
-            QMessageBox.warning(
-                self,
-                "Tutorial download is not configured",
-                "Set DEFAULT_TUTORIAL_HF_REPO or BEHAVIORSCOPE_X_TUTORIAL_HF_REPO first.",
-            )
-            return None
-        self.store.set_setting(self.project.id, "tutorial_hf_repo_id", repo_id)
-
-        tutorial_data_dir = Path(__file__).resolve().parents[1] / "tutorial_data"
-        tutorial_data_dir.mkdir(parents=True, exist_ok=True)
-        progress = QProgressDialog(
-            "Connecting to Hugging Face...",
-            "Cancel",
-            0,
-            100,
-            self,
-        )
-        progress.setWindowTitle(f"Downloading {APP_NAME} tutorial")
-        progress.setWindowModality(Qt.WindowModal)
-        progress.setMinimumDuration(0)
-        progress.setAutoClose(False)
-        progress.setAutoReset(False)
-
-        thread = QThread(self)
-        worker = TutorialDownloadWorker(repo_id=repo_id, local_dir=tutorial_data_dir)
-        worker.moveToThread(thread)
-        state: dict[str, str | None] = {"path": None, "error": None}
-
-        def on_progress(done: int, total: int, filename: str) -> None:
-            progress.setMaximum(max(1, int(total)))
-            progress.setValue(max(0, min(int(done), int(total))))
-            progress.setLabelText(f"Downloading {filename}")
-
-        def on_finished(path: str) -> None:
-            state["path"] = path
-            progress.setValue(progress.maximum())
-            progress.accept()
-
-        def on_failed(message: str) -> None:
-            state["error"] = message
-            progress.reject()
-
-        thread.started.connect(worker.run)
-        worker.progress.connect(on_progress)
-        worker.finished.connect(on_finished)
-        worker.failed.connect(on_failed)
-        worker.finished.connect(thread.quit)
-        worker.failed.connect(thread.quit)
-        progress.canceled.connect(worker.cancel)
-
-        thread.start()
-        result = progress.exec()
-        if result != QDialog.Accepted and state["error"] is None and state["path"] is None:
-            worker.cancel()
-            state["error"] = "Tutorial download was cancelled."
-        thread.quit()
-        thread.wait(30000)
-        worker.deleteLater()
-        thread.deleteLater()
-
-        if state["error"]:
-            QMessageBox.warning(
-                self,
-                "Tutorial download failed",
-                (
-                    str(state["error"])
-                    + "\n\nIf the Hugging Face dataset is private, log in first with "
-                    "`huggingface-cli login` or set an HF_TOKEN environment variable."
-                ),
-            )
-            return None
-
-        candidate = tutorial_data_dir / TUTORIAL_FOLDER_NAME
-        if self._is_valid_mars_tutorial_root(candidate):
-            self.store.set_setting(self.project.id, "mars_tutorial_root", str(candidate.resolve()))
-            return candidate
-        if self._is_valid_mars_tutorial_root(tutorial_data_dir):
-            self.store.set_setting(self.project.id, "mars_tutorial_root", str(tutorial_data_dir.resolve()))
-            return tutorial_data_dir
-        QMessageBox.warning(
-            self,
-            "Tutorial download incomplete",
-            (
-                "The download finished, but the expected tutorial folder was not found.\n\n"
-                f"Expected: {candidate}\n\n"
-                f"The tutorial dataset should contain the {APP_NAME} tutorial folder "
-                "with source_manifest.csv, class_names.txt, videos/, and annotations/."
-            ),
-        )
-        return None
-
-    def _resolve_missing_tutorial_data(self, tutorial_root: Path, reason: str) -> Path | None:
-        box = QMessageBox(self)
-        box.setWindowTitle("Tutorial data not available")
-        box.setIcon(QMessageBox.Information)
-        box.setText(
-            f"The {APP_NAME} tutorial videos are not available locally."
-        )
-        box.setInformativeText(
-            f"{reason}\n\nDownload the tutorial dataset from Hugging Face, "
-            "or locate an already downloaded tutorial folder."
-        )
-        download_btn = box.addButton("Download", QMessageBox.AcceptRole)
-        locate_btn = box.addButton("Locate Folder", QMessageBox.ActionRole)
-        box.addButton(QMessageBox.Cancel)
-        box.setDefaultButton(download_btn)
-        box.exec()
-        clicked = box.clickedButton()
-        if clicked is download_btn:
-            return self._download_mars_gui_tutorial()
-        if clicked is locate_btn:
-            return self._locate_mars_tutorial_root(tutorial_root)
-        return None
-
-    def _load_mars_gui_tutorial(self) -> None:
-        tutorial_root = self._mars_tutorial_root()
-        source_manifest = tutorial_root / "source_manifest.csv"
-        class_names_file = tutorial_root / "class_names.txt"
-        readme = tutorial_root / "README.md"
-        required = [source_manifest, class_names_file, tutorial_root / "videos", tutorial_root / "annotations"]
-        missing = [path for path in required if not path.exists()]
-        if missing:
-            located = self._resolve_missing_tutorial_data(
-                tutorial_root,
-                "Could not find:\n" + "\n".join(str(path) for path in missing),
-            )
-            if located is None:
-                return
-            tutorial_root = located
-            source_manifest = tutorial_root / "source_manifest.csv"
-            class_names_file = tutorial_root / "class_names.txt"
-            readme = tutorial_root / "README.md"
-
-        proceed = QMessageBox.question(
-            self,
-            f"Load {APP_NAME} tutorial?",
-            (
-                "This will import the tutorial videos into the current project, assign their "
-                "train/validation/test splits, add the tutorial behavior labels, and fill the "
-                "model workflow paths.\n\n"
-                "It will not start preprocessing, training, or inference."
-            ),
-            QMessageBox.Yes | QMessageBox.Cancel,
-            QMessageBox.Yes,
-        )
-        if proceed != QMessageBox.Yes:
-            return
-
-        try:
-            rows = self._read_tutorial_manifest(source_manifest, tutorial_root)
-            class_names = [
-                line.strip()
-                for line in class_names_file.read_text(encoding="utf-8").splitlines()
-                if line.strip()
-            ]
-        except FileNotFoundError as exc:
-            located = self._resolve_missing_tutorial_data(tutorial_root, str(exc))
-            if located is None:
-                return
-            tutorial_root = located
-            source_manifest = tutorial_root / "source_manifest.csv"
-            class_names_file = tutorial_root / "class_names.txt"
-            readme = tutorial_root / "README.md"
-            try:
-                rows = self._read_tutorial_manifest(source_manifest, tutorial_root)
-                class_names = [
-                    line.strip()
-                    for line in class_names_file.read_text(encoding="utf-8").splitlines()
-                    if line.strip()
-                ]
-            except Exception as retry_exc:
-                QMessageBox.critical(self, "Tutorial load failed", str(retry_exc))
-                return
-        except Exception as exc:
-            QMessageBox.critical(self, "Tutorial load failed", str(exc))
-            return
-
-        video_paths = [Path(row["resolved_video_path"]) for row in rows]
-        QApplication.setOverrideCursor(Qt.WaitCursor)
-        try:
-            imported_count = self.store.import_videos(self.project.id, video_paths)
-            behavior_ids = self._add_tutorial_behaviors(class_names)
-            split_counts = self._apply_tutorial_splits(rows)
-            annotation_count = self._import_tutorial_annotations(rows, behavior_ids)
-            self._fill_tutorial_workflow_paths(tutorial_root, source_manifest, class_names_file)
-            self.store.set_setting(self.project.id, "mars_tutorial_root", str(tutorial_root.resolve()))
-        except Exception as exc:
-            QMessageBox.critical(self, "Tutorial load failed", str(exc))
-            return
-        finally:
-            QApplication.restoreOverrideCursor()
-
-        self._reload_all()
-        if self.videos:
-            tutorial_video_paths = {str(path.resolve()).casefold() for path in video_paths}
-            first_tutorial = next(
-                (
-                    video
-                    for video in self.videos
-                    if str(Path(video.path).resolve()).casefold() in tutorial_video_paths
-                ),
-                self.videos[0],
-            )
-        self._set_current_video(first_tutorial.id, 0)
-        if self._tutorial_has_mobilenet_models(tutorial_root) and hasattr(self, "mobilenet_page"):
-            self.workflow_tabs.setCurrentWidget(self.mobilenet_page)
-            self.mobilenet_tabs.setCurrentWidget(self.mobilenet_full_video_panel)
-        else:
-            self._select_yolo_panel(self.prepare_full_video_panel)
-        readme_note = f"\n\nTutorial README:\n{readme}" if readme.exists() else ""
-        model_note = self._tutorial_model_note(tutorial_root)
-        QMessageBox.information(
-            self,
-            f"{APP_NAME} tutorial loaded",
-            (
-                f"Imported {imported_count} new video(s).\n"
-                f"Loaded {annotation_count} tutorial annotation span(s).\n"
-                f"Split assignments: {split_counts}\n\n"
-                "Next step: build a window NPZ cache from the tutorial videos. If "
-                "the bundled MobileNetV3 pose model is present, the MobileNetV3 > "
-                "Full-Video Cache tab has been filled and selected. Otherwise, use "
-                "YOLO-pose > Full-Video Cache with an Ultralytics YOLO-pose checkpoint."
-                f"{model_note}"
-                f"{readme_note}"
-            ),
-        )
-
-    def _tutorial_has_mobilenet_models(self, tutorial_root: Path) -> bool:
-        required = [
-            tutorial_root / "tutorial_models" / "full_pose_mobilenetv3" / "best_pose_map5095.pt",
-            tutorial_root
-            / "tutorial_models"
-            / "full_attn_classifier_mobilenetv3"
-            / "best_model_macro_f1.pt",
-            tutorial_root / "tutorial_models" / "full_attn_classifier_mobilenetv3" / "config.json",
-        ]
-        return all(path.is_file() for path in required)
-
-    def _tutorial_model_note(self, tutorial_root: Path) -> str:
-        models = [
-            (
-                "MobileNetV3 pose model",
-                tutorial_root / "tutorial_models" / "full_pose_mobilenetv3" / "best_pose_map5095.pt",
-            ),
-            (
-                "MobileNetV3 classifier",
-                tutorial_root
-                / "tutorial_models"
-                / "full_attn_classifier_mobilenetv3"
-                / "best_model_macro_f1.pt",
-            ),
-            (
-                "MobileNetV3 classifier config",
-                tutorial_root / "tutorial_models" / "full_attn_classifier_mobilenetv3" / "config.json",
-            ),
-        ]
-        available = [label for label, path in models if path.is_file()]
-        if len(available) == len(models):
-            return (
-                "\n\nMobileNetV3 tutorial models were found in tutorial_models. They are "
-                "ready for the MobileNetV3 full-video cache, feature-cache, and "
-                "classifier workflow."
-            )
-        if available:
-            missing = [label for label, path in models if not path.is_file()]
-            return "\n\nSome tutorial MobileNetV3 model assets are missing: " + ", ".join(missing) + "."
-        return ""
-
-    def _read_tutorial_manifest(self, manifest_path: Path, tutorial_root: Path) -> list[dict[str, str]]:
-        required_columns = {"split", "video_id", "video_path", "annot_path"}
-        with manifest_path.open("r", encoding="utf-8", newline="") as handle:
-            reader = csv.DictReader(handle)
-            missing_columns = required_columns.difference(reader.fieldnames or [])
-            if missing_columns:
-                raise ValueError(
-                    f"{manifest_path.name} is missing required column(s): "
-                    + ", ".join(sorted(missing_columns))
-                )
-            rows = []
-            for row in reader:
-                resolved_video = (tutorial_root / str(row["video_path"])).resolve()
-                resolved_annot = (tutorial_root / str(row["annot_path"])).resolve()
-                if not resolved_video.is_file():
-                    raise FileNotFoundError(f"Tutorial video not found: {resolved_video}")
-                if not resolved_annot.is_file():
-                    raise FileNotFoundError(f"Tutorial annotation not found: {resolved_annot}")
-                row = dict(row)
-                row["split"] = normalize_video_split(row["split"])
-                row["resolved_video_path"] = str(resolved_video)
-                row["resolved_annot_path"] = str(resolved_annot)
-                rows.append(row)
-        if not rows:
-            raise ValueError(f"{manifest_path.name} contains no tutorial videos.")
-        return rows
-
-    def _add_tutorial_behaviors(self, class_names: list[str]) -> dict[str, int]:
-        hotkeys = {
-            "attack": "A",
-            "investigation": "I",
-            "mount": "M",
-        }
-        colors = {
-            "attack": "#D84A4A",
-            "investigation": "#2EA96B",
-            "mount": "#B9872F",
-        }
-        rows: list[dict[str, str | None]] = []
-        for index, name in enumerate(class_names):
-            if name.strip().lower() == "other":
-                continue
-            key = name.strip().lower()
-            rows.append(
-                {
-                    "name": name.strip(),
-                    "color": colors.get(key, default_color(index)),
-                    "definition": f"{APP_NAME} tutorial behavior label.",
-                    "hotkey": hotkeys.get(key),
-                }
-            )
-        self.store.sync_behaviors(self.project.id, rows)
-        return {
-            behavior.name.strip().lower(): behavior.id
-            for behavior in self.store.list_behaviors(self.project.id)
-        }
-
-    def _apply_tutorial_splits(self, rows: list[dict[str, str]]) -> dict[str, int]:
-        videos_by_path = {
-            str(Path(video.path).resolve()).casefold(): video
-            for video in self.store.list_videos(self.project.id)
-        }
-        split_ids: dict[str, list[int]] = {"train": [], "val": [], "test": [], "exclude": []}
-        missing: list[str] = []
-        for row in rows:
-            key = str(Path(row["resolved_video_path"]).resolve()).casefold()
-            video = videos_by_path.get(key)
-            if video is None:
-                missing.append(row["resolved_video_path"])
-                continue
-            split_ids.setdefault(normalize_video_split(row["split"]), []).append(video.id)
-        if missing:
-            raise RuntimeError(
-                "Some tutorial videos could not be matched after import:\n"
-                + "\n".join(missing)
-            )
-        for split, video_ids in split_ids.items():
-            self.store.set_video_splits(video_ids, split)
-        return {split: len(video_ids) for split, video_ids in split_ids.items() if video_ids}
-
-    def _import_tutorial_annotations(
-        self,
-        rows: list[dict[str, str]],
-        behavior_ids: dict[str, int],
-    ) -> int:
-        videos_by_path = {
-            str(Path(video.path).resolve()).casefold(): video
-            for video in self.store.list_videos(self.project.id)
-        }
-        imported = 0
-        for row in rows:
-            key = str(Path(row["resolved_video_path"]).resolve()).casefold()
-            video = videos_by_path.get(key)
-            if video is None:
-                continue
-            existing = {
-                (ann.behavior_id, int(ann.start_ms), int(ann.end_ms))
-                for ann in self.store.list_annotations(video.id)
-            }
-            for span in self._parse_bento_annot(Path(row["resolved_annot_path"])):
-                behavior_id = behavior_ids.get(span["behavior"].lower())
-                if behavior_id is None:
-                    continue
-                start_ms = int(round(float(span["start_s"]) * 1000.0))
-                end_ms = int(round(float(span["stop_s"]) * 1000.0))
-                start_ms = max(0, min(start_ms, video.duration_ms))
-                end_ms = max(0, min(end_ms, video.duration_ms))
-                if end_ms <= start_ms:
-                    continue
-                signature = (behavior_id, start_ms, end_ms)
-                if signature in existing:
-                    continue
-                fps = max(float(video.fps), 1e-6)
-                ann_id = self.store.create_annotation(
-                    self.project.id,
-                    video_id=video.id,
-                    behavior_id=behavior_id,
-                    start_frame=int(round((start_ms / 1000.0) * fps)),
-                    end_frame=int(round((end_ms / 1000.0) * fps)),
-                    start_ms=start_ms,
-                    end_ms=end_ms,
-                    status=AnnotationStatus.APPROVED,
-                )
-                self.store.update_annotation(
-                    ann_id,
-                    status=AnnotationStatus.APPROVED,
-                    notes=f"Imported from {APP_NAME} tutorial reference annotations.",
-                )
-                existing.add(signature)
-                imported += 1
-        return imported
-
-    def _parse_bento_annot(self, annot_path: Path) -> list[dict[str, float | str]]:
-        spans: list[dict[str, float | str]] = []
-        current_behavior: str | None = None
-        in_channel = False
-        fps = 30.0
-        for raw_line in annot_path.read_text(encoding="utf-8", errors="replace").splitlines():
-            line = raw_line.strip()
-            if not line:
-                continue
-            if line.lower().startswith("annotation framerate:"):
-                try:
-                    fps = max(1e-6, float(line.split(":", 1)[1].strip()))
-                except ValueError:
-                    fps = 30.0
-                continue
-            if line.endswith("----------"):
-                in_channel = True
-                current_behavior = None
-                continue
-            if not in_channel:
-                continue
-            if line.startswith(">"):
-                current_behavior = line[1:].strip()
-                continue
-            if current_behavior is None or line.lower().startswith("start"):
-                continue
-            parts = line.split()
-            if len(parts) < 2:
-                continue
-            try:
-                start_s = float(parts[0])
-                stop_s = float(parts[1])
-            except ValueError:
-                continue
-            if stop_s < start_s:
-                continue
-            if stop_s == start_s:
-                stop_s = start_s + (1.0 / fps)
-            spans.append(
-                {
-                    "behavior": current_behavior,
-                    "start_s": start_s,
-                    "stop_s": stop_s,
-                }
-            )
-        return spans
-
-    def _fill_tutorial_workflow_paths(
-        self,
-        tutorial_root: Path,
-        source_manifest: Path,
-        class_names_file: Path,
-    ) -> None:
-        output_base = Path(self.store.db_path).resolve().parent / TUTORIAL_OUTPUTS_DIR
-        output_root = output_base / "prepared_npz"
-        sequence_manifest = output_root / "sequence_manifest.json"
-        feature_cache_root = output_root / "yolo_feature_cache"
-        mobilenet_output_root = output_base / "prepared_npz_mobilenetv3"
-        mobilenet_sequence_manifest = mobilenet_output_root / "sequence_manifest.json"
-        mobilenet_pose = tutorial_root / "tutorial_models" / "full_pose_mobilenetv3" / "best_pose_map5095.pt"
-        mobilenet_cache_root = output_base / "mobilenetv3_feature_cache"
-        training_root = output_base / "training_runs"
-        inference_root = output_base / "inference"
-        review_video_root = output_base / "review_mp4"
-
-        self.prepare_full_video_panel.source_manifest_csv.setText(str(source_manifest.resolve()))
-        self.prepare_full_video_panel.class_names_file.setText(str(class_names_file.resolve()))
-        self.prepare_full_video_panel.output_root.setText(str(output_root.resolve()))
-        self.prepare_full_video_panel.manifest_path.setText(str(sequence_manifest.resolve()))
-        idx = self.prepare_full_video_panel.source_mode.findText("mp4")
-        if idx >= 0:
-            self.prepare_full_video_panel.source_mode.setCurrentIndex(idx)
-        self.prepare_full_video_panel.window_size.setValue(32)
-        self.prepare_full_video_panel.window_stride.setValue(16)
-        self.prepare_full_video_panel.n_animals.setValue(2)
-        self.prepare_full_video_panel.fps.setValue(30.0)
-
-        self.feature_cache_panel.manifest_path.setText(str(sequence_manifest.resolve()))
-        self.feature_cache_panel.output_dir.setText(str(feature_cache_root.resolve()))
-        self.feature_cache_panel.splits.setText("train val")
-
-        if hasattr(self, "mobilenet_full_video_panel"):
-            self.mobilenet_full_video_panel.source_manifest_csv.setText(str(source_manifest.resolve()))
-            self.mobilenet_full_video_panel.class_names_file.setText(str(class_names_file.resolve()))
-            if mobilenet_pose.is_file():
-                self.mobilenet_full_video_panel.checkpoint.setText(str(mobilenet_pose.resolve()))
-            self.mobilenet_full_video_panel.output_root.setText(str(mobilenet_output_root.resolve()))
-            self.mobilenet_full_video_panel.manifest_path.setText(str(mobilenet_sequence_manifest.resolve()))
-            idx_m = self.mobilenet_full_video_panel.source_mode.findText("mp4")
-            if idx_m >= 0:
-                self.mobilenet_full_video_panel.source_mode.setCurrentIndex(idx_m)
-            self.mobilenet_full_video_panel.window_size.setValue(32)
-            self.mobilenet_full_video_panel.window_stride.setValue(16)
-            self.mobilenet_full_video_panel.n_animals.setValue(2)
-            self.mobilenet_full_video_panel.fps.setValue(30.0)
-        if hasattr(self, "mobilenet_feature_cache_panel"):
-            self.mobilenet_feature_cache_panel.manifest_path.setText(str(mobilenet_sequence_manifest.resolve()))
-            if mobilenet_pose.is_file():
-                self.mobilenet_feature_cache_panel.checkpoint.setText(str(mobilenet_pose.resolve()))
-            self.mobilenet_feature_cache_panel.output_dir.setText(str(mobilenet_cache_root.resolve()))
-            self.mobilenet_feature_cache_panel.splits.setText("train val")
-        if hasattr(self, "mobilenet_train_panel"):
-            self.mobilenet_train_panel.manifest_path.setText(str(mobilenet_sequence_manifest.resolve()))
-            self.mobilenet_train_panel.project.setText(str(training_root.resolve()))
-            self.mobilenet_train_panel.name.setText("BehaviorScope-X_tutorial_mobilenetv3")
-            self.mobilenet_train_panel.train_splits.setText("train")
-            self.mobilenet_train_panel.val_splits.setText("val")
-            self.mobilenet_train_panel.use_feature_cache.setText(str(mobilenet_cache_root.resolve()))
-            self.mobilenet_train_panel.auto_feature_cache.setChecked(False)
-            self.mobilenet_train_panel.yolo_weights.setText("")
-            self.mobilenet_train_panel.temporal_splitter_annot_root.setText(str((tutorial_root / "annotations").resolve()))
-            self.mobilenet_train_panel.single_model_path.setText(
-                str((training_root / "BehaviorScope-X_tutorial_mobilenetv3" / "behaviorscope_x_single_model.pt").resolve())
-            )
-
-        self.train_panel.manifest_path.setText(str(sequence_manifest.resolve()))
-        self.train_panel.project.setText(str(training_root.resolve()))
-        self.train_panel.name.setText("BehaviorScope-X_tutorial")
-        self.train_panel.train_splits.setText("train")
-        self.train_panel.val_splits.setText("val")
-        self.train_panel.use_feature_cache.setText(str(feature_cache_root.resolve()))
-        self.train_panel.auto_feature_cache.setChecked(True)
-        self.train_panel.temporal_splitter_annot_root.setText(str((tutorial_root / "annotations").resolve()))
-        self.train_panel.single_model_path.setText(
-            str((training_root / "BehaviorScope-X_tutorial" / "behaviorscope_x_single_model.pt").resolve())
-        )
-
-        first_test_video = next((tutorial_root / "videos" / "test").glob("*.mp4"), None)
-        if first_test_video is not None:
-            self.inference_panel.source.setText(str(first_test_video.resolve()))
-            self.inference_panel.output.setText(str((inference_root / f"{first_test_video.stem}.csv").resolve()))
-            self.inference_panel.output_video.setText(str((review_video_root / f"{first_test_video.stem}_review.mp4").resolve()))
-        self.inference_panel.output_dir.setText(str(inference_root.resolve()))
-        self.inference_panel.output_video_dir.setText(str(review_video_root.resolve()))
-        self.batch_panel.source.setText(str((tutorial_root / "videos" / "test").resolve()))
-        self.batch_panel.output_dir.setText(str((output_base / "batch_inference").resolve()))
-        self.batch_panel.output_video_dir.setText(str((output_base / "batch_review_mp4").resolve()))
 
     def _fill_inference_model_inputs(self, model_path: str) -> None:
         for panel in (self.inference_panel, self.batch_panel):

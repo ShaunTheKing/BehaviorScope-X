@@ -1,0 +1,10 @@
+comparison,metric,mean,ci_low,ci_high,color,n_videos,first_model,second_model
+Full attention − pose+relations,Frame macro-F1,0.030901362448689827,0.018447483374781155,0.04672096065452223,#10B981,28,yolo_sppf_full_attention256_seed42,yolo_sppf_pose_relations_only_attention256_seed42
+Full attention − pose+relations,Bout macro-F1 @0.25,0.03238869533374483,0.016054147166332244,0.048798369116926726,#10B981,28,yolo_sppf_full_attention256_seed42,yolo_sppf_pose_relations_only_attention256_seed42
+Full attention − pose+relations,Bout macro-F1 @0.50,0.042066715020342836,0.020560118068112435,0.06151587180189454,#10B981,28,yolo_sppf_full_attention256_seed42,yolo_sppf_pose_relations_only_attention256_seed42
+Full attention − visual only,Frame macro-F1,0.06758078374669009,0.046804293250047674,0.09004106348830139,#059669,28,yolo_sppf_full_attention256_seed42,yolo_sppf_visual_only_attention256_seed42
+Full attention − visual only,Bout macro-F1 @0.25,0.08301582136114967,0.05022911270421132,0.11521268155206267,#059669,28,yolo_sppf_full_attention256_seed42,yolo_sppf_visual_only_attention256_seed42
+Full attention − visual only,Bout macro-F1 @0.50,0.123012695228474,0.07724116987950864,0.17186318766523637,#059669,28,yolo_sppf_full_attention256_seed42,yolo_sppf_visual_only_attention256_seed42
+Full attention − full LSTM,Frame macro-F1,0.0055931865528277575,-0.004597694248171592,0.014530210003550724,#2271B2,28,yolo_sppf_full_attention256_seed42,yolo_sppf_full_lstm256_seed42
+Full attention − full LSTM,Bout macro-F1 @0.25,0.019983848217683668,0.0029986339681065195,0.035507820412565484,#2271B2,28,yolo_sppf_full_attention256_seed42,yolo_sppf_full_lstm256_seed42
+Full attention − full LSTM,Bout macro-F1 @0.50,0.001142141913931184,-0.018417329364103584,0.019896697722239266,#2271B2,28,yolo_sppf_full_attention256_seed42,yolo_sppf_full_lstm256_seed42

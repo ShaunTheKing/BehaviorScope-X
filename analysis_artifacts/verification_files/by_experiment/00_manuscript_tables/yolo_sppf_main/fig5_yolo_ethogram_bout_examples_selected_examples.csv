@@ -1,0 +1,4 @@
+panel,split,video_id,frame,class,gt_label,reference_label,full_label,caption,reference_model,full_model,prediction_type
+A,test_2,Mouse836-female_20200322_19-33-17_00957-13323,1879,investigation,investigation,attack,investigation,Pose + relations only confuses an investigation bout.,yolo_sppf_pose_relations_only_attention256_seed42,yolo_sppf_full_attention256_seed42,smoothed_frames
+B,test_1,Mouse069_20160709_16-02-03,1507,attack,attack,investigation,attack,Pose + relations only confuses an attack bout.,yolo_sppf_pose_relations_only_attention256_seed42,yolo_sppf_full_attention256_seed42,smoothed_frames
+C,test_2,Mouse835-female_20200325_18-28-49_10767-24391,8789,mount,mount,investigation,mount,Pose + relations only confuses a mount bout.,yolo_sppf_pose_relations_only_attention256_seed42,yolo_sppf_full_attention256_seed42,smoothed_frames

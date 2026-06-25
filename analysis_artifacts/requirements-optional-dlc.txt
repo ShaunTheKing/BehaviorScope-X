@@ -1,0 +1,3 @@
+# Optional dependencies for DLC-HRNet/SuperAnimal reproduction.
+deeplabcut>=3.0
+huggingface-hub>=0.36

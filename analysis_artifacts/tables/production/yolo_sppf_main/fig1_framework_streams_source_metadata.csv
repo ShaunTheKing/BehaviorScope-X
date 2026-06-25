@@ -1,0 +1,2 @@
+figure,source_asset,backend,purpose,panels
+fig1_framework_streams,Manuscript_penultimate\figures\production\source_assets\input_stream_decomposition_mouse061.png,yolo_sppf,BehaviorScope-Y framework and cached input streams,"source frame, group-scene crop, per-animal crops, pose-self stream, relational geometry stream"

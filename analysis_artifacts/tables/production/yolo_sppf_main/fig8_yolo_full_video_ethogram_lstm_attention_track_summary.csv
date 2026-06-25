@@ -1,0 +1,6 @@
+track,model_name,n_bouts
+Ground truth,ground_truth,79
+Full attention-256,yolo_sppf_full_attention256_seed42,54
+Full LSTM-256,yolo_sppf_full_lstm256_seed42,63
+"Pose + relations
+attention-256",yolo_sppf_pose_relations_only_attention256_seed42,69

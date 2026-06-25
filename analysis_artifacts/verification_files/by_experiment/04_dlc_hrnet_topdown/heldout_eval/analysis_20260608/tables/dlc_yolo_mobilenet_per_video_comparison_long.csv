@@ -1,0 +1,141 @@
+split,video_id,prediction_type,frame_macro_f1_present_behaviors,bout_macro_f1_iou25_present_behaviors,bout_macro_f1_iou50_present_behaviors,backbone_label,comparison_note
+test_1,Mouse060_20160526_18-16-27,raw_windows,0.8629368377730613,0.7989840348330914,0.683599419448476,YOLO-SPPF,YOLO-pose SPPF features; Attention-256 seed 42
+test_1,Mouse061_20160526_18-38-49,raw_windows,0.9135558117653886,0.8303571428571428,0.7202380952380952,YOLO-SPPF,YOLO-pose SPPF features; Attention-256 seed 42
+test_1,Mouse062_20160526_18-56-26,raw_windows,0.952790801023416,0.7679487179487179,0.7262820512820511,YOLO-SPPF,YOLO-pose SPPF features; Attention-256 seed 42
+test_1,Mouse063_20160526_19-14-46,raw_windows,0.7828991053031495,0.6333748443337484,0.463428808634288,YOLO-SPPF,YOLO-pose SPPF features; Attention-256 seed 42
+test_1,Mouse069_20160709_16-02-03,raw_windows,0.5398635375620415,0.440390131956397,0.3350545037292025,YOLO-SPPF,YOLO-pose SPPF features; Attention-256 seed 42
+test_1,Mouse070_20160709_16-58-36,raw_windows,0.6202869353537787,0.4699743370402052,0.3042486455660108,YOLO-SPPF,YOLO-pose SPPF features; Attention-256 seed 42
+test_1,Mouse074_20160709_19-15-23,raw_windows,0.6267300812693175,0.5272995573044761,0.3320216428922774,YOLO-SPPF,YOLO-pose SPPF features; Attention-256 seed 42
+test_1,Mouse077_20160709_18-29-34,raw_windows,0.5028600466304044,0.3925070899049704,0.2088163590228369,YOLO-SPPF,YOLO-pose SPPF features; Attention-256 seed 42
+test_1,Mouse162_20161017_19-58-28,raw_windows,0.766383794538698,0.7718260869565218,0.577391304347826,YOLO-SPPF,YOLO-pose SPPF features; Attention-256 seed 42
+test_1,Mouse163_20161018_18-22-45,raw_windows,0.8471747315059597,0.8225806451612903,0.5967741935483871,YOLO-SPPF,YOLO-pose SPPF features; Attention-256 seed 42
+test_2,Mouse155_20151124_20-48-31,raw_windows,0.8496558916587735,0.670995670995671,0.6406926406926406,YOLO-SPPF,YOLO-pose SPPF features; Attention-256 seed 42
+test_2,Mouse155_20151124_20-56-05,raw_windows,0.6684500900763373,0.6024242424242425,0.3763636363636363,YOLO-SPPF,YOLO-pose SPPF features; Attention-256 seed 42
+test_2,Mouse155_20151124_21-11-28,raw_windows,0.7853043068281983,0.6926406926406926,0.5303030303030303,YOLO-SPPF,YOLO-pose SPPF features; Attention-256 seed 42
+test_2,Mouse155_20151129_22-41-43,raw_windows,0.8258157039149867,0.8695652173913043,0.7971014492753623,YOLO-SPPF,YOLO-pose SPPF features; Attention-256 seed 42
+test_2,Mouse156_20151012_20-16-37,raw_windows,0.5841914342701023,0.4837092731829573,0.2349624060150376,YOLO-SPPF,YOLO-pose SPPF features; Attention-256 seed 42
+test_2,Mouse156_20151124_21-53-46,raw_windows,0.5576262970338539,0.4857142857142857,0.2178571428571428,YOLO-SPPF,YOLO-pose SPPF features; Attention-256 seed 42
+test_2,Mouse158_20151129_21-12-54,raw_windows,0.705885827025309,0.5789473684210525,0.3859649122807017,YOLO-SPPF,YOLO-pose SPPF features; Attention-256 seed 42
+test_2,Mouse159_20151129_20-48-38,raw_windows,0.607920422101393,0.5774976657329599,0.2633053221288515,YOLO-SPPF,YOLO-pose SPPF features; Attention-256 seed 42
+test_2,Mouse159_20151129_20-57-31,raw_windows,0.8006103347067965,0.7352941176470589,0.6764705882352942,YOLO-SPPF,YOLO-pose SPPF features; Attention-256 seed 42
+test_2,Mouse627_20181026_17-29-36_01994-09560,raw_windows,0.8819811764536898,0.8898305084745763,0.8050847457627119,YOLO-SPPF,YOLO-pose SPPF features; Attention-256 seed 42
+test_2,Mouse627_20181026_17-29-36_10191-15523,raw_windows,0.7840776870188635,0.7954545454545454,0.4924242424242424,YOLO-SPPF,YOLO-pose SPPF features; Attention-256 seed 42
+test_2,Mouse627_20181026_17-29-36_16209-22286,raw_windows,0.6812914522589035,0.7295454545454545,0.7295454545454545,YOLO-SPPF,YOLO-pose SPPF features; Attention-256 seed 42
+test_2,Mouse630_20181025_18-44-29_01807-21458,raw_windows,0.8448197200812624,0.8551275094953881,0.7932718393922952,YOLO-SPPF,YOLO-pose SPPF features; Attention-256 seed 42
+test_2,Mouse630_20181025_18-44-29_21460-30528,raw_windows,0.7937616561301478,0.8617021276595744,0.7553191489361702,YOLO-SPPF,YOLO-pose SPPF features; Attention-256 seed 42
+test_2,Mouse835-female_20200325_18-28-49_10767-24391,raw_windows,0.9010655776855102,0.8783783783783783,0.7702702702702703,YOLO-SPPF,YOLO-pose SPPF features; Attention-256 seed 42
+test_2,Mouse836-female_20200322_19-33-17_00957-13323,raw_windows,0.8121806095658011,0.5174603174603174,0.4857142857142857,YOLO-SPPF,YOLO-pose SPPF features; Attention-256 seed 42
+test_2,Mouse836-female_20200322_19-33-17_14594-23870,raw_windows,0.91324349757885,0.8857142857142857,0.8428571428571429,YOLO-SPPF,YOLO-pose SPPF features; Attention-256 seed 42
+test_2,Mouse839-female_20200322_20-15-11_12885-24623,raw_windows,0.7980100785561373,0.7795031055900621,0.6211180124223602,YOLO-SPPF,YOLO-pose SPPF features; Attention-256 seed 42
+test_1,Mouse060_20160526_18-16-27,smoothed_frames,0.8629368377730613,0.7989840348330914,0.683599419448476,YOLO-SPPF,YOLO-pose SPPF features; Attention-256 seed 42
+test_1,Mouse061_20160526_18-38-49,smoothed_frames,0.9135558117653886,0.8303571428571428,0.7202380952380952,YOLO-SPPF,YOLO-pose SPPF features; Attention-256 seed 42
+test_1,Mouse062_20160526_18-56-26,smoothed_frames,0.952790801023416,0.7679487179487179,0.7262820512820511,YOLO-SPPF,YOLO-pose SPPF features; Attention-256 seed 42
+test_1,Mouse063_20160526_19-14-46,smoothed_frames,0.7828991053031495,0.6333748443337484,0.463428808634288,YOLO-SPPF,YOLO-pose SPPF features; Attention-256 seed 42
+test_1,Mouse069_20160709_16-02-03,smoothed_frames,0.538638501080435,0.4335118250780901,0.3297634984381972,YOLO-SPPF,YOLO-pose SPPF features; Attention-256 seed 42
+test_1,Mouse070_20160709_16-58-36,smoothed_frames,0.6202869353537787,0.4699743370402052,0.3042486455660108,YOLO-SPPF,YOLO-pose SPPF features; Attention-256 seed 42
+test_1,Mouse074_20160709_19-15-23,smoothed_frames,0.6267300812693175,0.5272995573044761,0.3320216428922774,YOLO-SPPF,YOLO-pose SPPF features; Attention-256 seed 42
+test_1,Mouse077_20160709_18-29-34,smoothed_frames,0.5027018252810114,0.3910438893977276,0.2080847587692155,YOLO-SPPF,YOLO-pose SPPF features; Attention-256 seed 42
+test_1,Mouse162_20161017_19-58-28,smoothed_frames,0.766383794538698,0.7718260869565218,0.577391304347826,YOLO-SPPF,YOLO-pose SPPF features; Attention-256 seed 42
+test_1,Mouse163_20161018_18-22-45,smoothed_frames,0.8471747315059597,0.8225806451612903,0.5967741935483871,YOLO-SPPF,YOLO-pose SPPF features; Attention-256 seed 42
+test_2,Mouse155_20151124_20-48-31,smoothed_frames,0.8496558916587735,0.670995670995671,0.6406926406926406,YOLO-SPPF,YOLO-pose SPPF features; Attention-256 seed 42
+test_2,Mouse155_20151124_20-56-05,smoothed_frames,0.6684500900763373,0.6024242424242425,0.3763636363636363,YOLO-SPPF,YOLO-pose SPPF features; Attention-256 seed 42
+test_2,Mouse155_20151124_21-11-28,smoothed_frames,0.7853043068281983,0.6926406926406926,0.5303030303030303,YOLO-SPPF,YOLO-pose SPPF features; Attention-256 seed 42
+test_2,Mouse155_20151129_22-41-43,smoothed_frames,0.8258157039149867,0.8695652173913043,0.7971014492753623,YOLO-SPPF,YOLO-pose SPPF features; Attention-256 seed 42
+test_2,Mouse156_20151012_20-16-37,smoothed_frames,0.5841914342701023,0.4837092731829573,0.2349624060150376,YOLO-SPPF,YOLO-pose SPPF features; Attention-256 seed 42
+test_2,Mouse156_20151124_21-53-46,smoothed_frames,0.5576262970338539,0.4857142857142857,0.2178571428571428,YOLO-SPPF,YOLO-pose SPPF features; Attention-256 seed 42
+test_2,Mouse158_20151129_21-12-54,smoothed_frames,0.705885827025309,0.5789473684210525,0.3859649122807017,YOLO-SPPF,YOLO-pose SPPF features; Attention-256 seed 42
+test_2,Mouse159_20151129_20-48-38,smoothed_frames,0.607920422101393,0.5774976657329599,0.2633053221288515,YOLO-SPPF,YOLO-pose SPPF features; Attention-256 seed 42
+test_2,Mouse159_20151129_20-57-31,smoothed_frames,0.8006103347067965,0.7352941176470589,0.6764705882352942,YOLO-SPPF,YOLO-pose SPPF features; Attention-256 seed 42
+test_2,Mouse627_20181026_17-29-36_01994-09560,smoothed_frames,0.8819811764536898,0.8898305084745763,0.8050847457627119,YOLO-SPPF,YOLO-pose SPPF features; Attention-256 seed 42
+test_2,Mouse627_20181026_17-29-36_10191-15523,smoothed_frames,0.7840776870188635,0.7954545454545454,0.4924242424242424,YOLO-SPPF,YOLO-pose SPPF features; Attention-256 seed 42
+test_2,Mouse627_20181026_17-29-36_16209-22286,smoothed_frames,0.6812914522589035,0.7295454545454545,0.7295454545454545,YOLO-SPPF,YOLO-pose SPPF features; Attention-256 seed 42
+test_2,Mouse630_20181025_18-44-29_01807-21458,smoothed_frames,0.8448197200812624,0.8551275094953881,0.7932718393922952,YOLO-SPPF,YOLO-pose SPPF features; Attention-256 seed 42
+test_2,Mouse630_20181025_18-44-29_21460-30528,smoothed_frames,0.7937616561301478,0.8617021276595744,0.7553191489361702,YOLO-SPPF,YOLO-pose SPPF features; Attention-256 seed 42
+test_2,Mouse835-female_20200325_18-28-49_10767-24391,smoothed_frames,0.9010655776855102,0.8783783783783783,0.7702702702702703,YOLO-SPPF,YOLO-pose SPPF features; Attention-256 seed 42
+test_2,Mouse836-female_20200322_19-33-17_00957-13323,smoothed_frames,0.8121806095658011,0.5174603174603174,0.4857142857142857,YOLO-SPPF,YOLO-pose SPPF features; Attention-256 seed 42
+test_2,Mouse836-female_20200322_19-33-17_14594-23870,smoothed_frames,0.91324349757885,0.8857142857142857,0.8428571428571429,YOLO-SPPF,YOLO-pose SPPF features; Attention-256 seed 42
+test_2,Mouse839-female_20200322_20-15-11_12885-24623,smoothed_frames,0.7980100785561373,0.7795031055900621,0.6211180124223602,YOLO-SPPF,YOLO-pose SPPF features; Attention-256 seed 42
+test_1,Mouse060_20160526_18-16-27,smoothed_frames,0.7804297146171764,0.6725014116318464,0.4904009034443817,MobileNetV3,MobileNetV3-native features; Attention-256 seed 42; smoothed output available in production table
+test_1,Mouse061_20160526_18-38-49,smoothed_frames,0.7802566529561858,0.4900966183574879,0.3927536231884058,MobileNetV3,MobileNetV3-native features; Attention-256 seed 42; smoothed output available in production table
+test_1,Mouse062_20160526_18-56-26,smoothed_frames,0.94075685822774,0.7173333333333333,0.6773333333333333,MobileNetV3,MobileNetV3-native features; Attention-256 seed 42; smoothed output available in production table
+test_1,Mouse063_20160526_19-14-46,smoothed_frames,0.4696696985017452,0.3764970059880239,0.2508554319931565,MobileNetV3,MobileNetV3-native features; Attention-256 seed 42; smoothed output available in production table
+test_1,Mouse069_20160709_16-02-03,smoothed_frames,0.4965932005762234,0.4035714285714285,0.2833333333333332,MobileNetV3,MobileNetV3-native features; Attention-256 seed 42; smoothed output available in production table
+test_1,Mouse070_20160709_16-58-36,smoothed_frames,0.5989032717710794,0.4548611111111111,0.2575231481481481,MobileNetV3,MobileNetV3-native features; Attention-256 seed 42; smoothed output available in production table
+test_1,Mouse074_20160709_19-15-23,smoothed_frames,0.6240809328477487,0.5668883961566888,0.3589906028930419,MobileNetV3,MobileNetV3-native features; Attention-256 seed 42; smoothed output available in production table
+test_1,Mouse077_20160709_18-29-34,smoothed_frames,0.5604892277135874,0.4787234042553191,0.247127659574468,MobileNetV3,MobileNetV3-native features; Attention-256 seed 42; smoothed output available in production table
+test_1,Mouse162_20161017_19-58-28,smoothed_frames,0.7600056667296302,0.7181818181818183,0.5522727272727272,MobileNetV3,MobileNetV3-native features; Attention-256 seed 42; smoothed output available in production table
+test_1,Mouse163_20161018_18-22-45,smoothed_frames,0.3961345529654765,0.2040816326530612,0.1224489795918367,MobileNetV3,MobileNetV3-native features; Attention-256 seed 42; smoothed output available in production table
+test_2,Mouse155_20151124_20-48-31,smoothed_frames,0.822737111373475,0.6543778801843317,0.6221198156682027,MobileNetV3,MobileNetV3-native features; Attention-256 seed 42; smoothed output available in production table
+test_2,Mouse155_20151124_20-56-05,smoothed_frames,0.6894439843788889,0.6659340659340659,0.5131868131868131,MobileNetV3,MobileNetV3-native features; Attention-256 seed 42; smoothed output available in production table
+test_2,Mouse155_20151124_21-11-28,smoothed_frames,0.7108184445612191,0.5641025641025641,0.3247863247863248,MobileNetV3,MobileNetV3-native features; Attention-256 seed 42; smoothed output available in production table
+test_2,Mouse155_20151129_22-41-43,smoothed_frames,0.5525237973951649,0.5,0.4393939393939394,MobileNetV3,MobileNetV3-native features; Attention-256 seed 42; smoothed output available in production table
+test_2,Mouse156_20151012_20-16-37,smoothed_frames,0.6188531652272754,0.5528837295006449,0.4388243965358393,MobileNetV3,MobileNetV3-native features; Attention-256 seed 42; smoothed output available in production table
+test_2,Mouse156_20151124_21-53-46,smoothed_frames,0.444023569023569,0.4956521739130435,0.05,MobileNetV3,MobileNetV3-native features; Attention-256 seed 42; smoothed output available in production table
+test_2,Mouse158_20151129_21-12-54,smoothed_frames,0.7268636820253087,0.6000000000000001,0.409375,MobileNetV3,MobileNetV3-native features; Attention-256 seed 42; smoothed output available in production table
+test_2,Mouse159_20151129_20-48-38,smoothed_frames,0.6412004389679394,0.6425364758698092,0.3411896745230078,MobileNetV3,MobileNetV3-native features; Attention-256 seed 42; smoothed output available in production table
+test_2,Mouse159_20151129_20-57-31,smoothed_frames,0.7521621722520191,0.75,0.6,MobileNetV3,MobileNetV3-native features; Attention-256 seed 42; smoothed output available in production table
+test_2,Mouse627_20181026_17-29-36_01994-09560,smoothed_frames,0.871165744150844,0.852994555353902,0.7667876588021778,MobileNetV3,MobileNetV3-native features; Attention-256 seed 42; smoothed output available in production table
+test_2,Mouse627_20181026_17-29-36_10191-15523,smoothed_frames,0.7833940718304762,0.7608695652173914,0.5688405797101449,MobileNetV3,MobileNetV3-native features; Attention-256 seed 42; smoothed output available in production table
+test_2,Mouse627_20181026_17-29-36_16209-22286,smoothed_frames,0.6755900374311032,0.7177033492822966,0.6196172248803828,MobileNetV3,MobileNetV3-native features; Attention-256 seed 42; smoothed output available in production table
+test_2,Mouse630_20181025_18-44-29_01807-21458,smoothed_frames,0.8377559979218944,0.8516558552406964,0.7453055650392626,MobileNetV3,MobileNetV3-native features; Attention-256 seed 42; smoothed output available in production table
+test_2,Mouse630_20181025_18-44-29_21460-30528,smoothed_frames,0.787192047379001,0.8629787234042554,0.7353191489361703,MobileNetV3,MobileNetV3-native features; Attention-256 seed 42; smoothed output available in production table
+test_2,Mouse835-female_20200325_18-28-49_10767-24391,smoothed_frames,0.8070273920304759,0.7262745098039216,0.4219607843137255,MobileNetV3,MobileNetV3-native features; Attention-256 seed 42; smoothed output available in production table
+test_2,Mouse836-female_20200322_19-33-17_00957-13323,smoothed_frames,0.4651787427255867,0.3015873015873015,0.2539682539682539,MobileNetV3,MobileNetV3-native features; Attention-256 seed 42; smoothed output available in production table
+test_2,Mouse836-female_20200322_19-33-17_14594-23870,smoothed_frames,0.8199108241320144,0.7982905982905983,0.5487179487179487,MobileNetV3,MobileNetV3-native features; Attention-256 seed 42; smoothed output available in production table
+test_2,Mouse839-female_20200322_20-15-11_12885-24623,smoothed_frames,0.5367850063074429,0.436046511627907,0.2546511627906976,MobileNetV3,MobileNetV3-native features; Attention-256 seed 42; smoothed output available in production table
+test_1,Mouse060_20160526_18-16-27,raw_windows,0.865467242380707,0.7954875313365879,0.711571447420504,DLC-HRNet,DLC top-down detector+pose cache; single seed 42
+test_1,Mouse061_20160526_18-38-49,raw_windows,0.9204353383012676,0.7899227956115401,0.6842746850873629,DLC-HRNet,DLC top-down detector+pose cache; single seed 42
+test_1,Mouse062_20160526_18-56-26,raw_windows,0.948576268077569,0.7365591397849462,0.6881720430107527,DLC-HRNet,DLC top-down detector+pose cache; single seed 42
+test_1,Mouse063_20160526_19-14-46,raw_windows,0.7686123165673254,0.563529411764706,0.4807843137254902,DLC-HRNet,DLC top-down detector+pose cache; single seed 42
+test_1,Mouse069_20160709_16-02-03,raw_windows,0.5045828267754987,0.4064935064935064,0.2551948051948052,DLC-HRNet,DLC top-down detector+pose cache; single seed 42
+test_1,Mouse070_20160709_16-58-36,raw_windows,0.6066315739033864,0.4646341463414633,0.2914634146341463,DLC-HRNet,DLC top-down detector+pose cache; single seed 42
+test_1,Mouse074_20160709_19-15-23,raw_windows,0.6007156674194455,0.4966861598440546,0.3434697855750487,DLC-HRNet,DLC top-down detector+pose cache; single seed 42
+test_1,Mouse077_20160709_18-29-34,raw_windows,0.4739085546119452,0.4151603233717867,0.2245435552729585,DLC-HRNet,DLC top-down detector+pose cache; single seed 42
+test_1,Mouse162_20161017_19-58-28,raw_windows,0.7746880259292612,0.7897252090800477,0.5931899641577061,DLC-HRNet,DLC top-down detector+pose cache; single seed 42
+test_1,Mouse163_20161018_18-22-45,raw_windows,0.8654943788399939,0.8130122950819673,0.7310450819672132,DLC-HRNet,DLC top-down detector+pose cache; single seed 42
+test_2,Mouse155_20151124_20-48-31,raw_windows,0.8481650317947483,0.7098214285714286,0.6160714285714285,DLC-HRNet,DLC top-down detector+pose cache; single seed 42
+test_2,Mouse155_20151124_20-56-05,raw_windows,0.6615537665589057,0.5793650793650793,0.4047619047619047,DLC-HRNet,DLC top-down detector+pose cache; single seed 42
+test_2,Mouse155_20151124_21-11-28,raw_windows,0.8281385317902171,0.8260869565217391,0.7391304347826086,DLC-HRNet,DLC top-down detector+pose cache; single seed 42
+test_2,Mouse155_20151129_22-41-43,raw_windows,0.8458011583715948,0.8974358974358975,0.858974358974359,DLC-HRNet,DLC top-down detector+pose cache; single seed 42
+test_2,Mouse156_20151012_20-16-37,raw_windows,0.5667610532533792,0.4545025145175183,0.2650662665666417,DLC-HRNet,DLC top-down detector+pose cache; single seed 42
+test_2,Mouse156_20151124_21-53-46,raw_windows,0.4481676774787458,0.436046511627907,0.1662790697674419,DLC-HRNet,DLC top-down detector+pose cache; single seed 42
+test_2,Mouse158_20151129_21-12-54,raw_windows,0.7334439935181335,0.5789473684210525,0.4561403508771929,DLC-HRNet,DLC top-down detector+pose cache; single seed 42
+test_2,Mouse159_20151129_20-48-38,raw_windows,0.5651080920710243,0.4599999999999999,0.3564102564102565,DLC-HRNet,DLC top-down detector+pose cache; single seed 42
+test_2,Mouse159_20151129_20-57-31,raw_windows,0.7499347824257572,0.6578947368421053,0.6052631578947368,DLC-HRNet,DLC top-down detector+pose cache; single seed 42
+test_2,Mouse627_20181026_17-29-36_01994-09560,raw_windows,0.8815006518624875,0.8518518518518519,0.7592592592592593,DLC-HRNet,DLC top-down detector+pose cache; single seed 42
+test_2,Mouse627_20181026_17-29-36_10191-15523,raw_windows,0.7883166191932585,0.7765957446808511,0.6294326241134751,DLC-HRNet,DLC top-down detector+pose cache; single seed 42
+test_2,Mouse627_20181026_17-29-36_16209-22286,raw_windows,0.6503346153393788,0.625974025974026,0.5974025974025974,DLC-HRNet,DLC top-down detector+pose cache; single seed 42
+test_2,Mouse630_20181025_18-44-29_01807-21458,raw_windows,0.8578407284023789,0.808013613861386,0.709003712871287,DLC-HRNet,DLC top-down detector+pose cache; single seed 42
+test_2,Mouse630_20181025_18-44-29_21460-30528,raw_windows,0.8384095551167162,0.851782363977486,0.7645403377110693,DLC-HRNet,DLC top-down detector+pose cache; single seed 42
+test_2,Mouse835-female_20200325_18-28-49_10767-24391,raw_windows,0.9131988894771276,0.7963800904977376,0.6862745098039216,DLC-HRNet,DLC top-down detector+pose cache; single seed 42
+test_2,Mouse836-female_20200322_19-33-17_00957-13323,raw_windows,0.7768481552441738,0.554726368159204,0.509950248756219,DLC-HRNet,DLC top-down detector+pose cache; single seed 42
+test_2,Mouse836-female_20200322_19-33-17_14594-23870,raw_windows,0.8975668416451639,0.9142857142857144,0.8714285714285714,DLC-HRNet,DLC top-down detector+pose cache; single seed 42
+test_2,Mouse839-female_20200322_20-15-11_12885-24623,raw_windows,0.7968358677793297,0.7039284573618653,0.5477483232194187,DLC-HRNet,DLC top-down detector+pose cache; single seed 42
+test_1,Mouse060_20160526_18-16-27,smoothed_frames,0.865467242380707,0.7954875313365879,0.711571447420504,DLC-HRNet,DLC top-down detector+pose cache; single seed 42
+test_1,Mouse061_20160526_18-38-49,smoothed_frames,0.9204353383012676,0.7899227956115401,0.6842746850873629,DLC-HRNet,DLC top-down detector+pose cache; single seed 42
+test_1,Mouse062_20160526_18-56-26,smoothed_frames,0.948576268077569,0.7365591397849462,0.6881720430107527,DLC-HRNet,DLC top-down detector+pose cache; single seed 42
+test_1,Mouse063_20160526_19-14-46,smoothed_frames,0.7686123165673254,0.563529411764706,0.4807843137254902,DLC-HRNet,DLC top-down detector+pose cache; single seed 42
+test_1,Mouse069_20160709_16-02-03,smoothed_frames,0.337387813861846,0.219137184654426,0.1615166442752649,DLC-HRNet,DLC top-down detector+pose cache; single seed 42
+test_1,Mouse070_20160709_16-58-36,smoothed_frames,0.4364772300002211,0.2716108905275099,0.1426262053318207,DLC-HRNet,DLC top-down detector+pose cache; single seed 42
+test_1,Mouse074_20160709_19-15-23,smoothed_frames,0.3800547057147665,0.2341589267285861,0.1038183694530443,DLC-HRNet,DLC top-down detector+pose cache; single seed 42
+test_1,Mouse077_20160709_18-29-34,smoothed_frames,0.3545695485672661,0.2601110664571992,0.0963063095977494,DLC-HRNet,DLC top-down detector+pose cache; single seed 42
+test_1,Mouse162_20161017_19-58-28,smoothed_frames,0.5286870634027592,0.5004359197907584,0.4070037779715199,DLC-HRNet,DLC top-down detector+pose cache; single seed 42
+test_1,Mouse163_20161018_18-22-45,smoothed_frames,0.8654943788399939,0.8130122950819673,0.7310450819672132,DLC-HRNet,DLC top-down detector+pose cache; single seed 42
+test_2,Mouse155_20151124_20-48-31,smoothed_frames,0.492513832283721,0.3165441176470588,0.2110294117647058,DLC-HRNet,DLC top-down detector+pose cache; single seed 42
+test_2,Mouse155_20151124_20-56-05,smoothed_frames,0.4172453209033478,0.3123123123123122,0.2175032175032175,DLC-HRNet,DLC top-down detector+pose cache; single seed 42
+test_2,Mouse155_20151124_21-11-28,smoothed_frames,0.4872789221806075,0.4054520358868185,0.318495514147688,DLC-HRNet,DLC top-down detector+pose cache; single seed 42
+test_2,Mouse155_20151129_22-41-43,smoothed_frames,0.6377410061539973,0.6021978021978022,0.5637362637362638,DLC-HRNet,DLC top-down detector+pose cache; single seed 42
+test_2,Mouse156_20151012_20-16-37,smoothed_frames,0.4762313767764004,0.3436154177433247,0.1624677002583979,DLC-HRNet,DLC top-down detector+pose cache; single seed 42
+test_2,Mouse156_20151124_21-53-46,smoothed_frames,0.2768125276814553,0.2475849731663685,0.1316636851520572,DLC-HRNet,DLC top-down detector+pose cache; single seed 42
+test_2,Mouse158_20151129_21-12-54,smoothed_frames,0.4263246827888846,0.279833246482543,0.179954837589022,DLC-HRNet,DLC top-down detector+pose cache; single seed 42
+test_2,Mouse159_20151129_20-48-38,smoothed_frames,0.3975935140914171,0.2445887445887446,0.1503496503496504,DLC-HRNet,DLC top-down detector+pose cache; single seed 42
+test_2,Mouse159_20151129_20-57-31,smoothed_frames,0.4425513030723452,0.2293233082706767,0.1766917293233083,DLC-HRNet,DLC top-down detector+pose cache; single seed 42
+test_2,Mouse627_20181026_17-29-36_01994-09560,smoothed_frames,0.8815006518624875,0.8518518518518519,0.7592592592592593,DLC-HRNet,DLC top-down detector+pose cache; single seed 42
+test_2,Mouse627_20181026_17-29-36_10191-15523,smoothed_frames,0.7883166191932585,0.7765957446808511,0.6294326241134751,DLC-HRNet,DLC top-down detector+pose cache; single seed 42
+test_2,Mouse627_20181026_17-29-36_16209-22286,smoothed_frames,0.6503346153393788,0.625974025974026,0.5974025974025974,DLC-HRNet,DLC top-down detector+pose cache; single seed 42
+test_2,Mouse630_20181025_18-44-29_01807-21458,smoothed_frames,0.8578407284023789,0.808013613861386,0.709003712871287,DLC-HRNet,DLC top-down detector+pose cache; single seed 42
+test_2,Mouse630_20181025_18-44-29_21460-30528,smoothed_frames,0.8384095551167162,0.851782363977486,0.7645403377110693,DLC-HRNet,DLC top-down detector+pose cache; single seed 42
+test_2,Mouse835-female_20200325_18-28-49_10767-24391,smoothed_frames,0.9131988894771276,0.7963800904977376,0.6862745098039216,DLC-HRNet,DLC top-down detector+pose cache; single seed 42
+test_2,Mouse836-female_20200322_19-33-17_00957-13323,smoothed_frames,0.7768481552441738,0.554726368159204,0.509950248756219,DLC-HRNet,DLC top-down detector+pose cache; single seed 42
+test_2,Mouse836-female_20200322_19-33-17_14594-23870,smoothed_frames,0.8975668416451639,0.9142857142857144,0.8714285714285714,DLC-HRNet,DLC top-down detector+pose cache; single seed 42
+test_2,Mouse839-female_20200322_20-15-11_12885-24623,smoothed_frames,0.7968358677793297,0.7039284573618653,0.5477483232194187,DLC-HRNet,DLC top-down detector+pose cache; single seed 42

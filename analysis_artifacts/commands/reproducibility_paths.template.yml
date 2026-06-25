@@ -1,0 +1,38 @@
+﻿# Copy this file to reproducibility_paths.yml and fill in local paths.
+# Blank values mean the corresponding command families are not runnable on this machine yet.
+
+# Choose which manuscript-facing command families to localize.
+include_mars_yolo_sppf: true
+include_mobilenetv3_backbone: false
+include_dlc_hrnet_topdown: false
+include_fly_v_fly: false
+include_figure_rendering: false
+
+# Unpacked analysis_artifacts folder.
+# Leave blank to use the package root inferred from this script location.
+manuscript_package_root: ""
+
+# Local working root for generated caches, training runs, evaluation runs, and checkpoints.
+run_root: ""
+
+# Root of the MARS behavior dataset itself. This is passed directly to --mars_root.
+# Example: "D:\reproduction_data\MARS-data"
+mars_data_root: ""
+
+# Parent/root for external data trees used by optional command families.
+data_root: ""
+
+# DLC SuperAnimal working root, if reproducing DLC-HRNet analyses.
+dlc_work_root: ""
+
+# BehaviorScope-X GUI checkout, if reproducing GUI/deployment checks.
+behaviorscope_x_gui_root: ""
+
+# Python executable or environment launcher visible from PowerShell.
+python: "python"
+
+# Optional output folder for localized commands. Blank writes to commands/localized.
+output_dir: ""
+
+# Set true only when generating commands before all paths exist locally.
+skip_validation: false

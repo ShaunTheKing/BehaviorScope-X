@@ -1,0 +1,9 @@
+head,metric,comparison,mean_delta,ci_low,ci_high,n_paired_video_seed_units
+attention,frame_macro_f1_present_behaviors,MobileNetV3 - YOLO/SPPF,-0.037002582196396676,-0.058107251447407963,-0.018339177952239494,84
+attention,bout_macro_f1_iou25_present_behaviors,MobileNetV3 - YOLO/SPPF,-0.043948349344546354,-0.07139841698944333,-0.01843563506787412,84
+attention,bout_macro_f1_iou50_present_behaviors,MobileNetV3 - YOLO/SPPF,-0.051731230409944484,-0.08035324087285996,-0.024011129894466014,84
+attention,bout_count_error_reduction,MobileNetV3 - YOLO/SPPF,-0.9166666666666666,-2.869047619047619,1.0360119047619005,84
+lstm,frame_macro_f1_present_behaviors,MobileNetV3 - YOLO/SPPF,-0.04334529914971436,-0.06162845910387263,-0.02695144528536791,84
+lstm,bout_macro_f1_iou25_present_behaviors,MobileNetV3 - YOLO/SPPF,-0.046229427525562805,-0.06961486495102501,-0.025323687663288554,84
+lstm,bout_macro_f1_iou50_present_behaviors,MobileNetV3 - YOLO/SPPF,-0.07481956571347989,-0.09991734429559722,-0.05134486028345501,84
+lstm,bout_count_error_reduction,MobileNetV3 - YOLO/SPPF,1.3333333333333333,-0.28601190476190463,3.0952380952380953,84

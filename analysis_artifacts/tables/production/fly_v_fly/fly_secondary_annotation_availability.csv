@@ -1,0 +1,11 @@
+﻿movie_id,split,primary_actions_path,secondary_annotation_available,secondary_annotation_count,secondary_actions_paths,note
+1,train_or_validation,<RUN_ROOT>\Fly-v-Fly\Aggression\movie1\movie1_actions.mat,False,0,,no secondary annotation file found
+2,train_or_validation,<RUN_ROOT>\Fly-v-Fly\Aggression\movie2\movie2_actions.mat,False,0,,no secondary annotation file found
+3,train_or_validation,<RUN_ROOT>\Fly-v-Fly\Aggression\movie3\movie3_actions.mat,False,0,,no secondary annotation file found
+4,train_or_validation,<RUN_ROOT>\Fly-v-Fly\Aggression\movie4\movie4_actions.mat,False,0,,no secondary annotation file found
+5,train_or_validation,<RUN_ROOT>\Fly-v-Fly\Aggression\movie5\movie5_actions.mat,False,0,,no secondary annotation file found
+6,heldout,<RUN_ROOT>\Fly-v-Fly\Aggression\movie6\movie6_actions.mat,True,1,<RUN_ROOT>\Fly-v-Fly\Aggression\movie6\movie6_second_actions.mat,
+7,heldout,<RUN_ROOT>\Fly-v-Fly\Aggression\movie7\movie7_actions.mat,False,0,,no secondary annotation file found
+8,heldout,<RUN_ROOT>\Fly-v-Fly\Aggression\movie8\movie8_actions.mat,False,0,,no secondary annotation file found
+9,heldout,<RUN_ROOT>\Fly-v-Fly\Aggression\movie9\movie9_actions.mat,False,0,,no secondary annotation file found
+10,heldout,<RUN_ROOT>\Fly-v-Fly\Aggression\movie10\movie10_actions.mat,False,0,,no secondary annotation file found

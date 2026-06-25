@@ -1,0 +1,7 @@
+x,y,n_videos,pearson,spearman
+YOLO-SPPF,delta_frame_macro_f1_present_behaviors,26,0.16126073650274161,0.0010256410256410254
+YOLO-SPPF,delta_bout_macro_f1_iou25_present_behaviors,26,0.07929861266631016,0.002393162393162393
+MobileNetV3,delta_frame_macro_f1_present_behaviors,26,0.13458139655455134,-0.02427350427350427
+MobileNetV3,delta_bout_macro_f1_iou25_present_behaviors,26,0.08912999527204986,-0.005128205128205127
+mobilenet_minus_yolo_visual_fisher,delta_frame_macro_f1_present_behaviors,26,-0.09592149966986528,-0.11316239316239315
+mobilenet_minus_yolo_visual_fisher,delta_bout_macro_f1_iou25_present_behaviors,26,-0.004802067307856157,-0.08102564102564101

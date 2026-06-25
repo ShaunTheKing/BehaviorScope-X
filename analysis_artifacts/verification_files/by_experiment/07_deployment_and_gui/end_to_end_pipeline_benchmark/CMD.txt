@@ -1,0 +1,101 @@
+Run from inside this folder:
+
+  cd end-to-end_pipeline_benchmark
+
+Baseline commands:
+
+  NVIDIA CUDA:
+  python run_end_to_end_benchmark.py --device cuda:0 --amp auto
+
+  NVIDIA CUDA with explicit default OpenCV/Ultralytics video path:
+  python run_end_to_end_benchmark.py --device cuda:0 --amp auto --decode-backend opencv
+
+  CPU:
+  python run_end_to_end_benchmark.py --device cpu --amp off
+
+  CPU with explicit default OpenCV/Ultralytics video path:
+  python run_end_to_end_benchmark.py --device cpu --amp off --decode-backend opencv
+
+  Apple Silicon MPS:
+  python run_end_to_end_benchmark.py --device mps --amp off
+
+  Apple Silicon MPS with explicit default OpenCV/Ultralytics video path:
+  python run_end_to_end_benchmark.py --device mps --amp off --decode-backend opencv
+
+  Dry run:
+  python run_end_to_end_benchmark.py --dry-run
+
+  Repeat each model/video combination 3 times:
+  python run_end_to_end_benchmark.py --device cuda:0 --amp auto --repeats 3
+
+Limit test size while probing:
+
+  First video only:
+  python run_end_to_end_benchmark.py --device cuda:0 --amp auto --max-videos 1
+
+  One model only:
+  python run_end_to_end_benchmark.py --device cuda:0 --amp auto --models full_lstm256
+
+Resume without rerunning completed model/video outputs:
+
+  python run_end_to_end_benchmark.py --device cuda:0 --amp auto --skip-existing
+
+Shell wrappers:
+
+  Windows PowerShell:
+  powershell -ExecutionPolicy Bypass -File .\run_benchmark.ps1 -Device cuda:0 -Amp auto
+
+  macOS/Linux:
+  bash run_benchmark.sh --device cuda:0 --amp auto
+
+Optional FFmpeg predecode/cache comparison:
+
+  Basic FFmpeg predecode/cache mode:
+  python run_end_to_end_benchmark.py --device cuda:0 --amp auto --decode-backend ffmpeg-predecode
+
+  NVIDIA:
+  python run_end_to_end_benchmark.py --device cuda:0 --amp auto --decode-backend ffmpeg-predecode --ffmpeg-hwaccel cuda --ffmpeg-encoder h264_nvenc --ffmpeg-preset p1
+
+  Apple Silicon:
+  python run_end_to_end_benchmark.py --device mps --amp off --decode-backend ffmpeg-predecode --ffmpeg-hwaccel videotoolbox --ffmpeg-encoder h264_videotoolbox
+
+  CPU/libx264 cache:
+  python run_end_to_end_benchmark.py --device cpu --amp off --decode-backend ffmpeg-predecode --ffmpeg-encoder libx264 --ffmpeg-preset ultrafast
+
+Outputs:
+
+  outputs/benchmarks/benchmark_summary.csv
+  outputs/benchmarks/benchmark_plan.json
+  outputs/benchmarks/<model>/rep01/test_1/<video_id>/
+
+Columns to inspect for RTX vs MPS bottlenecks:
+
+  end_to_end_fps
+  mean_pose_crop_next_ms
+  mean_feature_encode_ms
+  mean_window_assembly_ms
+  mean_classify_ms
+  mean_csv_write_ms
+  mean_gpu_util_percent
+  max_gpu_util_percent
+  mean_cpu_percent_normalized
+  max_cpu_rss_mb
+
+Interpretation:
+
+  If mean_pose_crop_next_ms dominates on a discrete GPU workstation, the
+  bottleneck is upstream of the temporal sequence classifier: video decode,
+  Ultralytics tracking, GPU-to-CPU result transfer, or crop construction.
+
+  If mean_feature_encode_ms dominates, the frozen YOLO/SPPF visual feature
+  extraction is the main cost.
+
+  If mean_classify_ms dominates, the temporal sequence classifier is the main
+  cost.
+
+  FFmpeg-predecode mode reports predecode_wall_time_s separately from model
+  inference wall_time_s/end_to_end_fps. It is a cache/predecode comparison,
+  not a zero-copy NVDEC or VideoToolbox model-input path.
+
+  The default decode backend is opencv. Passing --decode-backend opencv makes
+  that default explicit and uses the original MP4 inputs directly.

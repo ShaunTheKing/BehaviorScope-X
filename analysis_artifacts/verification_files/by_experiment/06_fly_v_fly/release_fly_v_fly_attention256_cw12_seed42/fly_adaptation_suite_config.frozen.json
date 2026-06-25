@@ -1,0 +1,120 @@
+{
+  "created_unix_s": 1780602259.446538,
+  "script": "G:\\BehaviorScope_Y_final_runs\\run_fly_v_fly_adaptation_suite.py",
+  "config": "G:\\BehaviorScope_Y_final_runs\\config.yaml",
+  "suite_root": "G:\\BehaviorScope_Y_final_runs\\outputs\\controlled_comparison_runs\\release_fly_v_fly_attention256_cw12_seed42",
+  "device": "cuda:0",
+  "fly_aggression_root": "G:\\BehaviorScope_Y_final_runs\\Fly-v-Fly\\Aggression",
+  "fly_yolo_weights": "G:\\BehaviorScope_Y_final_runs\\Fly_YOLO_Pose_Model\\weights\\best.pt",
+  "adaptation_design": {
+    "head": "attention",
+    "hidden_dim": 256,
+    "windows": [
+      "w16s8",
+      "w8s4"
+    ],
+    "model_seed": 42,
+    "npz_seed": 42,
+    "batch": 64,
+    "reused_train_npz_root": "G:\\BehaviorScope_Y_final_runs\\outputs\\controlled_comparison_runs\\fly_run_20260602\\fly\\npz_cache",
+    "reused_heldout_npz_root": "G:\\BehaviorScope_Y_final_runs\\outputs\\controlled_comparison_runs\\fly_run_20260602\\fly\\heldout_npz_cache",
+    "rebuild_npz": false,
+    "class_weighting": "sqrt_inverse",
+    "class_weight_clamp": 1.2,
+    "train_sampler": "random",
+    "reason": "MARS multi-seed/model-family experiments established attention as the primary temporal head; Fly-v-Fly is rerun as a focused short-bout adaptation with a Fly-specific class-balance recipe."
+  },
+  "runs": [
+    {
+      "name": "fly_yolo_sppf_full_attention256_w16s8_seed42",
+      "window": "w16s8",
+      "recipe": {
+        "sequence_model": "lstm",
+        "window_size": 16,
+        "window_stride": 8,
+        "hidden_dims": [
+          256,
+          512,
+          896
+        ],
+        "epochs": 40,
+        "batch": 64,
+        "num_workers": 0,
+        "lr": 5e-05,
+        "weight_decay": 0.0003,
+        "dropout": 0.5,
+        "num_lstm_layers": 1,
+        "class_weighting": "sqrt_inverse",
+        "class_weight_clamp": 1.5,
+        "train_sampler": "weighted",
+        "positional_encoding": "learned",
+        "yolo_backbone_end_layer": 10,
+        "patience": 20,
+        "pose_fusion_strategy": "gated_attention",
+        "pose_fusion_dim": 128,
+        "feature_cache_batch": 16,
+        "feature_cache_num_workers": 0,
+        "crop_size": 224,
+        "n_animals": 2,
+        "val_movie_ids": [
+          3,
+          5
+        ],
+        "other_subsample": 0.3,
+        "seed": 42,
+        "yolo_batch": 16,
+        "npz_writers": 1,
+        "pose_conf_threshold": 0.2
+      }
+    },
+    {
+      "name": "fly_yolo_sppf_full_attention256_w8s4_seed42",
+      "window": "w8s4",
+      "recipe": {
+        "sequence_model": "lstm",
+        "window_size": 8,
+        "window_stride": 4,
+        "hidden_dims": [
+          256,
+          512,
+          896
+        ],
+        "epochs": 40,
+        "batch": 64,
+        "num_workers": 0,
+        "lr": 5e-05,
+        "weight_decay": 0.0003,
+        "dropout": 0.5,
+        "num_lstm_layers": 1,
+        "class_weighting": "sqrt_inverse",
+        "class_weight_clamp": 1.5,
+        "train_sampler": "weighted",
+        "positional_encoding": "learned",
+        "yolo_backbone_end_layer": 10,
+        "patience": 20,
+        "pose_fusion_strategy": "gated_attention",
+        "pose_fusion_dim": 128,
+        "feature_cache_batch": 16,
+        "feature_cache_num_workers": 0,
+        "crop_size": 224,
+        "n_animals": 2,
+        "val_movie_ids": [
+          3,
+          5
+        ],
+        "other_subsample": 0.3,
+        "seed": 42,
+        "yolo_batch": 16,
+        "npz_writers": 1,
+        "pose_conf_threshold": 0.2
+      }
+    }
+  ],
+  "gt_modes": [
+    "primary",
+    "secondary",
+    "union",
+    "intersection",
+    "padded_primary"
+  ]
+}

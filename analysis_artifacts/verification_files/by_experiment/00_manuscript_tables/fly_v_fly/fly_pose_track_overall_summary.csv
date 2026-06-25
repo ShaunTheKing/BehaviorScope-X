@@ -1,0 +1,2 @@
+n_rows,n_matched_rows,mean_oks,mean_body_length_px,source
+133542,132497,0.9414126229799247,19.045918896251557,Fly held-out w16s4 NPZ cached YOLO keypoints versus movie*_track.mat geometry

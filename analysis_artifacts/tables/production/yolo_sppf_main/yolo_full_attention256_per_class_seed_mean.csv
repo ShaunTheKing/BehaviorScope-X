@@ -1,0 +1,5 @@
+class,mean_frame_f1,mean_frame_precision,mean_frame_recall,mean_bout_f1_iou25
+attack,0.3959,0.3879,0.419,0.3789
+investigation,0.7112,0.6674,0.7844,0.572
+mount,0.4845,0.4979,0.5036,0.4886
+other,0.9218,0.9678,0.8829,0.0

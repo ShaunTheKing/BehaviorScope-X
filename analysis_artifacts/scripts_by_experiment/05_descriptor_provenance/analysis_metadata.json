@@ -1,0 +1,25 @@
+{
+  "n_common_samples_available": 11960,
+  "n_samples_loaded": 2000,
+  "n_videos_loaded": 28,
+  "class_counts_available": {
+    "investigation": 4527,
+    "other": 4062,
+    "mount": 2185,
+    "attack": 1186
+  },
+  "class_counts_balanced": {
+    "investigation": 500,
+    "mount": 500,
+    "other": 500,
+    "attack": 500
+  },
+  "routes": {
+    "YOLO-SPPF": "F:\\BehaviorScope_Y_final_runs\\outputs\\eval_feature_cache\\mars_stride16",
+    "MobileNetV3": "F:\\BehaviorScope_Y_final_runs\\outputs\\controlled_comparison_runs\\run_20260528_205727\\feature_caches\\mobilenetv3_native\\heldout",
+    "DLC-HRNet": "F:\\BehaviorScope_Y_final_runs\\outputs\\npz_cache\\mars_dlc_topdown_hrnet_feature_cache_heldout"
+  },
+  "unit": "matched held-out behavior window; balanced sample for exploratory descriptor analysis",
+  "vectorization": "visual only; concatenate group, animal 1, animal 2 descriptors per frame, then average across 32 frames",
+  "caveat": "feature channels are route-local and not semantically aligned across backbones; video/window leverage is computed on the balanced loaded subset"
+}

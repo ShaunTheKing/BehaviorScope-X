@@ -1,0 +1,3 @@
+figure,source_asset,panel,description
+fig2_yolo_pose_quality,Manuscript_penultimate\figures\production\source_assets\pose_model_training_curves.png,A,YOLO-pose training convergence curves
+fig2_yolo_pose_quality,Manuscript_penultimate\figures\production\source_assets\keypoint_accuracy.png,B,YOLO-pose held-out keypoint accuracy summary

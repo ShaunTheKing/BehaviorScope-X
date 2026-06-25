@@ -1,0 +1,143 @@
+{
+  "project": {
+    "name": "behaviorscope_z_pose_mars_zsmall_v6_plus",
+    "seed": 0
+  },
+  "data": {
+    "dataset_name": "MARS_pose",
+    "image_size": 640,
+    "normalization": "imagenet",
+    "skeleton": "mars_mouse_7pt",
+    "mars_root": null,
+    "output_root": "outputs/pose_mars_text_migration",
+    "image_cache_dir": "outputs/pose_image_tensor_cache_640_imagenet",
+    "train_source_splits": [
+      "train",
+      "validation"
+    ],
+    "heldout_source_splits": [
+      "test_1",
+      "test_2"
+    ],
+    "total_behavior_frames_trainval": 24000,
+    "total_behavior_frames_heldout": 12000,
+    "val_frac": 0.2,
+    "intra_bout_stride": 6,
+    "include_other_class": true
+  },
+  "model": {
+    "family": "BehaviorScopeZ",
+    "size": "zsmall",
+    "backbone": {
+      "name": "mobilenet_v3_large",
+      "pretrained": true,
+      "freeze_epochs": 100
+    },
+    "pose_head": {
+      "arch": "decoupled_v3",
+      "parameterization": "anchor_offset_box_relative_kpt",
+      "target_level_strategy": "p3"
+    },
+    "num_pose_classes": 1,
+    "num_keypoints": 7,
+    "keypoint_names": [
+      "nose",
+      "ear_1",
+      "ear_2",
+      "neck",
+      "hip_1",
+      "hip_2",
+      "tail_base"
+    ],
+    "temporal_enabled": false,
+    "temporal_present_in_architecture": true,
+    "tracker": {
+      "default": "geometry_hungarian",
+      "appearance_assisted_available_later": true
+    }
+  },
+  "training": {
+    "task": "pose_only",
+    "epochs": 12,
+    "batch_size": 64,
+    "optimizer": "musgd",
+    "lr": 0.003,
+    "backbone_lr_fraction": 0.05,
+    "momentum": 0.937,
+    "nesterov": true,
+    "weight_decay": 0.0005,
+    "scheduler": "cosine",
+    "warmup_epochs": 3.0,
+    "min_lr_fraction": 0.01,
+    "muon_weight": 0.2,
+    "sgd_weight": 1.0,
+    "augmentations": {
+      "enabled": true,
+      "color_jitter_p": 0.7,
+      "brightness": 0.18,
+      "contrast": 0.18,
+      "saturation": 0.12,
+      "blur_p": 0.08,
+      "blur_radius": 0.8,
+      "noise_p": 0.05,
+      "noise_std": 0.015,
+      "rotation_p": 0.25,
+      "rotation_degrees": 25.0
+    },
+    "hard_example_sampler": {
+      "enabled": true,
+      "small_object_weight": 0.75,
+      "crowd_weight": 0.35
+    },
+    "loss": {
+      "box_loss_type": "ciou",
+      "kpt_loss_type": "smooth_l1_oks",
+      "kpt_oks_sigma": 0.08,
+      "kpt_oks_weight": 0.5,
+      "positive_radius": 1,
+      "assignment_topk": 5,
+      "box_weight": 3.0,
+      "obj_weight": 0.7,
+      "cls_weight": 0.2,
+      "kpt_weight": 16.0,
+      "vis_weight": 0.75
+    },
+    "amp": true,
+    "checkpoint_policy": {
+      "save_latest": true,
+      "save_best_val_loss": true,
+      "save_best_pose_map50": true,
+      "save_best_pose_map5095": true,
+      "keep_top_k": 3
+    },
+    "early_stopping": {
+      "enabled": true,
+      "monitor": "pose_map5095",
+      "mode": "max",
+      "patience": 3,
+      "min_delta": 0.002
+    }
+  },
+  "evaluation": {
+    "model_selection_split": "val",
+    "heldout_test_split": "test",
+    "heldout_is_never_used_for_checkpoint_selection": true,
+    "validation_period_epochs": 2,
+    "val_max_images": 3000,
+    "pre_nms_topk": 1000,
+    "quick_val_images": 750,
+    "quick_val_period_epochs": 1,
+    "quick_val_sample": "random",
+    "quick_val_seed": 0,
+    "qc_images": 12,
+    "qc_sample": "random",
+    "qc_seed": 0,
+    "qc_conf": 0.25,
+    "quality_gates": {
+      "pose_map50_warn": 0.85,
+      "pose_map5095_warn": 0.6
+    },
+    "val_sample": "even",
+    "val_seed": 0
+  }
+}

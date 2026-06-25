@@ -36,9 +36,9 @@ except Exception as exc:  # pragma: no cover
     raise ImportError("precompute_mobilenetv3_features_x.py requires torchvision") from exc
 
 try:
-    from data_x import load_n_manifest, feature_cache_path
+    from data_x import load_n_manifest, feature_cache_path, feature_cache_candidate_paths
 except Exception:  # pragma: no cover
-    from .data_x import load_n_manifest, feature_cache_path
+    from .data_x import load_n_manifest, feature_cache_path, feature_cache_candidate_paths
 
 
 IMAGENET_MEAN = torch.tensor([0.485, 0.456, 0.406], dtype=torch.float32).view(1, 3, 1, 1)
@@ -180,7 +180,10 @@ def main() -> int:
     n_total = len(samples)
     if not args.overwrite and out_dir.exists():
         cached_names = {p.name for p in out_dir.glob("*.npz")}
-        samples = [s for s in samples if feature_cache_path(out_dir, s).name not in cached_names]
+        samples = [
+            s for s in samples
+            if not any(path.name in cached_names for path in feature_cache_candidate_paths(out_dir, s))
+        ]
         skipped_prefilter = n_total - len(samples)
     else:
         skipped_prefilter = 0

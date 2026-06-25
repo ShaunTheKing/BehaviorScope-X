@@ -1,0 +1,13 @@
+{
+  "n_jobs_discovered": 5,
+  "n_failures": 0,
+  "outputs": {
+    "manifest_csv": "G:\\BehaviorScope_Y_final_runs\\outputs\\benchmarks\\full_lstm896\\rep02\\manifest.csv",
+    "failures_csv": "G:\\BehaviorScope_Y_final_runs\\outputs\\benchmarks\\full_lstm896\\rep02\\failures.csv",
+    "per_video_summary_csv": "G:\\BehaviorScope_Y_final_runs\\outputs\\benchmarks\\full_lstm896\\rep02\\per_video_summary.csv",
+    "per_class_metrics_csv": "G:\\BehaviorScope_Y_final_runs\\outputs\\benchmarks\\full_lstm896\\rep02\\per_class_metrics.csv",
+    "ground_truth_bouts_csv": "G:\\BehaviorScope_Y_final_runs\\outputs\\benchmarks\\full_lstm896\\rep02\\ground_truth_bouts.csv",
+    "predicted_bouts_csv": "G:\\BehaviorScope_Y_final_runs\\outputs\\benchmarks\\full_lstm896\\rep02\\predicted_bouts.csv",
+    "bout_matches_csv": "G:\\BehaviorScope_Y_final_runs\\outputs\\benchmarks\\full_lstm896\\rep02\\bout_matches.csv"
+  }
+}

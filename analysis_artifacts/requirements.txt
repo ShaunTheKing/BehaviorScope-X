@@ -1,0 +1,24 @@
+# Reproduction environment baseline for the manuscript-facing analysis artifacts.
+# Python 3.11 was used for the local verification environment.
+
+numpy>=2.4
+pandas>=3.0
+matplotlib>=3.10
+scipy>=1.17
+scikit-learn>=1.8
+xgboost>=3.2
+PyYAML>=6.0
+opencv-python>=4.13
+Pillow>=12.2
+psutil>=7.2
+nvidia-ml-py>=12.0
+
+# Deep-learning/model execution.
+# Install PyTorch/TorchVision using the wheel/channel matching the local CUDA or CPU environment.
+torch>=2.11
+torchvision>=0.26
+ultralytics>=8.4
+
+# Optional extras:
+# - DLC-HRNet path: pip install -r requirements-optional-dlc.txt
+# - GUI-assisted review: pip install -r requirements-optional-gui.txt

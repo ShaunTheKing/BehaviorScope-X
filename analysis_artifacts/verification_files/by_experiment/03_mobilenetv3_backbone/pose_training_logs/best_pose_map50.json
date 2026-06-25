@@ -1,0 +1,25 @@
+{
+  "epoch": 32,
+  "metrics": {
+    "epoch": 32,
+    "train_loss": 1.0190460557971046,
+    "val_loss": 1.5561410594493785,
+    "box_map50": 0.9698064865446252,
+    "box_map5095": 0.8010369672100619,
+    "pose_map50": 0.9098246262049042,
+    "pose_map5095": 0.6640838548393714,
+    "pck05": 0.9496904761904762,
+    "validation_scope": "full",
+    "validation_images": 3000,
+    "seconds": 662.9468379020691
+  },
+  "train_state": {
+    "global_step": 41088,
+    "best_val_loss": 1.5561410594493785,
+    "best_pose_map50": 0.9098246262049042,
+    "best_pose_map5095": 0.6595874027747581,
+    "candidate_subset_pose_map5095": 0.6615278122809712,
+    "early_best": 0.6640838548393714,
+    "early_bad_epochs": 0
+  }
+}

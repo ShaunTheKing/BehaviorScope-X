@@ -1,0 +1,6 @@
+track,source,n_frames,attack_frames,investigation_frames,mount_frames,other_frames
+Ground truth,outputs\controlled_comparison_runs\run_20260528_205727\neural_eval\yolo_sppf_full_attention256_seed42\ground_truth_bouts.csv,19632,0,7057,5196,7379
+Full attention-256,outputs\controlled_comparison_runs\run_20260528_205727\neural_eval\yolo_sppf_full_attention256_seed42\test_1\Mouse062_20160526_18-56-26\Mouse062_20160526_18-56-26.behavior.smoothed_frames.csv,19632,0,7680,5184,6768
+Full LSTM-256,outputs\controlled_comparison_runs\run_20260528_205727\neural_eval\yolo_sppf_full_lstm256_seed42\test_1\Mouse062_20160526_18-56-26\Mouse062_20160526_18-56-26.behavior.smoothed_frames.csv,19632,80,7136,5168,7248
+RF pose window,outputs\controlled_comparison_runs\run_20260528_205727\classical\eval\mars_yolo_sppf\rf_pose_window_seed42\pose_window\test_1\Mouse062_20160526_18-56-26\Mouse062_20160526_18-56-26.behavior.smoothed_frames.csv,19632,48,7680,5104,6800
+XGBoost pose window,outputs\controlled_comparison_runs\run_20260528_205727\classical\eval\mars_yolo_sppf\xgb_pose_window_seed42\pose_window\test_1\Mouse062_20160526_18-56-26\Mouse062_20160526_18-56-26.behavior.smoothed_frames.csv,19632,0,7456,5152,7024

@@ -1,0 +1,19 @@
+GPU utilization note for benchmark runs
+
+The benchmark metrics CSV files include GPU columns, but system-level NVIDIA
+utilization fields were not populated during this run:
+
+- gpu_util_percent_avg
+- gpu_util_percent_max
+- gpu_mem_used_mb
+- gpu_temp_c
+
+PyTorch memory fields were recorded in the metrics CSV files:
+
+- gpu_mem_allocated_mb
+- gpu_mem_reserved_mb
+
+During benchmark monitoring, observed GPU memory use was approximately
+1.3 GB / 8.0 GB. Eyeballed GPU utilization ranged approximately 67%-100%.
+Treat these as monitoring notes rather than per-window metrics, because
+nvidia-smi utilization was not captured into the CSV outputs.

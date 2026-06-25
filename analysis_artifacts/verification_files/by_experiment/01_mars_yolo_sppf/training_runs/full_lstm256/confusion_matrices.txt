@@ -1,0 +1,150 @@
+
+=== epoch 1 ===
+Confusion matrix (rows=true, cols=pred) — counts:
+                        attack  investigation          mount          other
+         attack            177            139              4              9
+  investigation             76           4845             89             99
+          mount             49            254           1113              2
+          other             11            782             11           2419
+
+Confusion matrix — row-normalized (recall):
+                        attack  investigation          mount          other
+         attack          0.538          0.422          0.012          0.027
+  investigation          0.015          0.948          0.017          0.019
+          mount          0.035          0.179          0.785          0.001
+          other          0.003          0.243          0.003          0.751
+
+=== epoch 2 ===
+Confusion matrix (rows=true, cols=pred) — counts:
+                        attack  investigation          mount          other
+         attack            192            121              2             14
+  investigation             83           4513             53            460
+          mount             87            267           1060              4
+          other             11            424             10           2778
+
+Confusion matrix — row-normalized (recall):
+                        attack  investigation          mount          other
+         attack          0.584          0.368          0.006          0.043
+  investigation          0.016          0.883          0.010          0.090
+          mount          0.061          0.188          0.748          0.003
+          other          0.003          0.132          0.003          0.862
+
+=== epoch 3 ===
+Confusion matrix (rows=true, cols=pred) — counts:
+                        attack  investigation          mount          other
+         attack            205            109              2             13
+  investigation            104           4692             90            223
+          mount             56            193           1167              2
+          other             11            562             15           2635
+
+Confusion matrix — row-normalized (recall):
+                        attack  investigation          mount          other
+         attack          0.623          0.331          0.006          0.040
+  investigation          0.020          0.918          0.018          0.044
+          mount          0.039          0.136          0.823          0.001
+          other          0.003          0.174          0.005          0.818
+
+=== epoch 4 ===
+Confusion matrix (rows=true, cols=pred) — counts:
+                        attack  investigation          mount          other
+         attack            271             42              2             14
+  investigation            408           4147            153            401
+          mount            111             57           1247              3
+          other             38            388             21           2776
+
+Confusion matrix — row-normalized (recall):
+                        attack  investigation          mount          other
+         attack          0.824          0.128          0.006          0.043
+  investigation          0.080          0.812          0.030          0.078
+          mount          0.078          0.040          0.879          0.002
+          other          0.012          0.120          0.007          0.861
+
+=== epoch 5 ===
+Confusion matrix (rows=true, cols=pred) — counts:
+                        attack  investigation          mount          other
+         attack            248             67              2             12
+  investigation            218           4561            110            220
+          mount             95            129           1192              2
+          other             22            536             16           2649
+
+Confusion matrix — row-normalized (recall):
+                        attack  investigation          mount          other
+         attack          0.754          0.204          0.006          0.036
+  investigation          0.043          0.893          0.022          0.043
+          mount          0.067          0.091          0.841          0.001
+          other          0.007          0.166          0.005          0.822
+
+=== epoch 6 ===
+Confusion matrix (rows=true, cols=pred) — counts:
+                        attack  investigation          mount          other
+         attack            264             48              3             14
+  investigation            254           4249            139            467
+          mount             85             83           1246              4
+          other             19            381             17           2806
+
+Confusion matrix — row-normalized (recall):
+                        attack  investigation          mount          other
+         attack          0.802          0.146          0.009          0.043
+  investigation          0.050          0.832          0.027          0.091
+          mount          0.060          0.059          0.879          0.003
+          other          0.006          0.118          0.005          0.871
+
+=== epoch 7 ===
+Confusion matrix (rows=true, cols=pred) — counts:
+                        attack  investigation          mount          other
+         attack            221             86              2             20
+  investigation             88           4469             77            475
+          mount             62            140           1210              6
+          other              8            402             13           2800
+
+Confusion matrix — row-normalized (recall):
+                        attack  investigation          mount          other
+         attack          0.672          0.261          0.006          0.061
+  investigation          0.017          0.875          0.015          0.093
+          mount          0.044          0.099          0.853          0.004
+          other          0.002          0.125          0.004          0.869
+
+=== epoch 8 ===
+Confusion matrix (rows=true, cols=pred) — counts:
+                        attack  investigation          mount          other
+         attack            229             78              3             19
+  investigation            106           4131             93            779
+          mount             26            171           1218              3
+          other              9            283             15           2916
+
+Confusion matrix — row-normalized (recall):
+                        attack  investigation          mount          other
+         attack          0.696          0.237          0.009          0.058
+  investigation          0.021          0.809          0.018          0.152
+          mount          0.018          0.121          0.859          0.002
+          other          0.003          0.088          0.005          0.905
+
+=== epoch 9 ===
+Confusion matrix (rows=true, cols=pred) — counts:
+                        attack  investigation          mount          other
+         attack            239             78              2             10
+  investigation             94           4690             73            252
+          mount             53            371            991              3
+          other             10            498              5           2710
+
+Confusion matrix — row-normalized (recall):
+                        attack  investigation          mount          other
+         attack          0.726          0.237          0.006          0.030
+  investigation          0.018          0.918          0.014          0.049
+          mount          0.037          0.262          0.699          0.002
+          other          0.003          0.155          0.002          0.841
+
+=== epoch 10 ===
+Confusion matrix (rows=true, cols=pred) — counts:
+                        attack  investigation          mount          other
+         attack            251             61              2             15
+  investigation            165           4476            136            332
+          mount             66            106           1242              4
+          other             10            426             19           2768
+
+Confusion matrix — row-normalized (recall):
+                        attack  investigation          mount          other
+         attack          0.763          0.185          0.006          0.046
+  investigation          0.032          0.876          0.027          0.065
+          mount          0.047          0.075          0.876          0.003
+          other          0.003          0.132          0.006          0.859

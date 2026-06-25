@@ -104,19 +104,11 @@ The screenshots below show the main GUI workflow with annotated callouts for new
 
 ![Annotated screenshot of the Batch tab](docs/screenshots/annotated/06_batch_annotated.png)
 
-## Tutorial Dataset
+## Data And Walkthroughs
 
-BehaviorScope-X includes a guided tutorial based on a small MARS mouse-behavior subset. In the GUI, choose:
+BehaviorScope-X does not bundle third-party tutorial videos or checkpoints. Use videos and pose-estimation models that you are licensed to process, then follow the GUI workflow or command-line scripts to build manifests, prepare caches, train classifiers, and run inference.
 
-```text
-Tutorial > Download/Load BehaviorScope-X tutorial...
-```
-
-The tutorial loader downloads or locates the tutorial data, imports the videos, adds behavior labels, assigns train/validation/test splits, converts `.annot` files into timeline annotations, and fills the downstream workflow paths.
-
-If the automatic download fails, manual download instructions are available in [`tutorial_data/README.md`](tutorial_data/README.md).
-
-Tutorial folders, saved-model schema fields, GUI labels, documentation, package metadata, and manuscript-facing materials use the `BehaviorScope-X` name.
+The manuscript-facing reproducibility package is distributed separately from this app repository. That package contains the scripts, metadata, and provenance needed to evaluate the reported analyses when reviewers have access to the required source datasets and upstream pose outputs.
 
 ## Annotation And Splits
 
@@ -217,11 +209,10 @@ python infer_x.py ^
 - `analysis_workflows/dlc_superanimal_topdown/`: DeepLabCut-HRNet analysis runner, support scripts, and configuration.
 - `analysis_workflows/shared_analysis_code/`: shared controlled-comparison, classical-baseline, and Fly-v-Fly helpers used by the model-family runners.
 - `docs/screenshots/`: reusable raw and annotated GUI screenshots for documentation.
-- `tutorial_data/`: tutorial metadata and local tutorial cache.
 
 ## Data License
 
-The tutorial media and annotations are derived from MARS data and are distributed under `CC BY-NC 4.0` terms with attribution. The tutorial dataset is separate from the software license.
+BehaviorScope-X source code is distributed without bundled video datasets. Users are responsible for following the licenses and use restrictions of any videos, annotations, checkpoints, or upstream pose outputs they process with the app.
 
 ## License
 

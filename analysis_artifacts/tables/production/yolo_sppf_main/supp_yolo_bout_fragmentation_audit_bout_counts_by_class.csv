@@ -1,0 +1,10 @@
+track,class,n_bouts,median_duration_frames,mean_duration_frames,total_duration_frames
+Full LSTM-256,attack,310,48.0,75.35483870967742,23360
+Full LSTM-256,investigation,855,48.0,97.25380116959064,83152
+Full LSTM-256,mount,210,80.0,176.68571428571428,37104
+Full attention-256,attack,273,64.0,90.1978021978022,24624
+Full attention-256,investigation,884,48.0,96.0,84864
+Full attention-256,mount,205,80.0,182.3219512195122,37376
+Ground truth,attack,356,39.0,53.561797752808985,19068
+Ground truth,investigation,1467,21.0,52.29652351738241,76719
+Ground truth,mount,208,74.5,169.61057692307693,35279

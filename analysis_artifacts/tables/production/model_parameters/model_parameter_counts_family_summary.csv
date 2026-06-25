@@ -1,0 +1,5 @@
+route,n_seed_configs,n_architecture_configs,streams,heads,hidden_dims,window_frames,stride_frames,visual_feature_dim_per_crop,combined_sequence_dim_range,total_parameters_range,trainable_parameters_range,seeds
+DLC-HRNet top-down,1,1,full,attention,256,32,16,480,1344-1344,8214012-8214012,8214012-8214012,42
+Fly-v-Fly YOLO/SPPF,2,2,full,attention,256,16;8,4;8,256,896-896,4972742-4972742,3856998-3856998,42
+MARS MobileNetV3 native,6,2,full,attention;lstm,256,32,16,960,2304-2304,4480980-23119572,4480980-23119572,42;43;44
+MARS YOLO/SPPF,113,38,animal_visual_only;full;no_group_visual;no_relations;pose_relations_only;visual_only,attention;lstm;tcn,256;512;896,32,16,0;256,384-1792,1135364-14650500,969828-14650500,42;43;44

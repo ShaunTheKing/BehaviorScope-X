@@ -1,0 +1,7 @@
+track,class,gt_bouts,gt_bouts_with_any_overlap,gt_bouts_split_by_multiple_predictions,fraction_gt_bouts_split,median_overlapping_pred_bouts,mean_gt_coverage_fraction
+Full LSTM-256,attack,356,319,18,0.05056179775280899,1.0,0.8005824320613477
+Full LSTM-256,investigation,1467,889,25,0.017041581458759374,1.0,0.5188826638775088
+Full LSTM-256,mount,208,179,1,0.004807692307692308,1.0,0.7747486038836775
+Full attention-256,attack,356,327,21,0.05898876404494382,1.0,0.8551976513682037
+Full attention-256,investigation,1467,925,22,0.014996591683708248,1.0,0.546712128495383
+Full attention-256,mount,208,185,2,0.009615384615384616,1.0,0.8113666465524894

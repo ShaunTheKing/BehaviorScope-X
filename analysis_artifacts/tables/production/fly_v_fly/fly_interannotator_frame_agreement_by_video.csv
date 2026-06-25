@@ -1,0 +1,11 @@
+﻿movie_id,split,n_frames,secondary_annotation_available,secondary_annotation_count,secondary_actions_path,overall_frame_agreement_pct,primary_nonother_same_label_pct,either_nonother_same_label_pct,both_nonother_same_label_pct,primary_nonother_frames,either_nonother_frames,both_nonother_frames,note
+1,train_or_validation,54000,False,0,,,,,,,,,no secondary annotation file found
+2,train_or_validation,54000,False,0,,,,,,,,,no secondary annotation file found
+3,train_or_validation,54000,False,0,,,,,,,,,no secondary annotation file found
+4,train_or_validation,54000,False,0,,,,,,,,,no secondary annotation file found
+5,train_or_validation,54000,False,0,,,,,,,,,no secondary annotation file found
+6,heldout,54000,True,1,<RUN_ROOT>\Fly-v-Fly\Aggression\movie6\movie6_second_actions.mat,94.056,55.049,49.144,81.955,5635,6312,3785,
+7,heldout,54000,False,0,,,,,,,,,no secondary annotation file found
+8,heldout,54000,False,0,,,,,,,,,no secondary annotation file found
+9,heldout,54000,False,0,,,,,,,,,no secondary annotation file found
+10,heldout,54000,False,0,,,,,,,,,no secondary annotation file found

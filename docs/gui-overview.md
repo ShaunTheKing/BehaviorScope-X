@@ -4,12 +4,6 @@ BehaviorScope-X presents the workflow as one annotation surface followed by mode
 
 ## Top-Level Tabs
 
-## Tutorial Loader
-
-Use `Tutorial > Download/Load BehaviorScope-X tutorial...` to import the curated MARS tutorial set. The loader imports tutorial videos, assigns train/validation/test splits, adds behavior labels, converts reference `.annot` spans into approved timeline annotations, and fills the first raw-video cache stage. If the tutorial MobileNetV3 pose checkpoint is present, the loader selects `MobileNetV3 > Full-Video Cache`; otherwise, use `YOLO-pose > Full-Video Cache` with an Ultralytics YOLO-pose checkpoint.
-
-The tutorial import prepares the project for deliberate workflow testing. It does not start preprocessing, training, or inference.
-
 ### Annotate + Clip
 
 Use this tab to import videos, assign splits, define behaviors, draw bout spans, review boundaries, and export full-video annotations. The legacy clip path remains available for older class-folder datasets, but full-video annotation export is the recommended route for new work.

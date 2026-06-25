@@ -1,0 +1,3 @@
+figure,purpose,notes
+schematic_pose_reuse_framework,Conceptual pipeline for amortized pose-model reuse.,Schematic only; all quantitative stream/capacity results are reported in separate result figures.
+schematic_stream_ablation_design,Visual definition of the six stream-ablation conditions.,"All rows keep the frozen cache, splits, temporal windows, and seeds fixed while changing stream access."

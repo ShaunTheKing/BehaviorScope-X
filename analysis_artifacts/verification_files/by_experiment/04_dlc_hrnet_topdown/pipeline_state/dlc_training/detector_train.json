@@ -1,0 +1,26 @@
+{
+  "status": "complete",
+  "manual_marker": true,
+  "reason": "detector training was intentionally stopped after a validated best checkpoint was saved",
+  "shuffle": 2,
+  "trainset_index": 0,
+  "model_folder": "C:\\Users\\Aegis-MSI\\Documents\\MARS_Dataset_Behavior\\MARS_DLC_SuperAnimal\\dlc-models-pytorch\\iteration-0\\MARS_DLC_SuperAnimal2026-06-06-trainset95shuffle2\\train",
+  "best_detector_snapshot": "C:\\Users\\Aegis-MSI\\Documents\\MARS_Dataset_Behavior\\MARS_DLC_SuperAnimal\\dlc-models-pytorch\\iteration-0\\MARS_DLC_SuperAnimal2026-06-06-trainset95shuffle2\\train\\snapshot-detector-best-004.pt",
+  "best_detector_epoch": 4,
+  "best_detector_metric_key": "metrics/test.mAP@50:95",
+  "best_detector_metric": 71.02195519430495,
+  "detector_snapshots": [
+    "C:\\Users\\Aegis-MSI\\Documents\\MARS_Dataset_Behavior\\MARS_DLC_SuperAnimal\\dlc-models-pytorch\\iteration-0\\MARS_DLC_SuperAnimal2026-06-06-trainset95shuffle2\\train\\snapshot-detector-001.pt",
+    "C:\\Users\\Aegis-MSI\\Documents\\MARS_Dataset_Behavior\\MARS_DLC_SuperAnimal\\dlc-models-pytorch\\iteration-0\\MARS_DLC_SuperAnimal2026-06-06-trainset95shuffle2\\train\\snapshot-detector-002.pt",
+    "C:\\Users\\Aegis-MSI\\Documents\\MARS_Dataset_Behavior\\MARS_DLC_SuperAnimal\\dlc-models-pytorch\\iteration-0\\MARS_DLC_SuperAnimal2026-06-06-trainset95shuffle2\\train\\snapshot-detector-003.pt",
+    "C:\\Users\\Aegis-MSI\\Documents\\MARS_Dataset_Behavior\\MARS_DLC_SuperAnimal\\dlc-models-pytorch\\iteration-0\\MARS_DLC_SuperAnimal2026-06-06-trainset95shuffle2\\train\\snapshot-detector-best-004.pt"
+  ],
+  "pose_checkpoint_guard": {
+    "best_pose_snapshot": "C:\\Users\\Aegis-MSI\\Documents\\MARS_Dataset_Behavior\\MARS_DLC_SuperAnimal\\dlc-models-pytorch\\iteration-0\\MARS_DLC_SuperAnimal2026-06-06-trainset95shuffle2\\train\\snapshot-best-027.pt",
+    "best_pose_epoch": 27,
+    "best_pose_metric_key": "metrics/test.mAP",
+    "best_pose_metric": 91.76826675673418,
+    "unchanged": true
+  },
+  "detector_metadata_epoch": 4
+}

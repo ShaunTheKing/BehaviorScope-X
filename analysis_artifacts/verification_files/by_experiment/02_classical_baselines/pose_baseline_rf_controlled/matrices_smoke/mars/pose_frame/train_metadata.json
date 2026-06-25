@@ -1,0 +1,26 @@
+[
+  {
+    "sample_id": "other_Mouse-Esr1-cre_6_20180808_15-47-18_00536-18624_f000048",
+    "label": 3,
+    "class_name": "other",
+    "source_video": "Mouse-Esr1-cre#6_20180808_15-47-18_00536-18624",
+    "start_frame": 48,
+    "end_frame": 79,
+    "fps": 30.0,
+    "dataset_split": "train",
+    "mars_split": "train",
+    "sequence_npz": "G:\\BehaviorScope_Y_final_runs\\outputs\\npz_cache\\mars_full_video\\sequence_npz\\other\\Mouse-Esr1-cre_6_20180808_15-47-18_00536-18624_f000048.npz"
+  },
+  {
+    "sample_id": "other_Mouse-Esr1-cre_6_20180808_15-47-18_00536-18624_f000144",
+    "label": 3,
+    "class_name": "other",
+    "source_video": "Mouse-Esr1-cre#6_20180808_15-47-18_00536-18624",
+    "start_frame": 144,
+    "end_frame": 175,
+    "fps": 30.0,
+    "dataset_split": "train",
+    "mars_split": "train",
+    "sequence_npz": "G:\\BehaviorScope_Y_final_runs\\outputs\\npz_cache\\mars_full_video\\sequence_npz\\other\\Mouse-Esr1-cre_6_20180808_15-47-18_00536-18624_f000144.npz"
+  }
+]

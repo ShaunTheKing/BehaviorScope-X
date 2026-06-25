@@ -1,0 +1,297 @@
+﻿# Localized command template
+#
+# This is a path-localized template derived from the historical v3 release plan.
+# Replace placeholders before running:
+#   <RUN_ROOT>                  root containing raw datasets, caches, outputs, and checkpoints
+#   <MARS_DATA_ROOT>            root of the MARS behavior dataset itself, used for --mars_root
+#   <DLC_WORK_ROOT>             DLC SuperAnimal working directory, where applicable
+#   <DATA_ROOT>                 root containing external raw data trees, where applicable
+#   <MANUSCRIPT_PACKAGE_ROOT>   local checkout/package root, where applicable
+#   <BEHAVIORSCOPE_X_GUI_ROOT>  local GUI repository root, where applicable
+#   <PYTHON>                    Python executable or environment launcher
+#
+# The original hard-coded command plan is retained beside each experiment as
+# provenance. This template is the reproducibility-facing starting point.
+
+[build_npz] build_mars_training_npz
+Reason: Build MARS train/validation full-video windows used by the MobileNetV3-native comparison.
+Command:
+<PYTHON> <RUN_ROOT>\shared_scripts\scripts\prepare_full_video_npz.py --train_splits train --val_splits validation --exclude_splits test_1 test_2 --mars_root <MARS_DATA_ROOT> --yolo_weights <RUN_ROOT>\MARS_YOLO_Pose_Model\weights\best.pt --output_root <RUN_ROOT>\outputs\npz_cache\mars_full_video --source_mode mp4 --source_mp4_cache <RUN_ROOT>\outputs\source_mp4_cache\mars --window_size 32 --window_stride 16 --crop_size 224 --group_crop_size 224 --animal_scale_factor 4.0 --group_scale_factor 8.0 --pose_conf_threshold 0.2 --yolo_batch 16 --npz_writers 1 --other_subsample 0.3 --seed 42 --device cuda:0 --skip_existing
+Expected outputs:
+  - <RUN_ROOT>\outputs\npz_cache\mars_full_video\sequence_manifest.json
+
+[build_npz] build_mars_heldout_eval_npz
+Reason: Build MARS held-out test_1/test_2 windows while excluding train/validation sources.
+Command:
+<PYTHON> <RUN_ROOT>\shared_scripts\scripts\prepare_full_video_npz.py --train_splits test_1 --val_splits test_2 --exclude_splits train validation --allow_pred_named_annots --tolerate_bad_seq_frames --mars_root <MARS_DATA_ROOT> --yolo_weights <RUN_ROOT>\MARS_YOLO_Pose_Model\weights\best.pt --output_root <RUN_ROOT>\outputs\npz_cache\mars_heldout_eval --source_mode mp4 --source_mp4_cache <RUN_ROOT>\outputs\source_mp4_cache\mars --window_size 32 --window_stride 16 --crop_size 224 --group_crop_size 224 --animal_scale_factor 4.0 --group_scale_factor 8.0 --pose_conf_threshold 0.2 --yolo_batch 16 --npz_writers 1 --other_subsample 1.0 --seed 42 --device cuda:0 --skip_existing
+Expected outputs:
+  - <RUN_ROOT>\outputs\npz_cache\mars_heldout_eval\sequence_manifest.json
+
+[audit] mars_annotation_provenance
+Reason: Separate human-GT held-out videos from pred-named/uncertain annotations before any headline metric.
+Command:
+<PYTHON> <RUN_ROOT>\pose_baseline_rf\audit_mars_annotation_provenance.py --config <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\provenance\pose_baseline_rf_config.yolo_sppf.frozen.yaml
+Expected outputs:
+  - <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\classical\audits\mars_annotation_provenance.csv
+
+[build_visual_cache] build_mobilenetv3_native_train_cache
+Reason: Build native MobileNetV3-large backbone.features.16 visual cache inside this fresh suite directory; no YOLO/SPPF analogue is constructed.
+Command:
+<PYTHON> <RUN_ROOT>\shared_scripts\scripts\precompute_mobilenetv3_features_y.py --manifest_path <RUN_ROOT>\outputs\npz_cache\mars_full_video\sequence_manifest.json --checkpoint <RUN_ROOT>\OtherPoseModels\mars_mobilenetv3_pose_v6_plus_fullval\best_pose_map5095.pt --output_dir <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\feature_caches\mobilenetv3_native\train --splits train val --n_animals 2 --resize_size 640 --batch 1 --num_workers 2 --device cuda:0 --cache_dtype float32 --amp --amp_dtype auto
+Expected outputs:
+  - <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\feature_caches\mobilenetv3_native\train\cache_manifest.json
+
+[build_visual_cache] build_mobilenetv3_native_heldout_cache
+Reason: Build native MobileNetV3-large backbone.features.16 visual cache inside this fresh suite directory; no YOLO/SPPF analogue is constructed.
+Command:
+<PYTHON> <RUN_ROOT>\shared_scripts\scripts\precompute_mobilenetv3_features_y.py --manifest_path <RUN_ROOT>\outputs\npz_cache\mars_heldout_eval\sequence_manifest.json --checkpoint <RUN_ROOT>\OtherPoseModels\mars_mobilenetv3_pose_v6_plus_fullval\best_pose_map5095.pt --output_dir <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\feature_caches\mobilenetv3_native\heldout --splits train val --n_animals 2 --resize_size 640 --batch 1 --num_workers 2 --device cuda:0 --cache_dtype float32 --amp --amp_dtype auto
+Expected outputs:
+  - <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\feature_caches\mobilenetv3_native\heldout\cache_manifest.json
+
+[matrices] build_controlled_classical_matrices_mobilenetv3_native
+Reason: Build RF/XGBoost matrices for mobilenetv3_native; visual PCA is fit on training frames only.
+Command:
+<PYTHON> <RUN_ROOT>\pose_baseline_rf\build_controlled_matrices.py --config <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\provenance\pose_baseline_rf_config.mobilenetv3_native.frozen.yaml
+Expected outputs:
+  - <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\classical\matrices\mars_mobilenetv3_native\matrix_build_summary.json
+
+[train_classical] train_rf_xgb_mobilenetv3_native_seed42
+Reason: Train RF and XGBoost seed 42 on frozen mobilenetv3_native matrices.
+Command:
+<PYTHON> <RUN_ROOT>\pose_baseline_rf\train_controlled_classical.py --config <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\provenance\pose_baseline_rf_config.mobilenetv3_native.frozen.yaml --seed 42 --run_tag seed42
+Expected outputs:
+  - <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\classical\models\mars_mobilenetv3_native\training_summary_seed42.json
+
+[train_classical] train_rf_xgb_mobilenetv3_native_seed43
+Reason: Train RF and XGBoost seed 43 on frozen mobilenetv3_native matrices.
+Command:
+<PYTHON> <RUN_ROOT>\pose_baseline_rf\train_controlled_classical.py --config <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\provenance\pose_baseline_rf_config.mobilenetv3_native.frozen.yaml --seed 43 --run_tag seed43
+Expected outputs:
+  - <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\classical\models\mars_mobilenetv3_native\training_summary_seed43.json
+
+[train_classical] train_rf_xgb_mobilenetv3_native_seed44
+Reason: Train RF and XGBoost seed 44 on frozen mobilenetv3_native matrices.
+Command:
+<PYTHON> <RUN_ROOT>\pose_baseline_rf\train_controlled_classical.py --config <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\provenance\pose_baseline_rf_config.mobilenetv3_native.frozen.yaml --seed 44 --run_tag seed44
+Expected outputs:
+  - <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\classical\models\mars_mobilenetv3_native\training_summary_seed44.json
+
+[eval_classical] eval_rf_xgb_mobilenetv3_native_pose_frame_seed42
+Reason: Evaluate seed 42 mobilenetv3_native classical models against human-GT annotations.
+Command:
+<PYTHON> <RUN_ROOT>\pose_baseline_rf\evaluate_controlled_classical_mars.py --config <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\provenance\pose_baseline_rf_config.mobilenetv3_native.frozen.yaml --feature_set pose_frame --model_paths <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\classical\models\mars_mobilenetv3_native\rf_pose_frame_seed42.pkl <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\classical\models\mars_mobilenetv3_native\xgb_pose_frame_seed42.pkl --no-allow_pred_named_annots
+Expected outputs:
+  - <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\classical\eval\mars_mobilenetv3_native\rf_pose_frame_seed42\pose_frame\aggregate_summary.json
+  - <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\classical\eval\mars_mobilenetv3_native\xgb_pose_frame_seed42\pose_frame\aggregate_summary.json
+
+[eval_classical] eval_rf_xgb_mobilenetv3_native_pose_window_seed42
+Reason: Evaluate seed 42 mobilenetv3_native classical models against human-GT annotations.
+Command:
+<PYTHON> <RUN_ROOT>\pose_baseline_rf\evaluate_controlled_classical_mars.py --config <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\provenance\pose_baseline_rf_config.mobilenetv3_native.frozen.yaml --feature_set pose_window --model_paths <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\classical\models\mars_mobilenetv3_native\rf_pose_window_seed42.pkl <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\classical\models\mars_mobilenetv3_native\xgb_pose_window_seed42.pkl --no-allow_pred_named_annots
+Expected outputs:
+  - <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\classical\eval\mars_mobilenetv3_native\rf_pose_window_seed42\pose_window\aggregate_summary.json
+  - <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\classical\eval\mars_mobilenetv3_native\xgb_pose_window_seed42\pose_window\aggregate_summary.json
+
+[eval_classical] eval_rf_xgb_mobilenetv3_native_pose_visual_frame_pca_seed42
+Reason: Evaluate seed 42 mobilenetv3_native classical models against human-GT annotations.
+Command:
+<PYTHON> <RUN_ROOT>\pose_baseline_rf\evaluate_controlled_classical_mars.py --config <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\provenance\pose_baseline_rf_config.mobilenetv3_native.frozen.yaml --feature_set pose_visual_frame_pca --model_paths <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\classical\models\mars_mobilenetv3_native\rf_pose_visual_frame_pca_seed42.pkl <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\classical\models\mars_mobilenetv3_native\xgb_pose_visual_frame_pca_seed42.pkl --no-allow_pred_named_annots
+Expected outputs:
+  - <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\classical\eval\mars_mobilenetv3_native\rf_pose_visual_frame_pca_seed42\pose_visual_frame_pca\aggregate_summary.json
+  - <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\classical\eval\mars_mobilenetv3_native\xgb_pose_visual_frame_pca_seed42\pose_visual_frame_pca\aggregate_summary.json
+
+[eval_classical] eval_rf_xgb_mobilenetv3_native_pose_visual_window_pca_seed42
+Reason: Evaluate seed 42 mobilenetv3_native classical models against human-GT annotations.
+Command:
+<PYTHON> <RUN_ROOT>\pose_baseline_rf\evaluate_controlled_classical_mars.py --config <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\provenance\pose_baseline_rf_config.mobilenetv3_native.frozen.yaml --feature_set pose_visual_window_pca --model_paths <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\classical\models\mars_mobilenetv3_native\rf_pose_visual_window_pca_seed42.pkl <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\classical\models\mars_mobilenetv3_native\xgb_pose_visual_window_pca_seed42.pkl --no-allow_pred_named_annots
+Expected outputs:
+  - <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\classical\eval\mars_mobilenetv3_native\rf_pose_visual_window_pca_seed42\pose_visual_window_pca\aggregate_summary.json
+  - <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\classical\eval\mars_mobilenetv3_native\xgb_pose_visual_window_pca_seed42\pose_visual_window_pca\aggregate_summary.json
+
+[eval_classical] eval_rf_xgb_mobilenetv3_native_pose_frame_seed43
+Reason: Evaluate seed 43 mobilenetv3_native classical models against human-GT annotations.
+Command:
+<PYTHON> <RUN_ROOT>\pose_baseline_rf\evaluate_controlled_classical_mars.py --config <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\provenance\pose_baseline_rf_config.mobilenetv3_native.frozen.yaml --feature_set pose_frame --model_paths <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\classical\models\mars_mobilenetv3_native\rf_pose_frame_seed43.pkl <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\classical\models\mars_mobilenetv3_native\xgb_pose_frame_seed43.pkl --no-allow_pred_named_annots
+Expected outputs:
+  - <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\classical\eval\mars_mobilenetv3_native\rf_pose_frame_seed43\pose_frame\aggregate_summary.json
+  - <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\classical\eval\mars_mobilenetv3_native\xgb_pose_frame_seed43\pose_frame\aggregate_summary.json
+
+[eval_classical] eval_rf_xgb_mobilenetv3_native_pose_window_seed43
+Reason: Evaluate seed 43 mobilenetv3_native classical models against human-GT annotations.
+Command:
+<PYTHON> <RUN_ROOT>\pose_baseline_rf\evaluate_controlled_classical_mars.py --config <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\provenance\pose_baseline_rf_config.mobilenetv3_native.frozen.yaml --feature_set pose_window --model_paths <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\classical\models\mars_mobilenetv3_native\rf_pose_window_seed43.pkl <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\classical\models\mars_mobilenetv3_native\xgb_pose_window_seed43.pkl --no-allow_pred_named_annots
+Expected outputs:
+  - <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\classical\eval\mars_mobilenetv3_native\rf_pose_window_seed43\pose_window\aggregate_summary.json
+  - <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\classical\eval\mars_mobilenetv3_native\xgb_pose_window_seed43\pose_window\aggregate_summary.json
+
+[eval_classical] eval_rf_xgb_mobilenetv3_native_pose_visual_frame_pca_seed43
+Reason: Evaluate seed 43 mobilenetv3_native classical models against human-GT annotations.
+Command:
+<PYTHON> <RUN_ROOT>\pose_baseline_rf\evaluate_controlled_classical_mars.py --config <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\provenance\pose_baseline_rf_config.mobilenetv3_native.frozen.yaml --feature_set pose_visual_frame_pca --model_paths <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\classical\models\mars_mobilenetv3_native\rf_pose_visual_frame_pca_seed43.pkl <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\classical\models\mars_mobilenetv3_native\xgb_pose_visual_frame_pca_seed43.pkl --no-allow_pred_named_annots
+Expected outputs:
+  - <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\classical\eval\mars_mobilenetv3_native\rf_pose_visual_frame_pca_seed43\pose_visual_frame_pca\aggregate_summary.json
+  - <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\classical\eval\mars_mobilenetv3_native\xgb_pose_visual_frame_pca_seed43\pose_visual_frame_pca\aggregate_summary.json
+
+[eval_classical] eval_rf_xgb_mobilenetv3_native_pose_visual_window_pca_seed43
+Reason: Evaluate seed 43 mobilenetv3_native classical models against human-GT annotations.
+Command:
+<PYTHON> <RUN_ROOT>\pose_baseline_rf\evaluate_controlled_classical_mars.py --config <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\provenance\pose_baseline_rf_config.mobilenetv3_native.frozen.yaml --feature_set pose_visual_window_pca --model_paths <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\classical\models\mars_mobilenetv3_native\rf_pose_visual_window_pca_seed43.pkl <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\classical\models\mars_mobilenetv3_native\xgb_pose_visual_window_pca_seed43.pkl --no-allow_pred_named_annots
+Expected outputs:
+  - <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\classical\eval\mars_mobilenetv3_native\rf_pose_visual_window_pca_seed43\pose_visual_window_pca\aggregate_summary.json
+  - <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\classical\eval\mars_mobilenetv3_native\xgb_pose_visual_window_pca_seed43\pose_visual_window_pca\aggregate_summary.json
+
+[eval_classical] eval_rf_xgb_mobilenetv3_native_pose_frame_seed44
+Reason: Evaluate seed 44 mobilenetv3_native classical models against human-GT annotations.
+Command:
+<PYTHON> <RUN_ROOT>\pose_baseline_rf\evaluate_controlled_classical_mars.py --config <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\provenance\pose_baseline_rf_config.mobilenetv3_native.frozen.yaml --feature_set pose_frame --model_paths <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\classical\models\mars_mobilenetv3_native\rf_pose_frame_seed44.pkl <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\classical\models\mars_mobilenetv3_native\xgb_pose_frame_seed44.pkl --no-allow_pred_named_annots
+Expected outputs:
+  - <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\classical\eval\mars_mobilenetv3_native\rf_pose_frame_seed44\pose_frame\aggregate_summary.json
+  - <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\classical\eval\mars_mobilenetv3_native\xgb_pose_frame_seed44\pose_frame\aggregate_summary.json
+
+[eval_classical] eval_rf_xgb_mobilenetv3_native_pose_window_seed44
+Reason: Evaluate seed 44 mobilenetv3_native classical models against human-GT annotations.
+Command:
+<PYTHON> <RUN_ROOT>\pose_baseline_rf\evaluate_controlled_classical_mars.py --config <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\provenance\pose_baseline_rf_config.mobilenetv3_native.frozen.yaml --feature_set pose_window --model_paths <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\classical\models\mars_mobilenetv3_native\rf_pose_window_seed44.pkl <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\classical\models\mars_mobilenetv3_native\xgb_pose_window_seed44.pkl --no-allow_pred_named_annots
+Expected outputs:
+  - <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\classical\eval\mars_mobilenetv3_native\rf_pose_window_seed44\pose_window\aggregate_summary.json
+  - <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\classical\eval\mars_mobilenetv3_native\xgb_pose_window_seed44\pose_window\aggregate_summary.json
+
+[eval_classical] eval_rf_xgb_mobilenetv3_native_pose_visual_frame_pca_seed44
+Reason: Evaluate seed 44 mobilenetv3_native classical models against human-GT annotations.
+Command:
+<PYTHON> <RUN_ROOT>\pose_baseline_rf\evaluate_controlled_classical_mars.py --config <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\provenance\pose_baseline_rf_config.mobilenetv3_native.frozen.yaml --feature_set pose_visual_frame_pca --model_paths <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\classical\models\mars_mobilenetv3_native\rf_pose_visual_frame_pca_seed44.pkl <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\classical\models\mars_mobilenetv3_native\xgb_pose_visual_frame_pca_seed44.pkl --no-allow_pred_named_annots
+Expected outputs:
+  - <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\classical\eval\mars_mobilenetv3_native\rf_pose_visual_frame_pca_seed44\pose_visual_frame_pca\aggregate_summary.json
+  - <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\classical\eval\mars_mobilenetv3_native\xgb_pose_visual_frame_pca_seed44\pose_visual_frame_pca\aggregate_summary.json
+
+[eval_classical] eval_rf_xgb_mobilenetv3_native_pose_visual_window_pca_seed44
+Reason: Evaluate seed 44 mobilenetv3_native classical models against human-GT annotations.
+Command:
+<PYTHON> <RUN_ROOT>\pose_baseline_rf\evaluate_controlled_classical_mars.py --config <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\provenance\pose_baseline_rf_config.mobilenetv3_native.frozen.yaml --feature_set pose_visual_window_pca --model_paths <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\classical\models\mars_mobilenetv3_native\rf_pose_visual_window_pca_seed44.pkl <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\classical\models\mars_mobilenetv3_native\xgb_pose_visual_window_pca_seed44.pkl --no-allow_pred_named_annots
+Expected outputs:
+  - <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\classical\eval\mars_mobilenetv3_native\rf_pose_visual_window_pca_seed44\pose_visual_window_pca\aggregate_summary.json
+  - <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\classical\eval\mars_mobilenetv3_native\xgb_pose_visual_window_pca_seed44\pose_visual_window_pca\aggregate_summary.json
+
+[train_neural] mobilenetv3_native_full_lstm256_seed42
+Reason: Train lstm seed 42 for model template full_lstm256 using the same MARS windows and cached mobilenetv3_native features.
+Command:
+<PYTHON> <RUN_ROOT>\shared_scripts\scripts\train_y.py --manifest_path <RUN_ROOT>\outputs\npz_cache\mars_full_video\sequence_manifest.json --yolo_weights <RUN_ROOT>\MARS_YOLO_Pose_Model\weights\best.pt --yolo_backbone_end_layer 10 --use_feature_cache <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\feature_caches\mobilenetv3_native\train --allow_feature_cache_without_manifest --sequence_model lstm --hidden_dim 256 --positional_encoding learned --epochs 10 --batch 16 --num_workers 0 --lr 5e-05 --weight_decay 0.0003 --patience 15 --dropout 0.5 --num_lstm_layers 1 --pose_fusion_dim 128 --pose_fusion_strategy gated_attention --class_weighting sqrt_inverse --class_weight_clamp 1.5 --train_sampler weighted --disable_threshold_decoder --resume --seed 42 --device cuda:0 --per_class_metrics --confusion_matrix --project <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\neural_training --name mobilenetv3_native_full_lstm256_seed42 --precomputed_visual_dim 960 --amp --amp_dtype auto
+Expected outputs:
+  - <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\neural_training\mobilenetv3_native_full_lstm256_seed42\best_model_macro_f1.pt
+  - <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\neural_training\mobilenetv3_native_full_lstm256_seed42\config.json
+  - <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\neural_training\mobilenetv3_native_full_lstm256_seed42\training_complete.json
+
+[train_neural] mobilenetv3_native_full_lstm256_seed43
+Reason: Train lstm seed 43 for model template full_lstm256 using the same MARS windows and cached mobilenetv3_native features.
+Command:
+<PYTHON> <RUN_ROOT>\shared_scripts\scripts\train_y.py --manifest_path <RUN_ROOT>\outputs\npz_cache\mars_full_video\sequence_manifest.json --yolo_weights <RUN_ROOT>\MARS_YOLO_Pose_Model\weights\best.pt --yolo_backbone_end_layer 10 --use_feature_cache <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\feature_caches\mobilenetv3_native\train --allow_feature_cache_without_manifest --sequence_model lstm --hidden_dim 256 --positional_encoding learned --epochs 10 --batch 16 --num_workers 0 --lr 5e-05 --weight_decay 0.0003 --patience 15 --dropout 0.5 --num_lstm_layers 1 --pose_fusion_dim 128 --pose_fusion_strategy gated_attention --class_weighting sqrt_inverse --class_weight_clamp 1.5 --train_sampler weighted --disable_threshold_decoder --resume --seed 43 --device cuda:0 --per_class_metrics --confusion_matrix --project <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\neural_training --name mobilenetv3_native_full_lstm256_seed43 --precomputed_visual_dim 960 --amp --amp_dtype auto
+Expected outputs:
+  - <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\neural_training\mobilenetv3_native_full_lstm256_seed43\best_model_macro_f1.pt
+  - <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\neural_training\mobilenetv3_native_full_lstm256_seed43\config.json
+  - <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\neural_training\mobilenetv3_native_full_lstm256_seed43\training_complete.json
+
+[train_neural] mobilenetv3_native_full_lstm256_seed44
+Reason: Train lstm seed 44 for model template full_lstm256 using the same MARS windows and cached mobilenetv3_native features.
+Command:
+<PYTHON> <RUN_ROOT>\shared_scripts\scripts\train_y.py --manifest_path <RUN_ROOT>\outputs\npz_cache\mars_full_video\sequence_manifest.json --yolo_weights <RUN_ROOT>\MARS_YOLO_Pose_Model\weights\best.pt --yolo_backbone_end_layer 10 --use_feature_cache <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\feature_caches\mobilenetv3_native\train --allow_feature_cache_without_manifest --sequence_model lstm --hidden_dim 256 --positional_encoding learned --epochs 10 --batch 16 --num_workers 0 --lr 5e-05 --weight_decay 0.0003 --patience 15 --dropout 0.5 --num_lstm_layers 1 --pose_fusion_dim 128 --pose_fusion_strategy gated_attention --class_weighting sqrt_inverse --class_weight_clamp 1.5 --train_sampler weighted --disable_threshold_decoder --resume --seed 44 --device cuda:0 --per_class_metrics --confusion_matrix --project <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\neural_training --name mobilenetv3_native_full_lstm256_seed44 --precomputed_visual_dim 960 --amp --amp_dtype auto
+Expected outputs:
+  - <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\neural_training\mobilenetv3_native_full_lstm256_seed44\best_model_macro_f1.pt
+  - <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\neural_training\mobilenetv3_native_full_lstm256_seed44\config.json
+  - <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\neural_training\mobilenetv3_native_full_lstm256_seed44\training_complete.json
+
+[train_neural] mobilenetv3_native_full_attention256_seed42
+Reason: Train attention seed 42 for model template full_lstm256 using the same MARS windows and cached mobilenetv3_native features.
+Command:
+<PYTHON> <RUN_ROOT>\shared_scripts\scripts\train_y.py --manifest_path <RUN_ROOT>\outputs\npz_cache\mars_full_video\sequence_manifest.json --yolo_weights <RUN_ROOT>\MARS_YOLO_Pose_Model\weights\best.pt --yolo_backbone_end_layer 10 --use_feature_cache <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\feature_caches\mobilenetv3_native\train --allow_feature_cache_without_manifest --sequence_model attention --hidden_dim 256 --positional_encoding learned --epochs 10 --batch 16 --num_workers 0 --lr 5e-05 --weight_decay 0.0003 --patience 15 --dropout 0.5 --num_lstm_layers 1 --pose_fusion_dim 128 --pose_fusion_strategy gated_attention --class_weighting sqrt_inverse --class_weight_clamp 1.5 --train_sampler weighted --disable_threshold_decoder --resume --seed 42 --device cuda:0 --per_class_metrics --confusion_matrix --project <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\neural_training --name mobilenetv3_native_full_attention256_seed42 --precomputed_visual_dim 960 --amp --amp_dtype auto
+Expected outputs:
+  - <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\neural_training\mobilenetv3_native_full_attention256_seed42\best_model_macro_f1.pt
+  - <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\neural_training\mobilenetv3_native_full_attention256_seed42\config.json
+  - <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\neural_training\mobilenetv3_native_full_attention256_seed42\training_complete.json
+
+[train_neural] mobilenetv3_native_full_attention256_seed43
+Reason: Train attention seed 43 for model template full_lstm256 using the same MARS windows and cached mobilenetv3_native features.
+Command:
+<PYTHON> <RUN_ROOT>\shared_scripts\scripts\train_y.py --manifest_path <RUN_ROOT>\outputs\npz_cache\mars_full_video\sequence_manifest.json --yolo_weights <RUN_ROOT>\MARS_YOLO_Pose_Model\weights\best.pt --yolo_backbone_end_layer 10 --use_feature_cache <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\feature_caches\mobilenetv3_native\train --allow_feature_cache_without_manifest --sequence_model attention --hidden_dim 256 --positional_encoding learned --epochs 10 --batch 16 --num_workers 0 --lr 5e-05 --weight_decay 0.0003 --patience 15 --dropout 0.5 --num_lstm_layers 1 --pose_fusion_dim 128 --pose_fusion_strategy gated_attention --class_weighting sqrt_inverse --class_weight_clamp 1.5 --train_sampler weighted --disable_threshold_decoder --resume --seed 43 --device cuda:0 --per_class_metrics --confusion_matrix --project <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\neural_training --name mobilenetv3_native_full_attention256_seed43 --precomputed_visual_dim 960 --amp --amp_dtype auto
+Expected outputs:
+  - <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\neural_training\mobilenetv3_native_full_attention256_seed43\best_model_macro_f1.pt
+  - <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\neural_training\mobilenetv3_native_full_attention256_seed43\config.json
+  - <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\neural_training\mobilenetv3_native_full_attention256_seed43\training_complete.json
+
+[train_neural] mobilenetv3_native_full_attention256_seed44
+Reason: Train attention seed 44 for model template full_lstm256 using the same MARS windows and cached mobilenetv3_native features.
+Command:
+<PYTHON> <RUN_ROOT>\shared_scripts\scripts\train_y.py --manifest_path <RUN_ROOT>\outputs\npz_cache\mars_full_video\sequence_manifest.json --yolo_weights <RUN_ROOT>\MARS_YOLO_Pose_Model\weights\best.pt --yolo_backbone_end_layer 10 --use_feature_cache <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\feature_caches\mobilenetv3_native\train --allow_feature_cache_without_manifest --sequence_model attention --hidden_dim 256 --positional_encoding learned --epochs 10 --batch 16 --num_workers 0 --lr 5e-05 --weight_decay 0.0003 --patience 15 --dropout 0.5 --num_lstm_layers 1 --pose_fusion_dim 128 --pose_fusion_strategy gated_attention --class_weighting sqrt_inverse --class_weight_clamp 1.5 --train_sampler weighted --disable_threshold_decoder --resume --seed 44 --device cuda:0 --per_class_metrics --confusion_matrix --project <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\neural_training --name mobilenetv3_native_full_attention256_seed44 --precomputed_visual_dim 960 --amp --amp_dtype auto
+Expected outputs:
+  - <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\neural_training\mobilenetv3_native_full_attention256_seed44\best_model_macro_f1.pt
+  - <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\neural_training\mobilenetv3_native_full_attention256_seed44\config.json
+  - <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\neural_training\mobilenetv3_native_full_attention256_seed44\training_complete.json
+
+[eval_neural] eval_mobilenetv3_native_full_lstm256_seed42
+Reason: Evaluate neural head on the same held-out cached windows and human-GT-only annotation filter.
+Command:
+<PYTHON> <RUN_ROOT>\shared_scripts\scripts\eval_manifest_classifier_y.py --manifest_path <RUN_ROOT>\outputs\npz_cache\mars_heldout_eval\sequence_manifest.json --feature_cache_dir <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\feature_caches\mobilenetv3_native\heldout --mars_root <MARS_DATA_ROOT> --splits test_1 test_2 --model_path <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\neural_training\mobilenetv3_native_full_lstm256_seed42\best_model_macro_f1.pt --model_config <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\neural_training\mobilenetv3_native_full_lstm256_seed42\config.json --yolo_weights <RUN_ROOT>\MARS_YOLO_Pose_Model\weights\best.pt --output_root <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\neural_eval\mobilenetv3_native_full_lstm256_seed42 --batch 16 --num_workers 0 --fps 30.0 --temporal_smoothing_window 5 --bout_min_duration_frames 15 --disable_threshold_decoder --device cuda:0 --amp --amp_dtype auto
+Expected outputs:
+  - <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\neural_eval\mobilenetv3_native_full_lstm256_seed42\aggregate_summary.json
+
+[eval_neural] eval_mobilenetv3_native_full_lstm256_seed43
+Reason: Evaluate neural head on the same held-out cached windows and human-GT-only annotation filter.
+Command:
+<PYTHON> <RUN_ROOT>\shared_scripts\scripts\eval_manifest_classifier_y.py --manifest_path <RUN_ROOT>\outputs\npz_cache\mars_heldout_eval\sequence_manifest.json --feature_cache_dir <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\feature_caches\mobilenetv3_native\heldout --mars_root <MARS_DATA_ROOT> --splits test_1 test_2 --model_path <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\neural_training\mobilenetv3_native_full_lstm256_seed43\best_model_macro_f1.pt --model_config <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\neural_training\mobilenetv3_native_full_lstm256_seed43\config.json --yolo_weights <RUN_ROOT>\MARS_YOLO_Pose_Model\weights\best.pt --output_root <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\neural_eval\mobilenetv3_native_full_lstm256_seed43 --batch 16 --num_workers 0 --fps 30.0 --temporal_smoothing_window 5 --bout_min_duration_frames 15 --disable_threshold_decoder --device cuda:0 --amp --amp_dtype auto
+Expected outputs:
+  - <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\neural_eval\mobilenetv3_native_full_lstm256_seed43\aggregate_summary.json
+
+[eval_neural] eval_mobilenetv3_native_full_lstm256_seed44
+Reason: Evaluate neural head on the same held-out cached windows and human-GT-only annotation filter.
+Command:
+<PYTHON> <RUN_ROOT>\shared_scripts\scripts\eval_manifest_classifier_y.py --manifest_path <RUN_ROOT>\outputs\npz_cache\mars_heldout_eval\sequence_manifest.json --feature_cache_dir <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\feature_caches\mobilenetv3_native\heldout --mars_root <MARS_DATA_ROOT> --splits test_1 test_2 --model_path <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\neural_training\mobilenetv3_native_full_lstm256_seed44\best_model_macro_f1.pt --model_config <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\neural_training\mobilenetv3_native_full_lstm256_seed44\config.json --yolo_weights <RUN_ROOT>\MARS_YOLO_Pose_Model\weights\best.pt --output_root <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\neural_eval\mobilenetv3_native_full_lstm256_seed44 --batch 16 --num_workers 0 --fps 30.0 --temporal_smoothing_window 5 --bout_min_duration_frames 15 --disable_threshold_decoder --device cuda:0 --amp --amp_dtype auto
+Expected outputs:
+  - <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\neural_eval\mobilenetv3_native_full_lstm256_seed44\aggregate_summary.json
+
+[eval_neural] eval_mobilenetv3_native_full_attention256_seed42
+Reason: Evaluate neural head on the same held-out cached windows and human-GT-only annotation filter.
+Command:
+<PYTHON> <RUN_ROOT>\shared_scripts\scripts\eval_manifest_classifier_y.py --manifest_path <RUN_ROOT>\outputs\npz_cache\mars_heldout_eval\sequence_manifest.json --feature_cache_dir <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\feature_caches\mobilenetv3_native\heldout --mars_root <MARS_DATA_ROOT> --splits test_1 test_2 --model_path <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\neural_training\mobilenetv3_native_full_attention256_seed42\best_model_macro_f1.pt --model_config <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\neural_training\mobilenetv3_native_full_attention256_seed42\config.json --yolo_weights <RUN_ROOT>\MARS_YOLO_Pose_Model\weights\best.pt --output_root <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\neural_eval\mobilenetv3_native_full_attention256_seed42 --batch 16 --num_workers 0 --fps 30.0 --temporal_smoothing_window 5 --bout_min_duration_frames 15 --disable_threshold_decoder --device cuda:0 --amp --amp_dtype auto
+Expected outputs:
+  - <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\neural_eval\mobilenetv3_native_full_attention256_seed42\aggregate_summary.json
+
+[eval_neural] eval_mobilenetv3_native_full_attention256_seed43
+Reason: Evaluate neural head on the same held-out cached windows and human-GT-only annotation filter.
+Command:
+<PYTHON> <RUN_ROOT>\shared_scripts\scripts\eval_manifest_classifier_y.py --manifest_path <RUN_ROOT>\outputs\npz_cache\mars_heldout_eval\sequence_manifest.json --feature_cache_dir <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\feature_caches\mobilenetv3_native\heldout --mars_root <MARS_DATA_ROOT> --splits test_1 test_2 --model_path <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\neural_training\mobilenetv3_native_full_attention256_seed43\best_model_macro_f1.pt --model_config <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\neural_training\mobilenetv3_native_full_attention256_seed43\config.json --yolo_weights <RUN_ROOT>\MARS_YOLO_Pose_Model\weights\best.pt --output_root <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\neural_eval\mobilenetv3_native_full_attention256_seed43 --batch 16 --num_workers 0 --fps 30.0 --temporal_smoothing_window 5 --bout_min_duration_frames 15 --disable_threshold_decoder --device cuda:0 --amp --amp_dtype auto
+Expected outputs:
+  - <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\neural_eval\mobilenetv3_native_full_attention256_seed43\aggregate_summary.json
+
+[eval_neural] eval_mobilenetv3_native_full_attention256_seed44
+Reason: Evaluate neural head on the same held-out cached windows and human-GT-only annotation filter.
+Command:
+<PYTHON> <RUN_ROOT>\shared_scripts\scripts\eval_manifest_classifier_y.py --manifest_path <RUN_ROOT>\outputs\npz_cache\mars_heldout_eval\sequence_manifest.json --feature_cache_dir <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\feature_caches\mobilenetv3_native\heldout --mars_root <MARS_DATA_ROOT> --splits test_1 test_2 --model_path <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\neural_training\mobilenetv3_native_full_attention256_seed44\best_model_macro_f1.pt --model_config <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\neural_training\mobilenetv3_native_full_attention256_seed44\config.json --yolo_weights <RUN_ROOT>\MARS_YOLO_Pose_Model\weights\best.pt --output_root <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\neural_eval\mobilenetv3_native_full_attention256_seed44 --batch 16 --num_workers 0 --fps 30.0 --temporal_smoothing_window 5 --bout_min_duration_frames 15 --disable_threshold_decoder --device cuda:0 --amp --amp_dtype auto
+Expected outputs:
+  - <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\neural_eval\mobilenetv3_native_full_attention256_seed44\aggregate_summary.json
+
+[summarize] summarize_ground_truth_evaluations
+Reason: Collect all RF/XGBoost/neural-head ground-truth evaluation metrics into one suite-level MARS summary.
+Command:
+<PYTHON> <RUN_ROOT>\summarize_controlled_comparison_results.py --suite_root <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone --classical_root <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\classical --neural_names mobilenetv3_native_full_lstm256_seed42 mobilenetv3_native_full_lstm256_seed43 mobilenetv3_native_full_lstm256_seed44 mobilenetv3_native_full_attention256_seed42 mobilenetv3_native_full_attention256_seed43 mobilenetv3_native_full_attention256_seed44
+Expected outputs:
+  - <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\summaries\controlled_metrics_summary.csv
+  - <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\summaries\controlled_metrics_summary_smoothed_only.csv
+  - <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone\summaries\controlled_seed_summary_smoothed_only.csv
+
+[render_figures] render_mobilenetv3_portability_figures
+Reason: Render manuscript-facing MobileNetV3 portability figures and tables from the just-generated MobileNetV3 evaluation outputs.
+Command:
+<PYTHON> <MANUSCRIPT_PACKAGE_ROOT>\scripts_by_experiment\00_figure_table_rendering\production_analysis\plot_mobilenet_portability.py --suite_root <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone --yolo_table_dir <MANUSCRIPT_PACKAGE_ROOT>\tables\production\yolo_sppf_main --figure_dir <MANUSCRIPT_PACKAGE_ROOT>\figures_reproduced\production\mobilenet_portability --table_dir <MANUSCRIPT_PACKAGE_ROOT>\tables_reproduced\production\mobilenet_portability
+Expected outputs:
+  - <MANUSCRIPT_PACKAGE_ROOT>\figures_reproduced\production\mobilenet_portability
+  - <MANUSCRIPT_PACKAGE_ROOT>\tables_reproduced\production\mobilenet_portability
+
+[render_figures] render_mobilenetv3_ethogram_detail
+Reason: Render MobileNetV3-vs-YOLO ethogram and bout-detail figures from reproduced evaluation outputs.
+Command:
+<PYTHON> <MANUSCRIPT_PACKAGE_ROOT>\scripts_by_experiment\00_figure_table_rendering\production_analysis\plot_mobilenet_ethogram_bout_detail.py --suite_root <RUN_ROOT>\outputs\controlled_comparison_runs\release_mobilenetv3_backbone --figure_dir <MANUSCRIPT_PACKAGE_ROOT>\figures_reproduced\production\mobilenet_portability --table_dir <MANUSCRIPT_PACKAGE_ROOT>\tables_reproduced\production\mobilenet_portability
+Expected outputs:
+  - <MANUSCRIPT_PACKAGE_ROOT>\figures_reproduced\production\mobilenet_portability
+  - <MANUSCRIPT_PACKAGE_ROOT>\tables_reproduced\production\mobilenet_portability
+
+
+
