@@ -1,0 +1,8 @@
+@media screen and (max-width: 768px) {
+  .rst-content,
+  .rst-content .section {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+}
+

@@ -1,5 +1,8 @@
 ﻿# BehaviorScope-X
 
+[![Open the BehaviorScope-X Documentation](https://img.shields.io/badge/Documentation-Open%20the%20Docs-00bfa5?style=for-the-badge&logo=materialformkdocs&logoColor=white)](https://farhanaugustine.github.io/BehaviorScope-X/)
+[![Read the BehaviorScope-X Preprint](https://img.shields.io/badge/bioRxiv-Read%20the%20Preprint-c94f44?style=for-the-badge&logoColor=white)](https://www.biorxiv.org/content/10.64898/2026.07.02.735695v1)
+
 BehaviorScope-X is a desktop application for building animal behavior classifiers from video. It combines pose estimation, cached visual descriptors, and temporal behavior models so researchers can annotate videos, train classifiers, and inspect behavior predictions from a single validated GUI workflow surface.
 
 The application is organized as a pose-model-flexible system: users choose a supported pose workflow, build compatible sequence and feature caches, and train the same downstream temporal behavior classifier. The validated workflow families are YOLO-pose, MobileNetV3, and DeepLabCut-HRNet.

@@ -1,0 +1,42 @@
+/* Readability overrides layered onto the generated Archify artifact. */
+svg text[data-node-label] {
+  font-size: 11.5px !important;
+}
+
+svg text[data-detail="context"] {
+  font-size: 8.5px !important;
+}
+
+svg text[data-detail="fine"] {
+  font-size: 8px !important;
+}
+
+svg text.t-dim[font-size="10"] {
+  font-size: 12px !important;
+}
+
+svg text[font-size="8"][font-weight="600"] {
+  font-size: 10px !important;
+}
+
+svg text.t-muted[font-size="7.5"] {
+  font-size: 9px !important;
+}
+
+.card h3 {
+  font-size: 1.1rem !important;
+}
+
+.card ul {
+  font-size: 0.95rem !important;
+  line-height: 1.6;
+}
+
+.toolbar button {
+  font-size: 0.9rem !important;
+}
+
+.diagram-nav button,
+.diagram-nav-percent {
+  font-size: 0.72rem !important;
+}

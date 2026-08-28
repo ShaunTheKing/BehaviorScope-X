@@ -1,0 +1,25 @@
+/* Separate legend entries into clearly readable horizontal blocks. */
+svg g[data-legend] > g:nth-of-type(2) {
+  transform: translateX(26px);
+}
+
+svg g[data-legend] > g:nth-of-type(3) {
+  transform: translateX(52px);
+}
+
+svg g[data-legend] > g:nth-of-type(4) {
+  transform: translateX(78px);
+}
+
+svg g[data-legend] > g:nth-of-type(5) {
+  transform: translateX(104px);
+}
+
+svg g[data-legend] > g:nth-of-type(6) {
+  transform: translateX(130px);
+}
+
+svg g[data-legend] > g:nth-of-type(7) {
+  transform: translateX(156px);
+}
+

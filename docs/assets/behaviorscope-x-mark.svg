@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="BehaviorScope-X mark">
+  <rect width="64" height="64" rx="12" fill="#07111f"/>
+  <path d="M14 19h12l6 10 6-10h12L39 32l11 13H38l-6-10-6 10H14l11-13z" fill="#2dd4bf"/>
+  <circle cx="14" cy="14" r="3" fill="#f7fbff"/>
+  <circle cx="50" cy="50" r="3" fill="#f7fbff"/>
+  <path d="M16 15.5 24 21M40 43l8 5.5" stroke="#f7fbff" stroke-width="2" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "BehaviorScope-X Research Workflow",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "output": "docs/workflow-map.html",
+    "viewBox": [760, 520]
+  },
+  "lanes": [
+    { "id": "curate", "label": "Curate Data" },
+    { "id": "model", "label": "Build + Test Model" },
+    { "id": "results", "label": "Research Outputs" }
+  ],
+  "phases": [
+    { "id": "prepare", "label": "Prepare", "fromCol": 0, "toCol": 2 },
+    { "id": "learn", "label": "Learn", "fromCol": 3, "toCol": 4, "variant": "emphasis" },
+    { "id": "interpret", "label": "Interpret", "fromCol": 5, "toCol": 5, "variant": "dashed" }
+  ],
+  "mainPath": ["videos", "curate_dataset", "model_training", "outputs"],
+  "nodes": [
+    {
+      "id": "videos",
+      "lane": "curate",
+      "col": 0,
+      "type": "external",
+      "label": "Videos",
+      "sublabel": "recordings",
+      "tag": "import",
+      "width": 92
+    },
+    {
+      "id": "curate_dataset",
+      "lane": "curate",
+      "col": 2,
+      "type": "frontend",
+      "label": "Label + Data Splits",
+      "sublabel": "label, QC, split",
+      "tag": "Qt GUI + manifest",
+      "width": 156
+    },
+    {
+      "id": "model_training",
+      "lane": "model",
+      "col": 4,
+      "type": "backend",
+      "label": "Pose + Model Training",
+      "sublabel": "pose cache, train + test",
+      "tag": "3 supported pose paths",
+      "width": 170
+    },
+    {
+      "id": "outputs",
+      "lane": "results",
+      "col": 5,
+      "type": "database",
+      "label": "Review Outputs",
+      "sublabel": "results + plots",
+      "tag": "CSV / MP4 / bouts",
+      "width": 104
+    }
+  ],
+  "edges": [
+    { "id": "import_videos", "from": "videos", "to": "curate_dataset", "variant": "default", "role": "main" },
+    { "id": "train_model", "from": "curate_dataset", "to": "model_training", "variant": "emphasis", "role": "main" },
+    {
+      "id": "review_results",
+      "from": "model_training",
+      "to": "outputs",
+      "variant": "emphasis",
+      "role": "main",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "route": "drop"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Curate once",
+      "items": [
+        "Annotate behavior bouts and record review state in the shared GUI",
+        "Keep train, validation, held-out test, and excluded videos explicit"
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "Choose a pose path",
+      "items": [
+        "YOLO-pose, MobileNetV3, and DeepLabCut-HRNet produce compatible caches",
+        "Each path feeds the shared temporal behavior classifier"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Review the evidence",
+      "items": [
+        "Inspect predictions, held-out metrics, and optional annotated videos",
+        "Generate ethograms and bout summaries with provenance"
+      ]
+    }
+  ]
+}

@@ -1,10 +1,25 @@
-cff-version: 1.1.0
-message: "If you use this software, please cite it as below."
+cff-version: 1.2.0
+message: "If you use this software, please cite the preprint listed in preferred-citation."
+title: "BehaviorScope-X"
+type: software
 authors:
-- family-names: Augustine
-  given-names: Farhan
-orcid: https://orcid.org/0000-0002-8348-6039
-title:BehaviorScope-X: V1.0.0
-version: V1.0.0
-date-released: 2026-06-30
-                            
+  - family-names: Augustine
+    given-names: Farhan
+    orcid: "https://orcid.org/0000-0002-8348-6039"
+repository-code: "https://github.com/farhanaugustine/BehaviorScope-X"
+url: "https://farhanaugustine.github.io/BehaviorScope-X/"
+license: AGPL-3.0-or-later
+
+preferred-citation:
+  type: article
+  title: "BehaviorScope-X: reusing pose-trained visual representations for full-video ethology"
+  authors:
+    - family-names: Augustine
+      given-names: Farhan
+    - family-names: Murray
+      given-names: Virginia
+  journal: "bioRxiv"
+  date-published: "2026-07-07"
+  year: 2026
+  doi: "10.64898/2026.07.02.735695"
+  url: "https://www.biorxiv.org/content/10.64898/2026.07.02.735695v1"

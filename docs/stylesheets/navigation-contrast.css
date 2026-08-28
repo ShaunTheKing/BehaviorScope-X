@@ -1,0 +1,21 @@
+/* Keep Material navigation readable against the custom light and dark headers. */
+.md-header,
+.md-tabs {
+  color: var(--bsx-ink);
+  background: color-mix(in srgb, var(--bsx-paper) 96%, transparent) !important;
+}
+
+.md-header__title,
+.md-header__topic,
+.md-header__button,
+.md-header .md-source,
+.md-tabs__link {
+  color: var(--bsx-ink);
+}
+
+.md-header__button:hover,
+.md-header .md-source:hover,
+.md-tabs__link:hover,
+.md-tabs__link--active {
+  color: var(--bsx-accent);
+}

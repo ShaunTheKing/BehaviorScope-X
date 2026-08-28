@@ -1,0 +1,68 @@
+/* Final landing-page layout pass after desktop and narrow viewport rendering. */
+.bsx-hero {
+  overflow-x: clip;
+}
+
+.bsx-hero__copy,
+.bsx-hero__visual {
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+.md-typeset .bsx-hero__title {
+  font-size: clamp(3.35rem, 6.5vw, 5.5rem);
+  white-space: nowrap;
+}
+
+.bsx-hero__visual,
+.workflow-map-scroll {
+  width: 100%;
+  max-width: 100%;
+}
+
+/* Give the compact brand mark more presence without increasing header height. */
+.md-header__button.md-logo img,
+.md-header__button.md-logo svg {
+  width: 1.65rem;
+  height: 1.65rem;
+}
+
+/* Keep every hero action stable across Material's light and dark palettes. */
+.md-typeset .bsx-hero__actions .md-button--primary {
+  color: var(--bsx-paper) !important;
+  background: var(--bsx-ink) !important;
+  border-color: var(--bsx-ink) !important;
+}
+
+.md-typeset .bsx-hero__actions .md-button:not(.md-button--primary):not(.bsx-preprint-button) {
+  color: var(--bsx-ink) !important;
+  background: transparent !important;
+  border-color: var(--bsx-ink) !important;
+}
+
+/* Distinguish the paper link while preserving Install as the primary action. */
+.md-typeset .bsx-hero__actions .bsx-preprint-button {
+  color: var(--bsx-accent) !important;
+  background: color-mix(in srgb, var(--bsx-accent) 12%, transparent) !important;
+  border-color: var(--bsx-accent) !important;
+}
+
+.md-typeset .bsx-hero__actions .md-button:hover {
+  color: #07111f !important;
+  background: var(--bsx-accent-bright) !important;
+  border-color: var(--bsx-accent-bright) !important;
+}
+
+@media screen and (max-width: 600px) {
+  .md-typeset .bsx-hero__title {
+    font-size: clamp(2.7rem, 11.5vw, 3.5rem);
+  }
+
+  .bsx-hero__visual {
+    box-shadow: 10px 12px 0 color-mix(in srgb, var(--bsx-accent) 8%, transparent);
+  }
+
+  .workflow-map-scroll {
+    box-sizing: border-box;
+  }
+}
